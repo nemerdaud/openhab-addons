@@ -24,9 +24,9 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.lgthinq.internal.errors.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.openhab.binding.lgthinq.internal.errors.*;
 
 /**
  * The {@link TokenManager} Principal facade to manage all token handles
