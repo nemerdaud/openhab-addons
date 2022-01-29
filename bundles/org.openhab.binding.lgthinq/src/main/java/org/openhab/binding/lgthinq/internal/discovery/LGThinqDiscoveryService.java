@@ -12,8 +12,8 @@
  */
 package org.openhab.binding.lgthinq.internal.discovery;
 
-import static org.openhab.binding.lgthinq.internal.LGAirConditionerHandler.THING_TYPE_AIR_CONDITIONER;
 import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
+import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.THING_TYPE_AIR_CONDITIONER;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,12 +21,11 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.lgthinq.internal.LGAirConditionerHandler;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
-import org.openhab.binding.lgthinq.internal.handler.LGBridgeHandler;
-import org.openhab.binding.lgthinq.lgapi.LGApiClientService;
-import org.openhab.binding.lgthinq.lgapi.LGApiV1ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgapi.LGApiV2ClientServiceImpl;
+import org.openhab.binding.lgthinq.internal.handler.LGThinqBridgeHandler;
+import org.openhab.binding.lgthinq.lgapi.LGThinqApiClientService;
+import org.openhab.binding.lgthinq.lgapi.LGThinqApiV1ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgapi.LGThinqApiV2ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgapi.model.LGDevice;
 import org.openhab.core.config.discovery.AbstractDiscoveryService;
 import org.openhab.core.config.discovery.DiscoveryResult;
@@ -49,14 +48,14 @@ import org.slf4j.LoggerFactory;
 public class LGThinqDiscoveryService extends AbstractDiscoveryService implements DiscoveryService, ThingHandlerService {
 
     private final Logger logger = LoggerFactory.getLogger(LGThinqDiscoveryService.class);
-    private @Nullable LGBridgeHandler bridgeHandler;
+    private @Nullable LGThinqBridgeHandler bridgeHandler;
     private @Nullable ThingUID bridgeHandlerUID;
-    private final LGApiClientService lgApiV1ClientService, lgApiV2ClientService;
+    private final LGThinqApiClientService lgApiV1ClientService, lgApiV2ClientService;
 
     public LGThinqDiscoveryService() {
-        super(LGAirConditionerHandler.SUPPORTED_THING_TYPES, SEARCH_TIME);
-        lgApiV1ClientService = LGApiV1ClientServiceImpl.getInstance();
-        lgApiV2ClientService = LGApiV2ClientServiceImpl.getInstance();
+        super(SUPPORTED_THING_TYPES, SEARCH_TIME);
+        lgApiV1ClientService = LGThinqApiV1ClientServiceImpl.getInstance();
+        lgApiV2ClientService = LGThinqApiV2ClientServiceImpl.getInstance();
     }
 
     @Override
@@ -65,8 +64,8 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
 
     @Override
     public void setThingHandler(@Nullable ThingHandler handler) {
-        if (handler instanceof LGBridgeHandler) {
-            bridgeHandler = (LGBridgeHandler) handler;
+        if (handler instanceof LGThinqBridgeHandler) {
+            bridgeHandler = (LGThinqBridgeHandler) handler;
             bridgeHandlerUID = handler.getThing().getUID();
         }
     }

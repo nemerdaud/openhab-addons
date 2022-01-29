@@ -12,19 +12,19 @@
  */
 package org.openhab.binding.lgthinq.internal.api;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
-
 /**
- * The {@link Gateway} hold informations about the LG Gateway
+ * The {@link LGThinqGateway} hold informations about the LG Gateway
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class Gateway implements Serializable {
+public class LGThinqGateway implements Serializable {
     private String empBaseUri = "";
     private String loginBaseUri = "";
     private String apiRootV1 = "";
@@ -35,10 +35,10 @@ public class Gateway implements Serializable {
     private String username = "";
     private String password = "";
 
-    public Gateway() {
+    public LGThinqGateway() {
     }
 
-    public Gateway(Map<String, String> params, String language, String country) {
+    public LGThinqGateway(Map<String, String> params, String language, String country) {
         this.apiRootV2 = Objects.requireNonNullElse(params.get("thinq2Uri"), "");
         this.apiRootV1 = Objects.requireNonNullElse(params.get("thinq1Uri"), "");
         this.loginBaseUri = Objects.requireNonNullElse(params.get("empSpxUri"), "");

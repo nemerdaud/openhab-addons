@@ -134,7 +134,7 @@ public class OauthLgEmpAuthenticator {
                 new AbstractMap.SimpleEntry<String, String>("x-thinq-app-ver", APP_VER));
     }
 
-    private Map<String, String> getLoginHeader(Gateway gw) {
+    private Map<String, String> getLoginHeader(LGThinqGateway gw) {
         Map<String, String> headers = new HashMap<>();
         headers.put("Connection", "keep-alive");
         headers.put("X-Device-Language-Type", "IETF");
@@ -154,7 +154,8 @@ public class OauthLgEmpAuthenticator {
         return headers;
     }
 
-    public Gateway discoverGatewayConfiguration(String gwUrl, String language, String country) throws IOException {
+    public LGThinqGateway discoverGatewayConfiguration(String gwUrl, String language, String country)
+            throws IOException {
         URL u = new URL(gwUrl);
         HttpURLConnection con = (HttpURLConnection) u.openConnection();
         Map<String, String> header = getGatewayRestHeader(language, country);
@@ -183,14 +184,14 @@ public class OauthLgEmpAuthenticator {
                 Map<String, String> result = Objects.requireNonNull((Map<String, String>) obj.get("result"),
                         "the json returned doesn't have 'result' structure.");
 
-                return new Gateway(result, language, country);
+                return new LGThinqGateway(result, language, country);
             }
         } finally {
             con.disconnect();
         }
     }
 
-    public PreLoginResult preLoginUser(Gateway gw, String username, String password) throws IOException {
+    public PreLoginResult preLoginUser(LGThinqGateway gw, String username, String password) throws IOException {
         String encPwd = RestUtils.getPreLoginEncPwd(password);
         Map<String, String> headers = getLoginHeader(gw);
         // 1) Doing preLogin -> getting the password key
@@ -216,7 +217,7 @@ public class OauthLgEmpAuthenticator {
                         "Unexpected login json result. Node 'signature' not found"));
     }
 
-    public LoginAccountResult loginUser(Gateway gw, PreLoginResult preLoginResult) throws IOException {
+    public LoginAccountResult loginUser(LGThinqGateway gw, PreLoginResult preLoginResult) throws IOException {
         // 2 - Login with username and hashed password
         Map<String, String> headers = getLoginHeader(gw);
         headers.put("X-Signature", preLoginResult.getSignature());
@@ -255,7 +256,7 @@ public class OauthLgEmpAuthenticator {
         return sdf.format(new Date());
     }
 
-    public TokenResult getToken(Gateway gw, LoginAccountResult accountResult) throws IOException {
+    public TokenResult getToken(LGThinqGateway gw, LoginAccountResult accountResult) throws IOException {
         // 3 - get secret key from emp signature
         String empSearchKeyUrl = gw.getLoginBaseUri() + OAUTH_SEARCH_KEY_PATH;
 

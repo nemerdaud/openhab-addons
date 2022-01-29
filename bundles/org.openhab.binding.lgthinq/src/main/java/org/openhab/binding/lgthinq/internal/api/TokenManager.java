@@ -85,7 +85,7 @@ public class TokenManager {
     public void oauthFirstRegistration(String bridgeName, String language, String country, String username,
             String password)
             throws LGGatewayException, PreLoginException, AccountLoginException, TokenException, IOException {
-        Gateway gw;
+        LGThinqGateway gw;
         OauthLgEmpAuthenticator.PreLoginResult preLogin;
         OauthLgEmpAuthenticator.LoginAccountResult accountLogin;
         TokenResult token;
