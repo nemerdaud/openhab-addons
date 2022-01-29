@@ -12,21 +12,7 @@
  */
 package org.openhab.binding.lgthinq.handler;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.any;
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
-
-import java.io.File;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import javax.ws.rs.core.UriBuilder;
-
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -44,7 +30,19 @@ import org.openhab.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import javax.ws.rs.core.UriBuilder;
+import java.io.File;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.*;
+import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
 
 /**
  * The {@link LGThinqBridgeTests}

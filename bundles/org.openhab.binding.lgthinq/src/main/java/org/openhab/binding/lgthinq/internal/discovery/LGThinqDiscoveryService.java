@@ -12,13 +12,6 @@
  */
 package org.openhab.binding.lgthinq.internal.discovery;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.THING_TYPE_AIR_CONDITIONER;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
@@ -38,6 +31,12 @@ import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
 
 /**
  * The {@link LGThinqDiscoveryService}
