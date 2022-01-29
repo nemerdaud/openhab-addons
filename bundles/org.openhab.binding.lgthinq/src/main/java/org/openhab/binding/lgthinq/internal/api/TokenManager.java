@@ -12,8 +12,11 @@
  */
 package org.openhab.binding.lgthinq.internal.api;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.GATEWAY_URL;
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.THINQ_CONNECTION_DATA_FILE;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.lgthinq.internal.errors.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,12 +24,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.lgthinq.internal.errors.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.GATEWAY_URL;
+import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.THINQ_CONNECTION_DATA_FILE;
 
 /**
  * The {@link TokenManager} Principal facade to manage all token handles
@@ -93,8 +92,8 @@ public class TokenManager {
         try {
             gw = oAuthAuthenticator.discoverGatewayConfiguration(GATEWAY_URL, language, country);
         } catch (Exception ex) {
-            throw new LGThinqGatewayException("Error trying to discovery the LG Gateway Setting for the region informed",
-                    ex);
+            throw new LGThinqGatewayException(
+                    "Error trying to discovery the LG Gateway Setting for the region informed", ex);
         }
         try {
             preLogin = oAuthAuthenticator.preLoginUser(gw, username, password);
