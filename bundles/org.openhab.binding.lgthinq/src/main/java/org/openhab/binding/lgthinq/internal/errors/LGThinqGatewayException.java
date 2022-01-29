@@ -15,19 +15,13 @@ package org.openhab.binding.lgthinq.internal.errors;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * The {@link LGDeviceV1OfflineException} - Normally caught by V1 API in monitoring device.
- * When the device is OFFLINE (away from internet), the API doesn't return data information and this
- * exception is thrown to indicate that this device is offline for monitoring
+ * The {@link LGThinqGatewayException}
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class LGDeviceV1OfflineException extends LGThinqException {
-    public LGDeviceV1OfflineException(String message, Throwable cause) {
+public class LGThinqGatewayException extends LGThinqException {
+    public LGThinqGatewayException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public LGDeviceV1OfflineException(String message) {
-        super(message);
     }
 }

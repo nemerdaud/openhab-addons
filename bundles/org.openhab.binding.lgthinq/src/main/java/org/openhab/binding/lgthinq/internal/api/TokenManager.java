@@ -84,7 +84,7 @@ public class TokenManager {
 
     public void oauthFirstRegistration(String bridgeName, String language, String country, String username,
             String password)
-            throws LGGatewayException, PreLoginException, AccountLoginException, TokenException, IOException {
+            throws LGThinqGatewayException, PreLoginException, AccountLoginException, TokenException, IOException {
         LGThinqGateway gw;
         OauthLgEmpAuthenticator.PreLoginResult preLogin;
         OauthLgEmpAuthenticator.LoginAccountResult accountLogin;
@@ -93,7 +93,7 @@ public class TokenManager {
         try {
             gw = oAuthAuthenticator.discoverGatewayConfiguration(GATEWAY_URL, language, country);
         } catch (Exception ex) {
-            throw new LGGatewayException("Error trying to discovery the LG Gateway Setting for the region informed",
+            throw new LGThinqGatewayException("Error trying to discovery the LG Gateway Setting for the region informed",
                     ex);
         }
         try {

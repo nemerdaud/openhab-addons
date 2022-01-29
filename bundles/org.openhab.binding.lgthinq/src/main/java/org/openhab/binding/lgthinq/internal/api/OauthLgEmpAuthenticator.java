@@ -12,8 +12,14 @@
  */
 package org.openhab.binding.lgthinq.internal.api;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.UriBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,15 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import javax.ws.rs.core.UriBuilder;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
 
 /**
  * The {@link OauthLgEmpAuthenticator} main service to authenticate against LG Emp Server via Oauth
@@ -230,7 +228,6 @@ public class OauthLgEmpAuthenticator {
         RestResult resp = RestUtils.postCall(loginUrl, headers, formData);
         if (resp.getStatusCode() != 200) {
             logger.error("Error login into account. The reason is:{}", resp.getJsonResponse());
-            // TODO - fazer o correto tratamento de erro aqui. Talvez subir uma exceção de validação custom
             throw new IllegalStateException(String.format("Error loggin into acccount:%s", resp.getJsonResponse()));
         }
         Map<String, Object> loginResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
@@ -321,7 +318,6 @@ public class OauthLgEmpAuthenticator {
         if (resp.getStatusCode() != 200) {
             logger.error("LG API returned error when trying to get user account information. The reason is:{}",
                     resp.getJsonResponse());
-            // TODO - fazer o correto tratamento de erro aqui. Talvez subir uma exceção de validação custom
             throw new IllegalStateException(
                     String.format("LG API returned error when trying to get user account information. The reason is:%s",
                             resp.getJsonResponse()));
@@ -363,7 +359,6 @@ public class OauthLgEmpAuthenticator {
         Map<String, Object> tokenResult;
         if (resp.getStatusCode() != 200) {
             logger.error("Error getting oauth token. The reason is:{}", resp.getJsonResponse());
-            // TODO - fazer o correto tratamento de erro aqui. Talvez subir uma exceção de validação custom
             throw new IllegalStateException(String.format("Error getting oauth token:%s", resp.getJsonResponse()));
         } else {
             tokenResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
@@ -389,7 +384,6 @@ public class OauthLgEmpAuthenticator {
         Map<String, String> tokenResult;
         if (resp.getStatusCode() != 200) {
             logger.error("Error getting oauth token. The reason is:{}", resp.getJsonResponse());
-            // TODO - fazer o correto tratamento de erro aqui. Talvez subir uma exceção de validação custom
             throw new IllegalStateException(String.format("Error getting oauth token:%s", resp.getJsonResponse()));
         } else {
             tokenResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
