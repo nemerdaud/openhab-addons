@@ -12,11 +12,8 @@
  */
 package org.openhab.binding.lgthinq.internal.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.lgthinq.internal.errors.*;
+import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.GATEWAY_URL;
+import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.THINQ_CONNECTION_DATA_FILE;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +21,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.GATEWAY_URL;
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.THINQ_CONNECTION_DATA_FILE;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.lgthinq.internal.errors.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The {@link TokenManager} Principal facade to manage all token handles
