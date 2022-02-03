@@ -232,7 +232,7 @@ public class OauthLgEmpAuthenticator {
     }
 
     private String getCurrentTimestamp() {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT,Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.format(new Date());
     }
