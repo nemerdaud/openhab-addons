@@ -14,11 +14,7 @@ package org.openhab.binding.lgthinq.internal.api;
 
 import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -28,6 +24,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.binding.lgthinq.internal.api.model.GatewayResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,7 +118,7 @@ public class OauthLgEmpAuthenticator {
 
     private Map<String, String> getGatewayRestHeader(String language, String country) {
         return Map.ofEntries(new AbstractMap.SimpleEntry<String, String>("Accept", "application/json"),
-                new AbstractMap.SimpleEntry<String, String>("x-api-key", API_KEY),
+                new AbstractMap.SimpleEntry<String, String>("x-api-key", API_KEY_V2),
                 new AbstractMap.SimpleEntry<String, String>("x-country-code", country),
                 new AbstractMap.SimpleEntry<String, String>("x-client-id", CLIENT_ID),
                 new AbstractMap.SimpleEntry<String, String>("x-language-code", language),
@@ -156,38 +153,22 @@ public class OauthLgEmpAuthenticator {
 
     public LGThinqGateway discoverGatewayConfiguration(String gwUrl, String language, String country)
             throws IOException {
-        URL u = new URL(gwUrl);
-        HttpURLConnection con = (HttpURLConnection) u.openConnection();
         Map<String, String> header = getGatewayRestHeader(language, country);
-        try {
-            con.setRequestMethod("GET");
-            header.forEach((k, v) -> con.setRequestProperty(k, v));
-            int r = con.getResponseCode();
-            if (r != 200) {
-                throw new IllegalStateException("Expected HTTP OK return, but received result core:" + r);
-            } else {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuffer content = new StringBuffer();
-                while ((inputLine = in.readLine()) != null) {
-                    content.append(inputLine);
-                }
-                in.close();
-                Map<String, Object> obj = objectMapper.readValue(content.toString(), new TypeReference<>() {
-                });
-                // get URL to authenticate
-                if (!"0000".equals(obj.get("resultCode"))) {
-                    throw new IllegalStateException(
-                            String.format("Result from LGThinq Gateway from Authentication URL was unexpected: %s",
-                                    obj.get("resultCode")));
-                }
-                Map<String, String> result = Objects.requireNonNull((Map<String, String>) obj.get("result"),
-                        "the json returned doesn't have 'result' structure.");
+        RestResult result;
+        result = RestUtils.getCall(gwUrl, header, null);
 
-                return new LGThinqGateway(result, language, country);
+        if (result.getStatusCode() != 200) {
+            throw new IllegalStateException(
+                    "Expected HTTP OK return, but received result core:" + result.getJsonResponse());
+        } else {
+            GatewayResult gwResult = LGThinqCanonicalModelUtil.getGatewayResult(result.getJsonResponse());
+            if (!"0000".equals(gwResult.getReturnedCode())) {
+                throw new IllegalStateException(String.format(
+                        "Result from LGThinq Gateway from Authentication URL was unexpected: %s with message:%s",
+                        gwResult.getReturnedCode(), gwResult.getReturnedMessage()));
             }
-        } finally {
-            con.disconnect();
+
+            return new LGThinqGateway(gwResult, language, country);
         }
     }
 
@@ -204,6 +185,7 @@ public class OauthLgEmpAuthenticator {
             logger.error("Error preLogin into account. The reason is:{}", resp.getJsonResponse());
             throw new IllegalStateException(String.format("Error loggin into acccount:%s", resp.getJsonResponse()));
         }
+
         Map<String, String> preLoginResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
         });
         logger.debug("encrypted_pw={}, signature={}, tStamp={}", preLoginResult.get("encrypted_pw"),
@@ -295,7 +277,8 @@ public class OauthLgEmpAuthenticator {
         oauthEmpHeaders.put("Accept-Language", "en-US,en;q=0.9");
         oauthEmpHeaders.put("User-Agent",
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36 Edg/93.0.961.44");
-
+        logger.debug("===> Localized timestamp used: [{}]", timestamp);
+        logger.debug("===> signature created: [{}]", new String(oauthSig));
         resp = RestUtils.postCall(V2_EMP_SESS_URL, oauthEmpHeaders, empData);
         return handleTokenResult(resp);
     }

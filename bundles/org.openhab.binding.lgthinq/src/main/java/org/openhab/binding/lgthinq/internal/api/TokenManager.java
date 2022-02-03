@@ -12,8 +12,7 @@
  */
 package org.openhab.binding.lgthinq.internal.api;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.GATEWAY_URL;
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.THINQ_CONNECTION_DATA_FILE;
+import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,11 +90,12 @@ public class TokenManager {
         TokenResult token;
         UserInfo userInfo;
         try {
-            gw = oAuthAuthenticator.discoverGatewayConfiguration(GATEWAY_URL, language, country);
+            gw = oAuthAuthenticator.discoverGatewayConfiguration(GATEWAY_URL_V2, language, country);
         } catch (Exception ex) {
             throw new LGThinqGatewayException(
                     "Error trying to discovery the LG Gateway Setting for the region informed", ex);
         }
+
         try {
             preLogin = oAuthAuthenticator.preLoginUser(gw, username, password);
         } catch (Exception ex) {

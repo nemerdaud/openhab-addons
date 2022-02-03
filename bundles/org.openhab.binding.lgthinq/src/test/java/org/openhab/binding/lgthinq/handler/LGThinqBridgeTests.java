@@ -35,10 +35,10 @@ import org.openhab.binding.lgthinq.internal.LGThinqConfiguration;
 import org.openhab.binding.lgthinq.internal.api.RestUtils;
 import org.openhab.binding.lgthinq.internal.api.TokenManager;
 import org.openhab.binding.lgthinq.internal.handler.LGThinqBridgeHandler;
-import org.openhab.binding.lgthinq.lgapi.LGThinqApiClientService;
-import org.openhab.binding.lgthinq.lgapi.LGThinqApiV1ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgapi.LGThinqApiV2ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgapi.model.LGDevice;
+import org.openhab.binding.lgthinq.lgservices.LGThinqApiClientService;
+import org.openhab.binding.lgthinq.lgservices.LGThinqApiV1ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgservices.LGThinqApiV2ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ThingUID;
 import org.slf4j.Logger;
@@ -56,10 +56,10 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 class LGThinqBridgeTests {
     private static final Logger logger = LoggerFactory.getLogger(LGThinqBridgeTests.class);
     private final String fakeBridgeName = "fakeBridgeId";
-    private final String fakeLanguage = "pt-BR";
-    private final String fakeCountry = "BR";
-    private final String fakeUserName = "someone@some.url";
-    private final String fakePassword = "somepassword";
+    private String fakeLanguage = "pt-BR";
+    private String fakeCountry = "BR";
+    private String fakeUserName = "someone@some.url";
+    private String fakePassword = "somepassword";
     private final String gtwResponse = JsonUtils.loadJson("gtw-response-1.json");
     private final String preLoginResponse = JsonUtils.loadJson("prelogin-response-1.json");
     private final String userIdType = "LGE";
@@ -84,7 +84,7 @@ class LGThinqBridgeTests {
 
     @Test
     public void testDiscoveryThings() {
-        stubFor(get(GATEWAY_SERVICE_PATH).willReturn(ok(gtwResponse)));
+        stubFor(get(GATEWAY_SERVICE_PATH_V2).willReturn(ok(gtwResponse)));
         String preLoginPwd = RestUtils.getPreLoginEncPwd(fakePassword);
         stubFor(post("/spx" + PRE_LOGIN_PATH).withRequestBody(containing("user_auth2=" + preLoginPwd))
                 .willReturn(ok(preLoginResponse)));
@@ -107,7 +107,7 @@ class LGThinqBridgeTests {
                 .withRequestBody(containing("username=" + URLEncoder.encode(fakeUserName, StandardCharsets.UTF_8)))
                 .withHeader("lgemp-x-session-key", equalTo(loginSessionId)).willReturn(ok(sessionTokenReturned)));
         // faking some constants
-        LGThinqBindingConstants.GATEWAY_URL = "http://localhost:8880" + GATEWAY_SERVICE_PATH;
+        LGThinqBindingConstants.GATEWAY_URL_V2 = "http://localhost:8880" + GATEWAY_SERVICE_PATH_V2;
         LGThinqBindingConstants.V2_EMP_SESS_URL = "http://localhost:8880/emp/oauth2/token/empsession";
         Bridge fakeThing = mock(Bridge.class);
         ThingUID fakeThingUid = mock(ThingUID.class);
