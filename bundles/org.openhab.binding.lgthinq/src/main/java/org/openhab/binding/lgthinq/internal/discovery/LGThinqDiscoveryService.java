@@ -14,6 +14,7 @@ package org.openhab.binding.lgthinq.internal.discovery;
 
 import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -95,16 +96,22 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
         }
     }
 
-    public void addLgDeviceDiscovery(String bridgeName, LGDevice device) {
+    public void addLgDeviceDiscovery(LGDevice device) {
         String modelId = device.getModelName();
         ThingUID thingUID;
         ThingTypeUID thingTypeUID;
         try {
             thingUID = getThingUID(device);
             thingTypeUID = getThingTypeUID(device);
+            // load capability to cache and troubleshooting
+            lgApiV2ClientService.loadDeviceCapability(device.getDeviceId(), device.getModelJsonUri(), false);
         } catch (LGThinqException e) {
-            logger.debug("Discovered unsupported LG device of type '{}' and model '{}' with id {}",
-                    device.getDeviceType(), modelId, device.getDeviceId());
+
+            logger.debug("Discovered unsupported LG device of type '{}'({}) and model '{}' with id {}",
+                    device.getDeviceType(), device.getDeviceTypeId(), modelId, device.getDeviceId());
+            return;
+        } catch (IOException e) {
+            logger.error("Error getting device capabilities", e);
             return;
         }
 
@@ -116,9 +123,9 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
         try {
             // registry the capabilities of the thing
             if (PLATFORM_TYPE_V1.equals(device.getPlatformType())) {
-                lgApiV1ClientService.getDeviceCapability(bridgeName, device.getModelJsonUri(), true);
+                lgApiV1ClientService.getACCapability(device.getDeviceId(), device.getModelJsonUri(), true);
             } else {
-                lgApiV2ClientService.getDeviceCapability(bridgeName, device.getModelJsonUri(), true);
+                lgApiV2ClientService.getACCapability(device.getDeviceId(), device.getModelJsonUri(), true);
             }
 
         } catch (Exception ex) {
