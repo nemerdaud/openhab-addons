@@ -101,10 +101,10 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
         ThingUID thingUID;
         ThingTypeUID thingTypeUID;
         try {
-            thingUID = getThingUID(device);
-            thingTypeUID = getThingTypeUID(device);
             // load capability to cache and troubleshooting
             lgApiV2ClientService.loadDeviceCapability(device.getDeviceId(), device.getModelJsonUri(), false);
+            thingUID = getThingUID(device);
+            thingTypeUID = getThingTypeUID(device);
         } catch (LGThinqException e) {
 
             logger.debug("Discovered unsupported LG device of type '{}'({}) and model '{}' with id {}",
