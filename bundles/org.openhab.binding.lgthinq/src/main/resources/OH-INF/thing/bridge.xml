@@ -18,6 +18,7 @@
 					<option value="pt-BR">Brazilian Portuguese</option>
 					<option value="pt-PT">Portugal Portuguese</option>
 					<option value="de-DE">German (Standard)</option>
+					<option value="da-DK">Danish</option>
 				</options>
 			</parameter>
 			<parameter name="country" type="text" required="true">
@@ -29,6 +30,7 @@
 					<option value="BR">Brazilian Portuguese</option>
 					<option value="PT">Portugal Portuguese</option>
 					<option value="DE">Germany</option>
+					<option value="DK">Denmark</option>
 				</options>
 			</parameter>
 			<parameter name="username" type="text">

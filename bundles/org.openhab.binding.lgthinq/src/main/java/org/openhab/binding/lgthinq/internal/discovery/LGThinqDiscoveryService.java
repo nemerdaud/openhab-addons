@@ -123,9 +123,9 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
         try {
             // registry the capabilities of the thing
             if (PLATFORM_TYPE_V1.equals(device.getPlatformType())) {
-                lgApiV1ClientService.getACCapability(device.getDeviceId(), device.getModelJsonUri(), true);
+                lgApiV1ClientService.getCapability(device.getDeviceId(), device.getModelJsonUri(), true);
             } else {
-                lgApiV2ClientService.getACCapability(device.getDeviceId(), device.getModelJsonUri(), true);
+                lgApiV2ClientService.getCapability(device.getDeviceId(), device.getModelJsonUri(), true);
             }
 
         } catch (Exception ex) {
@@ -154,6 +154,8 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
         switch (device.getDeviceType()) {
             case AIR_CONDITIONER:
                 return THING_TYPE_AIR_CONDITIONER;
+            case WASHING_MACHINE:
+                return THING_TYPE_WASHING_MACHINE;
             default:
                 throw new LGThinqException(String.format("device type [%s] not supported", device.getDeviceType()));
         }
