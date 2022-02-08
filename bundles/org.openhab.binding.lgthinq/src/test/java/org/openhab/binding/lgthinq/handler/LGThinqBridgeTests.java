@@ -109,8 +109,6 @@ class LGThinqBridgeTests {
                 .withRequestBody(containing("username=" + URLEncoder.encode(fakeUserName, StandardCharsets.UTF_8)))
                 .withHeader("lgemp-x-session-key", equalTo(loginSessionId)).willReturn(ok(sessionTokenReturned)));
         // faking some constants
-        LGThinqBindingConstants.GATEWAY_URL_V2 = "http://localhost:8880" + GATEWAY_SERVICE_PATH_V2;
-        LGThinqBindingConstants.V2_EMP_SESS_URL = "http://localhost:8880/emp/oauth2/token/empsession";
         Bridge fakeThing = mock(Bridge.class);
         ThingUID fakeThingUid = mock(ThingUID.class);
         when(fakeThingUid.getId()).thenReturn(fakeBridgeName);
@@ -120,8 +118,8 @@ class LGThinqBridgeTests {
         LGThinqBindingConstants.BASE_CAP_CONFIG_DATA_FILE = tempDir + File.separator + "thinq-cap.json";
         LGThinqBridgeHandler b = new LGThinqBridgeHandler(fakeThing);
         LGThinqBridgeHandler spyBridge = spy(b);
-        doReturn(new LGThinqConfiguration(fakeUserName, fakePassword, fakeCountry, fakeLanguage, 60)).when(spyBridge)
-                .getConfigAs(any(Class.class));
+        doReturn(new LGThinqConfiguration(fakeUserName, fakePassword, fakeCountry, fakeLanguage, 60,
+                "http://localhost:8880")).when(spyBridge).getConfigAs(any(Class.class));
         spyBridge.initialize();
         LGThinqApiClientService service1 = LGThinqApiV1ClientServiceImpl.getInstance();
         LGThinqApiClientService service2 = LGThinqApiV2ClientServiceImpl.getInstance();
@@ -129,7 +127,7 @@ class LGThinqBridgeTests {
         try {
             if (!tokenManager.isOauthTokenRegistered(fakeBridgeName)) {
                 tokenManager.oauthFirstRegistration(fakeBridgeName, fakeLanguage, fakeCountry, fakeUserName,
-                        fakePassword);
+                        fakePassword, "");
             }
             List<LGDevice> devices = service2.listAccountDevices("bridgeTest");
             assertEquals(devices.size(), 2);
@@ -172,9 +170,7 @@ class LGThinqBridgeTests {
                 .withRequestBody(containing("country_code=" + fakeCountry))
                 .withRequestBody(containing("username=" + URLEncoder.encode(fakeUserName, StandardCharsets.UTF_8)))
                 .withHeader("lgemp-x-session-key", equalTo(loginSessionId)).willReturn(ok(sessionTokenReturned)));
-        // faking some constants
-        LGThinqBindingConstants.GATEWAY_URL_V2 = "http://localhost:8880" + GATEWAY_SERVICE_PATH_V2;
-        LGThinqBindingConstants.V2_EMP_SESS_URL = "http://localhost:8880/emp/oauth2/token/empsession";
+
         Bridge fakeThing = mock(Bridge.class);
         ThingUID fakeThingUid = mock(ThingUID.class);
         when(fakeThingUid.getId()).thenReturn(fakeBridgeName);
@@ -194,7 +190,7 @@ class LGThinqBridgeTests {
         try {
             if (!tokenManager.isOauthTokenRegistered(fakeBridgeName)) {
                 tokenManager.oauthFirstRegistration(fakeBridgeName, fakeLanguage, fakeCountry, fakeUserName,
-                        fakePassword);
+                        fakePassword, "http://localhost:8880");
             }
             List<LGDevice> devices = service2.listAccountDevices("bridgeTest");
             assertEquals(devices.size(), 1);

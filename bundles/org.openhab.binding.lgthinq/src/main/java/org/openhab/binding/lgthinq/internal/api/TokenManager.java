@@ -16,9 +16,8 @@ import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -37,8 +36,7 @@ public class TokenManager {
     private static final int EXPIRICY_TOLERANCE_SEC = 60;
     private final OauthLgEmpAuthenticator oAuthAuthenticator;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    @Nullable
-    private TokenResult tokenCached;
+    private final Map<String, TokenResult> tokenCached = new ConcurrentHashMap<>();
     private static final TokenManager instance;
     static {
         instance = new TokenManager();
@@ -81,8 +79,12 @@ public class TokenManager {
         return tokenFile.isFile();
     }
 
+    private String getGatewayUrl(String alternativeGtwServer) {
+        return alternativeGtwServer.isBlank() ? GATEWAY_URL_V2 : (alternativeGtwServer + GATEWAY_SERVICE_PATH_V2);
+    }
+
     public void oauthFirstRegistration(String bridgeName, String language, String country, String username,
-            String password)
+            String password, String alternativeGtwServer)
             throws LGThinqGatewayException, PreLoginException, AccountLoginException, TokenException, IOException {
         LGThinqGateway gw;
         OauthLgEmpAuthenticator.PreLoginResult preLogin;
@@ -90,7 +92,8 @@ public class TokenManager {
         TokenResult token;
         UserInfo userInfo;
         try {
-            gw = oAuthAuthenticator.discoverGatewayConfiguration(GATEWAY_URL_V2, language, country);
+            gw = oAuthAuthenticator.discoverGatewayConfiguration(getGatewayUrl(alternativeGtwServer), language, country,
+                    alternativeGtwServer);
         } catch (Exception ex) {
             throw new LGThinqGatewayException(
                     "Error trying to discovery the LG Gateway Setting for the region informed", ex);
@@ -126,15 +129,19 @@ public class TokenManager {
     public TokenResult getValidRegisteredToken(String bridgeName) throws IOException, RefreshTokenException {
         @NonNull
         TokenResult validToken;
-        if (tokenCached == null) {
-            tokenCached = objectMapper.readValue(new File(getConfigDataFileName(bridgeName)), TokenResult.class);
+        TokenResult bridgeToken = tokenCached.get(bridgeName);
+        if (bridgeToken == null) {
+            bridgeToken = objectMapper.readValue(new File(getConfigDataFileName(bridgeName)), TokenResult.class);
         }
 
-        if (!isValidToken(tokenCached)) {
+        if (!isValidToken(bridgeToken)) {
             throw new RefreshTokenException(
                     "Token is not valid. Try to delete token file and disable/enable bridge to restart authentication process");
+        } else {
+            tokenCached.put(bridgeName, bridgeToken);
         }
-        validToken = Objects.requireNonNull(tokenCached, "Unexpected. Never null here");
+
+        validToken = Objects.requireNonNull(bridgeToken, "Unexpected. Never null here");
         if (isTokenExpired(validToken)) {
             validToken = refreshToken(bridgeName, validToken);
         }

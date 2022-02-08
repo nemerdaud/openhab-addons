@@ -27,8 +27,8 @@
 				<options>
 					<option value="US">United States</option>
 					<option value="UK">United Kingdom</option>
-					<option value="BR">Brazilian Portuguese</option>
-					<option value="PT">Portugal Portuguese</option>
+					<option value="BR">Brazil</option>
+					<option value="PT">Portugal</option>
 					<option value="DE">Germany</option>
 					<option value="DK">Denmark</option>
 				</options>
@@ -45,7 +45,10 @@
 			<parameter name="poolingIntervalSec" type="integer">
 				<label>Pooling Discovery Interval (>300)</label>
 				<description>Pooling interval to discover new devices agains LG API.</description>
-				<context>poolingIntervalSec</context>
+			</parameter>
+			<parameter name="alternativeServer" type="text">
+				<label>Alternative Gateway Server</label>
+				<description>Only used for proxy/test gateway server.</description>
 			</parameter>
 		</config-description>
 	</bridge-type>

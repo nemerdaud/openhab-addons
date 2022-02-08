@@ -151,8 +151,8 @@ public class OauthLgEmpAuthenticator {
         return headers;
     }
 
-    public LGThinqGateway discoverGatewayConfiguration(String gwUrl, String language, String country)
-            throws IOException {
+    public LGThinqGateway discoverGatewayConfiguration(String gwUrl, String language, String country,
+            String alternativeEmpServer) throws IOException {
         Map<String, String> header = getGatewayRestHeader(language, country);
         RestResult result;
         result = RestUtils.getCall(gwUrl, header, null);
@@ -168,7 +168,7 @@ public class OauthLgEmpAuthenticator {
                         gwResult.getReturnedCode(), gwResult.getReturnedMessage()));
             }
 
-            return new LGThinqGateway(gwResult, language, country);
+            return new LGThinqGateway(gwResult, language, country, alternativeEmpServer);
         }
     }
 
@@ -261,7 +261,7 @@ public class OauthLgEmpAuthenticator {
         empData.put("username", "" + accountResult.getUserId());
         String timestamp = getCurrentTimestamp();
 
-        byte[] oauthSig = RestUtils.getTokenSignature(V2_EMP_SESS_URL, secretKey, empData, timestamp);
+        byte[] oauthSig = RestUtils.getTokenSignature(gw.getTokenSessionEmpUrl(), secretKey, empData, timestamp);
 
         Map<String, String> oauthEmpHeaders = new LinkedHashMap<>();
         oauthEmpHeaders.put("lgemp-x-app-key", OAUTH_CLIENT_KEY);
@@ -279,7 +279,7 @@ public class OauthLgEmpAuthenticator {
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36 Edg/93.0.961.44");
         logger.debug("===> Localized timestamp used: [{}]", timestamp);
         logger.debug("===> signature created: [{}]", new String(oauthSig));
-        resp = RestUtils.postCall(V2_EMP_SESS_URL, oauthEmpHeaders, empData);
+        resp = RestUtils.postCall(gw.getTokenSessionEmpUrl(), oauthEmpHeaders, empData);
         return handleTokenResult(resp);
     }
 
