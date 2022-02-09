@@ -36,9 +36,9 @@ import org.openhab.binding.lgthinq.internal.LGThinqConfiguration;
 import org.openhab.binding.lgthinq.internal.api.RestUtils;
 import org.openhab.binding.lgthinq.internal.api.TokenManager;
 import org.openhab.binding.lgthinq.internal.handler.LGThinqBridgeHandler;
+import org.openhab.binding.lgthinq.lgservices.LGThinqACApiV1ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgservices.LGThinqACApiV2ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.LGThinqApiClientService;
-import org.openhab.binding.lgthinq.lgservices.LGThinqApiV1ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinqApiV2ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ThingUID;
@@ -121,8 +121,8 @@ class LGThinqBridgeTests {
         doReturn(new LGThinqConfiguration(fakeUserName, fakePassword, fakeCountry, fakeLanguage, 60,
                 "http://localhost:8880")).when(spyBridge).getConfigAs(any(Class.class));
         spyBridge.initialize();
-        LGThinqApiClientService service1 = LGThinqApiV1ClientServiceImpl.getInstance();
-        LGThinqApiClientService service2 = LGThinqApiV2ClientServiceImpl.getInstance();
+        LGThinqApiClientService service1 = LGThinqACApiV1ClientServiceImpl.getInstance();
+        LGThinqApiClientService service2 = LGThinqACApiV2ClientServiceImpl.getInstance();
         TokenManager tokenManager = TokenManager.getInstance();
         try {
             if (!tokenManager.isOauthTokenRegistered(fakeBridgeName)) {
@@ -184,8 +184,8 @@ class LGThinqBridgeTests {
         // doReturn(new LGThinqConfiguration(fakeUserName, fakePassword, fakeCountry, fakeLanguage, 60)).when(spyBridge)
         // .getConfigAs(any(Class.class));
         // spyBridge.initialize();
-        LGThinqApiClientService service1 = LGThinqApiV1ClientServiceImpl.getInstance();
-        LGThinqApiClientService service2 = LGThinqApiV2ClientServiceImpl.getInstance();
+        // LGThinqApiClientService service1 = LGThinqACApiV1ClientServiceImpl.getInstance();
+        LGThinqApiClientService service2 = LGThinqACApiV2ClientServiceImpl.getInstance();
         TokenManager tokenManager = TokenManager.getInstance();
         try {
             if (!tokenManager.isOauthTokenRegistered(fakeBridgeName)) {

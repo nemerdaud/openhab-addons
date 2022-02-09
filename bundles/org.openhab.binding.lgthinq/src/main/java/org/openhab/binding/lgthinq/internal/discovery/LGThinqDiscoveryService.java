@@ -23,9 +23,9 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.internal.handler.LGThinqBridgeHandler;
+import org.openhab.binding.lgthinq.lgservices.LGThinqACApiV1ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgservices.LGThinqACApiV2ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.LGThinqApiClientService;
-import org.openhab.binding.lgthinq.lgservices.LGThinqApiV1ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinqApiV2ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.core.config.discovery.AbstractDiscoveryService;
 import org.openhab.core.config.discovery.DiscoveryResult;
@@ -54,8 +54,8 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
 
     public LGThinqDiscoveryService() {
         super(SUPPORTED_THING_TYPES, SEARCH_TIME);
-        lgApiV1ClientService = LGThinqApiV1ClientServiceImpl.getInstance();
-        lgApiV2ClientService = LGThinqApiV2ClientServiceImpl.getInstance();
+        lgApiV1ClientService = LGThinqACApiV1ClientServiceImpl.getInstance();
+        lgApiV2ClientService = LGThinqACApiV2ClientServiceImpl.getInstance();
     }
 
     @Override

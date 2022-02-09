@@ -38,7 +38,9 @@ class CapabilityFactoryTest {
     @Test
     void create() throws IOException, LGThinqApiException {
         ClassLoader classLoader = JsonUtils.class.getClassLoader();
+        assertNotNull(classLoader);
         URL fileUrl = classLoader.getResource("thinq-washer-v2-cap.json");
+        assertNotNull(fileUrl);
         File capFile = new File(fileUrl.getFile());
         Map<String, Object> mapper = objectMapper.readValue(capFile, new TypeReference<>() {
         });

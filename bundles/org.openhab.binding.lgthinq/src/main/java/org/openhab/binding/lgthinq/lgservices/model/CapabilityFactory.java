@@ -22,12 +22,12 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
-import org.openhab.binding.lgthinq.lgservices.LGThinqApiV1ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgservices.LGThinqACApiV1ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
 import org.openhab.binding.lgthinq.lgservices.model.washer.WMCapability;
 
 /**
- * The {@link LGThinqApiV1ClientServiceImpl}
+ * The {@link LGThinqACApiV1ClientServiceImpl}
  *
  * @author Nemer Daud - Initial contribution
  */
