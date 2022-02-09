@@ -68,14 +68,22 @@ public class CapabilityFactory {
         LGAPIVerion version = discoveryAPIVersion(rootMap);
         if (version == LGAPIVerion.V2_0) {
             Map<String, Object> monValue = (Map<String, Object>) rootMap.get("MonitoringValue");
-            Objects.requireNonNull(monValue, "Unexpected error. Info Config not present in capability schema");
+            Objects.requireNonNull(monValue, "Unexpected error. MonitoringValue not present in capability schema");
             WMCapability wmCap = new WMCapability();
 
             Map<String, Object> courseMap = (Map<String, Object>) rootMap.get("Course");
-            Objects.requireNonNull(courseMap, "Unexpected error. Info Config not present in capability schema");
+            Objects.requireNonNull(courseMap, "Unexpected error. Course not present in capability schema");
             courseMap.forEach((k, v) -> {
-                wmCap.addCourse(Objects.requireNonNull(((Map<String, String>) v).get("name"),
-                        "Name property for course node must be present"), k);
+                wmCap.addCourse(k, Objects.requireNonNull(((Map<String, String>) v).get("_comment"),
+                        "_comment property for course node must be present"));
+            });
+
+            Map<String, Object> smartCourseMap = (Map<String, Object>) rootMap.get("SmartCourse");
+            Objects.requireNonNull(smartCourseMap,
+                    "Unexpected error. Info SmartCourse not present in capability schema");
+            smartCourseMap.forEach((k, v) -> {
+                wmCap.addSmartCourse(k, Objects.requireNonNull(((Map<String, String>) v).get("_comment"),
+                        "_comment property for smartCourse node must be present"));
             });
 
             loadMonValueCap(WMCapability.MonitoringCap.STATE, monValue, wmCap);
