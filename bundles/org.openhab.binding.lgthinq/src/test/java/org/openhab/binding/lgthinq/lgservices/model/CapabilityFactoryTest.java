@@ -42,7 +42,7 @@ class CapabilityFactoryTest {
         File capFile = new File(fileUrl.getFile());
         Map<String, Object> mapper = objectMapper.readValue(capFile, new TypeReference<>() {
         });
-        WMCapability wpCap = CapabilityFactory.getInstance().create(mapper, WMCapability.class);
+        WMCapability wpCap = (WMCapability) CapabilityFactory.getInstance().create(mapper);
         assertNotNull(wpCap);
         assertEquals(13, wpCap.getCourses().size());
         assertTrue(wpCap.getRinse().size() > 1);

@@ -42,14 +42,14 @@ public class CapabilityFactory {
         return instance;
     }
 
-    public <T extends Capability> T create(Map<String, Object> rootMap, Class<T> capType) throws LGThinqApiException {
+    public Capability create(Map<String, Object> rootMap) throws LGThinqApiException {
         DeviceTypes type = getDeviceType(rootMap);
 
         switch (type) {
             case AIR_CONDITIONER:
-                return capType.cast(getAcCapabilities(rootMap));
+                return getAcCapabilities(rootMap);
             case WASHING_MACHINE:
-                return capType.cast(getWmCapabilities(rootMap));
+                return getWmCapabilities(rootMap);
             default:
                 throw new IllegalStateException("Unexpected capability. The type " + type + " was not implemented yet");
         }
