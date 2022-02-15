@@ -15,10 +15,12 @@ package org.openhab.binding.lgthinq.internal.handler;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.*;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.LGThinQDeviceDynStateDescriptionProvider;
@@ -80,6 +82,27 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
             this.channelUID = channelUUID;
             this.command = command;
         }
+    }
+
+    /**
+     * Return empty string if null argument is passed
+     * 
+     * @param value value to test
+     * @return empty string if null argument is passed
+     */
+    protected final String emptyIfNull(@Nullable String value) {
+        return Objects.requireNonNullElse(value, "");
+    }
+
+    /**
+     * Return the key informed if there is no correpondent value in map for that key.
+     * 
+     * @param map map with key/value
+     * @param key key to search for a value into map
+     * @return return value related to that key in the map, or the own key if there is no correspondent.
+     */
+    protected final String keyIfValueNotFound(Map<String, String> map, @NonNull String key) {
+        return Objects.requireNonNullElse(map.get(key), key);
     }
 
     protected void startCommandExecutorQueueJob() {

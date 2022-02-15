@@ -21,7 +21,7 @@
 			<channel id="smart-course" typeId="dryer-smart-course"/>
 			<channel id="dry-level" typeId="dryer-dry-level"/>
 			<channel id="child-lock" typeId="dryer-child-lock"/>
-			<channel id="remain-time" typeId="dryer-remain-time"/>
+			<channel id="remain-time" typeId="washerdryer-remain-time"/>
 			<channel id="error" typeId="dryer-error"/>
 		</channels>
 

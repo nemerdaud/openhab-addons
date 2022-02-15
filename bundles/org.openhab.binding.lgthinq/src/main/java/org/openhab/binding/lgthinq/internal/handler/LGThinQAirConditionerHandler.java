@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.LGThinQDeviceDynStateDescriptionProvider;
@@ -85,11 +84,6 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
         updateState(CHANNEL_CURRENT_TEMP_ID, new DecimalType(shot.getCurrentTemperature()));
         updateState(CHANNEL_TARGET_TEMP_ID, new DecimalType(shot.getTargetTemperature()));
         updateStatus(ThingStatus.ONLINE);
-    }
-
-    @NonNull
-    private String emptyIfNull(@Nullable String value) {
-        return value == null ? "" : "" + value;
     }
 
     @Override
