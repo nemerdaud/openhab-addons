@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.lgthinq.internal.api;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import java.io.File;
 import java.io.IOException;

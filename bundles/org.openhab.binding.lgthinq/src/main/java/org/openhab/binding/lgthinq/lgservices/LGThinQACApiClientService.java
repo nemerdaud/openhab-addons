@@ -14,15 +14,17 @@ package org.openhab.binding.lgthinq.lgservices;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
+import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
+import org.openhab.binding.lgthinq.lgservices.model.ac.ACSnapshot;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACTargetTmp;
 
 /**
- * The {@link LGThinqACApiClientService}
+ * The {@link LGThinQACApiClientService}
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public interface LGThinqACApiClientService extends LGThinqApiClientService {
+public interface LGThinQACApiClientService extends LGThinQApiClientService<ACCapability, ACSnapshot> {
     void changeOperationMode(String bridgeName, String deviceId, int newOpMode) throws LGThinqApiException;
 
     void changeFanSpeed(String bridgeName, String deviceId, int newFanSpeed) throws LGThinqApiException;

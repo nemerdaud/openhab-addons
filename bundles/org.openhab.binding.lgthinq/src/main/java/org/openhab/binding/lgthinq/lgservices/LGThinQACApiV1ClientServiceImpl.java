@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.lgthinq.lgservices;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -30,28 +30,33 @@ import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1MonitorExpired
 import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1OfflineException;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
 import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
-import org.openhab.binding.lgthinq.lgservices.model.Snapshot;
 import org.openhab.binding.lgthinq.lgservices.model.SnapshotFactory;
+import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACSnapshot;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACTargetTmp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link LGThinqACApiV1ClientServiceImpl}
+ * The {@link LGThinQACApiV1ClientServiceImpl}
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class LGThinqACApiV1ClientServiceImpl extends LGThinqApiClientServiceImpl implements LGThinqACApiClientService {
-    private static final LGThinqACApiClientService instance;
-    private static final Logger logger = LoggerFactory.getLogger(LGThinqACApiV1ClientServiceImpl.class);
+public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientService<ACCapability, ACSnapshot>
+        implements LGThinQACApiClientService {
+    private static final LGThinQACApiClientService instance;
+    private static final Logger logger = LoggerFactory.getLogger(LGThinQACApiV1ClientServiceImpl.class);
 
     static {
-        instance = new LGThinqACApiV1ClientServiceImpl();
+        instance = new LGThinQACApiV1ClientServiceImpl(ACCapability.class, ACSnapshot.class);
     }
 
-    public static LGThinqACApiClientService getInstance() {
+    protected LGThinQACApiV1ClientServiceImpl(Class<ACCapability> capabilityClass, Class<ACSnapshot> snapshotClass) {
+        super(capabilityClass, snapshotClass);
+    }
+
+    public static LGThinQACApiClientService getInstance() {
         return instance;
     }
 
@@ -65,7 +70,7 @@ public class LGThinqACApiV1ClientServiceImpl extends LGThinqApiClientServiceImpl
      */
     @Override
     @Nullable
-    public Snapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException {
+    public ACSnapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException {
         throw new UnsupportedOperationException("Method not supported in V1 API device.");
     }
 
@@ -130,7 +135,7 @@ public class LGThinqACApiV1ClientServiceImpl extends LGThinqApiClientServiceImpl
     }
 
     @Override
-    public @Nullable Snapshot getMonitorData(@NonNull String bridgeName, @NonNull String deviceId,
+    public @Nullable ACSnapshot getMonitorData(@NonNull String bridgeName, @NonNull String deviceId,
             @NonNull String workId, DeviceTypes deviceType)
             throws LGThinqApiException, LGThinqDeviceV1MonitorExpiredException, IOException {
         TokenResult token = tokenManager.getValidRegisteredToken(bridgeName);
@@ -164,7 +169,7 @@ public class LGThinqACApiV1ClientServiceImpl extends LGThinqApiClientServiceImpl
 
             String jsonMonDataB64 = (String) workList.get("returnData");
             String jsonMon = new String(Base64.getDecoder().decode(jsonMonDataB64));
-            Snapshot shot = SnapshotFactory.getInstance().create(jsonMon, deviceType);
+            ACSnapshot shot = SnapshotFactory.getInstance().create(jsonMon, deviceType, snapshotClass);
             shot.setOnline("E".equals(workList.get("deviceState")));
             return shot;
         } else {

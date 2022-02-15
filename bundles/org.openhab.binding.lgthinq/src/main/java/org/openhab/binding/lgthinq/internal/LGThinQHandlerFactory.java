@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.lgthinq.internal;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.lgthinq.internal.handler.LGThinqBridgeHandler;
+import org.openhab.binding.lgthinq.internal.handler.LGThinQAirConditionerHandler;
+import org.openhab.binding.lgthinq.internal.handler.LGThinQBridgeHandler;
+import org.openhab.binding.lgthinq.internal.handler.LGThinQDryerHandler;
+import org.openhab.binding.lgthinq.internal.handler.LGThinQWasherHandler;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
@@ -32,21 +35,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link LGThinqHandlerFactory} is responsible for creating things and thing
+ * The {@link LGThinQHandlerFactory} is responsible for creating things and thing
  * handlers.
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
 @Component(service = { ThingHandlerFactory.class }, configurationPid = "binding.lgthinq")
-public class LGThinqHandlerFactory extends BaseThingHandlerFactory {
+public class LGThinQHandlerFactory extends BaseThingHandlerFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(LGThinqHandlerFactory.class);
-    private final LGThinqDeviceDynStateDescriptionProvider stateDescriptionProvider;
+    private final Logger logger = LoggerFactory.getLogger(LGThinQHandlerFactory.class);
+    private final LGThinQDeviceDynStateDescriptionProvider stateDescriptionProvider;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-        return LGThinqBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
+        return LGThinQBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
     @Override
@@ -54,11 +57,13 @@ public class LGThinqHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (THING_TYPE_AIR_CONDITIONER.equals(thingTypeUID)) {
-            return new LGThinqAirConditionerHandler(thing, stateDescriptionProvider);
+            return new LGThinQAirConditionerHandler(thing, stateDescriptionProvider);
         } else if (THING_TYPE_BRIDGE.equals(thingTypeUID)) {
-            return new LGThinqBridgeHandler((Bridge) thing);
+            return new LGThinQBridgeHandler((Bridge) thing);
         } else if (THING_TYPE_WASHING_MACHINE.equals(thingTypeUID)) {
-            return new LGThinqWasherHandler(thing, stateDescriptionProvider);
+            return new LGThinQWasherHandler(thing, stateDescriptionProvider);
+        } else if (THING_TYPE_DRYER.equals(thingTypeUID)) {
+            return new LGThinQDryerHandler(thing, stateDescriptionProvider);
         }
         logger.error("Thing not supported by this Factory: {}", thingTypeUID.getId());
         return null;
@@ -69,16 +74,18 @@ public class LGThinqHandlerFactory extends BaseThingHandlerFactory {
             @Nullable ThingUID thingUID, @Nullable ThingUID bridgeUID) {
         if (THING_TYPE_BRIDGE.equals(thingTypeUID)) {
             return super.createThing(thingTypeUID, configuration, thingUID, null);
-        } else if (LGThinqBindingConstants.THING_TYPE_AIR_CONDITIONER.equals(thingTypeUID)) {
+        } else if (THING_TYPE_AIR_CONDITIONER.equals(thingTypeUID)) {
             return super.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
-        } else if (LGThinqBindingConstants.THING_TYPE_WASHING_MACHINE.equals(thingTypeUID)) {
+        } else if (THING_TYPE_WASHING_MACHINE.equals(thingTypeUID)) {
+            return super.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
+        } else if (THING_TYPE_DRYER.equals(thingTypeUID)) {
             return super.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
         }
         return null;
     }
 
     @Activate
-    public LGThinqHandlerFactory(final @Reference LGThinqDeviceDynStateDescriptionProvider stateDescriptionProvider) {
+    public LGThinQHandlerFactory(final @Reference LGThinQDeviceDynStateDescriptionProvider stateDescriptionProvider) {
         this.stateDescriptionProvider = stateDescriptionProvider;
     }
 }

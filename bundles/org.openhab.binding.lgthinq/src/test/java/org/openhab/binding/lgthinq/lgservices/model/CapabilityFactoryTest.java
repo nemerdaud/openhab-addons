@@ -22,7 +22,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.lgthinq.handler.JsonUtils;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
-import org.openhab.binding.lgthinq.lgservices.model.washer.WMCapability;
+import org.openhab.binding.lgthinq.lgservices.model.washer.WasherCapability;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +44,8 @@ class CapabilityFactoryTest {
         File capFile = new File(fileUrl.getFile());
         Map<String, Object> mapper = objectMapper.readValue(capFile, new TypeReference<>() {
         });
-        WMCapability wpCap = (WMCapability) CapabilityFactory.getInstance().create(mapper);
+        WasherCapability wpCap = (WasherCapability) CapabilityFactory.getInstance().create(mapper,
+                WasherCapability.class);
         assertNotNull(wpCap);
         assertEquals(13, wpCap.getCourses().size());
         assertTrue(wpCap.getRinse().size() > 1);

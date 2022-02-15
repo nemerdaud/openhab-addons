@@ -18,12 +18,14 @@ package org.openhab.binding.lgthinq.lgservices.model;
  * @author Nemer Daud - Initial contribution
  */
 public enum DeviceTypes {
-    AIR_CONDITIONER(401, "AC"),
-    WASHING_MACHINE(201, "WM"),
-    UNKNOWN(-1, "");
+    AIR_CONDITIONER(401, "AC", ""),
+    WASHING_MACHINE(201, "WM", ""),
+    DRYER(202, "DR", "Dryer"),
+    UNKNOWN(-1, "", "");
 
     private final int deviceTypeId;
     private final String deviceTypeAcron;
+    private final String deviceSubModel;
 
     public String deviceTypeAcron() {
         return deviceTypeAcron;
@@ -33,12 +35,18 @@ public enum DeviceTypes {
         return deviceTypeId;
     }
 
+    public String deviceSubModel() {
+        return deviceSubModel;
+    }
+
     public static DeviceTypes fromDeviceTypeId(int deviceTypeId) {
         switch (deviceTypeId) {
             case 401:
                 return AIR_CONDITIONER;
             case 201:
                 return WASHING_MACHINE;
+            case 202:
+                return DRYER;
             default:
                 return UNKNOWN;
         }
@@ -55,8 +63,9 @@ public enum DeviceTypes {
         }
     }
 
-    DeviceTypes(int i, String n) {
+    DeviceTypes(int i, String n, String submodel) {
         this.deviceTypeId = i;
         this.deviceTypeAcron = n;
+        this.deviceSubModel = submodel;
     }
 }

@@ -22,24 +22,26 @@ import org.openhab.core.OpenHAB;
 import org.openhab.core.thing.ThingTypeUID;
 
 /**
- * The {@link LGThinqBindingConstants} class defines common constants, which are
+ * The {@link LGThinQBindingConstants} class defines common constants, which are
  * used across the whole binding.
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class LGThinqBindingConstants {
+public class LGThinQBindingConstants {
 
     public static final String BINDING_ID = "lgthinq";
     public static final ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
     public static final ThingTypeUID THING_TYPE_AIR_CONDITIONER = new ThingTypeUID(BINDING_ID,
-            "" + DeviceTypes.AIR_CONDITIONER.deviceTypeId()); // deviceType from AirConditioner
+            "" + DeviceTypes.AIR_CONDITIONER.deviceTypeId());
     public static final ThingTypeUID THING_TYPE_WASHING_MACHINE = new ThingTypeUID(BINDING_ID,
-            "" + DeviceTypes.WASHING_MACHINE.deviceTypeId()); // deviceType from AirConditioner
+            "" + DeviceTypes.WASHING_MACHINE.deviceTypeId());
+    public static final ThingTypeUID THING_TYPE_DRYER = new ThingTypeUID(BINDING_ID,
+            "" + DeviceTypes.DRYER.deviceTypeId());
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_AIR_CONDITIONER,
-            THING_TYPE_WASHING_MACHINE, THING_TYPE_BRIDGE);
+            THING_TYPE_WASHING_MACHINE, THING_TYPE_DRYER, THING_TYPE_BRIDGE);
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Set.of(THING_TYPE_AIR_CONDITIONER,
-            THING_TYPE_WASHING_MACHINE);
+            THING_TYPE_WASHING_MACHINE, THING_TYPE_DRYER);
 
     public static String THINQ_USER_DATA_FOLDER = OpenHAB.getUserDataFolder() + File.separator + "thinq";
     public static String THINQ_CONNECTION_DATA_FILE = THINQ_USER_DATA_FOLDER + File.separator + "thinqbridge-%s.json";
@@ -62,28 +64,17 @@ public class LGThinqBindingConstants {
     public static final String V1_CONTROL_OP = "rti/rtiControl";
     public static final String OAUTH_SEARCH_KEY_PATH = "/searchKey";
     public static final String GATEWAY_SERVICE_PATH_V2 = "/v1/service/application/gateway-uri";
-    public static final String GATEWAY_SERVICE_PATH_V1 = "/api/common/gatewayUriList";
     public static final String GATEWAY_URL_V2 = "https://route.lgthinq.com:46030" + GATEWAY_SERVICE_PATH_V2;
     public static final String PRE_LOGIN_PATH = "/preLogin";
     public static final String SECURITY_KEY = "nuts_securitykey";
-    public static final String APP_KEY = "wideq";
-    public static final String DATA_ROOT = "result";
-    public static final String POST_DATA_ROOT = "lgedmRoot";
-    public static final String RETURN_CODE_ROOT = "resultCode";
-    public static final String RETURN_MESSAGE_ROOT = "returnMsg";
     public static final String SVC_CODE = "SVC202";
     public static final String OAUTH_SECRET_KEY = "c053c2a6ddeb7ad97cb0eed0dcb31cf8";
     public static final String OAUTH_CLIENT_KEY = "LGAO722A02";
     public static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss +0000";
-    public static final String DEFAULT_COUNTRY = "US";
-    public static final String DEFAULT_LANGUAGE = "en-US";
     public static final String APPLICATION_KEY = "6V1V8H2BN5P9ZQGOI5DAQ92YZBDO3EK9";
     public static final String V2_EMP_SESS_PATH = "/emp/oauth2/token/empsession";
     public static final String V2_EMP_SESS_URL = "https://emp-oauth.lgecloud.com" + V2_EMP_SESS_PATH;
     public static final String API_KEY_V2 = "VGhpblEyLjAgU0VSVklDRQ==";
-
-    public static final String API_KEY_V1 = "wideq";
-    public static final String API_SECURITY_KEY_V1 = "nuts_securitykey";
 
     // the client id is a SHA512 hash of the phone MFR,MODEL,SERIAL,
     // and the build id of the thinq app it can also just be a random
@@ -142,6 +133,8 @@ public class LGThinqBindingConstants {
     // CHANNEL IDS
     public static final String CHANNEL_MOD_OP_ID = "op_mode";
     public static final String CHANNEL_FAN_SPEED_ID = "fan_speed";
+    public static final String CHANNEL_COURSE_ID = "course";
+    public static final String CHANNEL_SMART_COURSE_ID = "smart_course";
     public static final String CHANNEL_POWER_ID = "power";
     public static final String CHANNEL_TARGET_TEMP_ID = "target_temperature";
     public static final String CHANNEL_CURRENT_TEMP_ID = "current_temperature";
@@ -175,6 +168,7 @@ public class LGThinqBindingConstants {
     public static final String WM_CHANNEL_SMART_COURSE_ID = "smart-course";
     public static final String WM_CHANNEL_TEMP_LEVEL_ID = "temperature-level";
     public static final String WM_CHANNEL_DOOR_LOCK_ID = "door-lock";
+    public static final String WM_CHANNEL_REMAIN_TIME_ID = "remain-time";
 
     public static final Map<String, String> CAP_WP_STATE = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
             Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),
@@ -187,4 +181,29 @@ public class LGThinqBindingConstants {
             Map.entry("@WM_STATE_ERROR_W", "Error"));
 
     // ==============================================================================
+
+    // ======================== DRYER CONSTANTS ============================
+
+    public static final String DR_CHANNEL_STATE_ID = "state";
+    public static final String DR_CHANNEL_COURSE_ID = "course";
+    public static final String DR_CHANNEL_SMART_COURSE_ID = "smart-course";
+    public static final String DR_CHANNEL_DRY_LEVEL_ID = "dry-level";
+    public static final String DR_CHANNEL_PROCESS_STATE_ID = "process-state";
+    public static final String DR_CHANNEL_CHILD_LOCK_ID = "child-lock";
+    public static final String DR_CHANNEL_REMAIN_TIME_ID = "remain-time";
+    public static final String DR_CHANNEL_ERROR_ID = "error";
+
+    public static final Map<String, String> CAP_DR_PROCESS_STATE = Map.ofEntries(
+            Map.entry("@WM_STATE_DETECTING_W", "Detecting"), Map.entry("@WM_STATE_STEAM_W", "Steam"),
+            Map.entry("@WM_STATE_DRY_W", "Drying"), Map.entry("@WM_STATE_COOLING_W", "Cool"),
+            Map.entry("@WM_STATE_ANTI_CREASE_W", "Anti Crease"), Map.entry("@WM_STATE_END_W", "End"));
+
+    public static final Map<String, String> CAP_DR_STATE = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
+            Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),
+            Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RESERVE_W", "Reverse"),
+            Map.entry("@WM_STATE_ERROR_W", "Error"), Map.entry("@WM_STATE_SMART_DIAGNOSIS_W", "Smart Diagnosis"));
+
+    public static final Map<String, String> CAP_DR_DRY_LEVEL = Map.ofEntries(Map.entry("-", "-"),
+            Map.entry("@WM_DRY24_DRY_LEVEL_IRON_W", "Iron"), Map.entry("@WM_DRY24_DRY_LEVEL_CUPBOARD_W", "Cup Board"),
+            Map.entry("@WM_DRY24_DRY_LEVEL_EXTRA_W", "Extra"));
 }

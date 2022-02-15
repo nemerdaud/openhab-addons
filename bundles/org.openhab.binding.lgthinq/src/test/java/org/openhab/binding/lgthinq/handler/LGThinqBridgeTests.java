@@ -16,7 +16,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.any;
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import java.io.File;
 import java.net.URI;
@@ -31,14 +31,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openhab.binding.lgthinq.internal.LGThinqBindingConstants;
-import org.openhab.binding.lgthinq.internal.LGThinqConfiguration;
+import org.openhab.binding.lgthinq.internal.LGThinQBindingConstants;
+import org.openhab.binding.lgthinq.internal.LGThinQConfiguration;
 import org.openhab.binding.lgthinq.internal.api.RestUtils;
 import org.openhab.binding.lgthinq.internal.api.TokenManager;
-import org.openhab.binding.lgthinq.internal.handler.LGThinqBridgeHandler;
-import org.openhab.binding.lgthinq.lgservices.LGThinqACApiV1ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinqACApiV2ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinqApiClientService;
+import org.openhab.binding.lgthinq.internal.handler.LGThinQBridgeHandler;
+import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV1ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV2ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgservices.LGThinQApiClientService;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ThingUID;
@@ -114,15 +114,15 @@ class LGThinqBridgeTests {
         when(fakeThingUid.getId()).thenReturn(fakeBridgeName);
         when(fakeThing.getUID()).thenReturn(fakeThingUid);
         String tempDir = System.getProperty("java.io.tmpdir");
-        LGThinqBindingConstants.THINQ_CONNECTION_DATA_FILE = tempDir + File.separator + "token.json";
-        LGThinqBindingConstants.BASE_CAP_CONFIG_DATA_FILE = tempDir + File.separator + "thinq-cap.json";
-        LGThinqBridgeHandler b = new LGThinqBridgeHandler(fakeThing);
-        LGThinqBridgeHandler spyBridge = spy(b);
-        doReturn(new LGThinqConfiguration(fakeUserName, fakePassword, fakeCountry, fakeLanguage, 60,
+        LGThinQBindingConstants.THINQ_CONNECTION_DATA_FILE = tempDir + File.separator + "token.json";
+        LGThinQBindingConstants.BASE_CAP_CONFIG_DATA_FILE = tempDir + File.separator + "thinq-cap.json";
+        LGThinQBridgeHandler b = new LGThinQBridgeHandler(fakeThing);
+        LGThinQBridgeHandler spyBridge = spy(b);
+        doReturn(new LGThinQConfiguration(fakeUserName, fakePassword, fakeCountry, fakeLanguage, 60,
                 "http://localhost:8880")).when(spyBridge).getConfigAs(any(Class.class));
         spyBridge.initialize();
-        LGThinqApiClientService service1 = LGThinqACApiV1ClientServiceImpl.getInstance();
-        LGThinqApiClientService service2 = LGThinqACApiV2ClientServiceImpl.getInstance();
+        LGThinQApiClientService service1 = LGThinQACApiV1ClientServiceImpl.getInstance();
+        LGThinQApiClientService service2 = LGThinQACApiV2ClientServiceImpl.getInstance();
         TokenManager tokenManager = TokenManager.getInstance();
         try {
             if (!tokenManager.isOauthTokenRegistered(fakeBridgeName)) {
@@ -176,16 +176,16 @@ class LGThinqBridgeTests {
         when(fakeThingUid.getId()).thenReturn(fakeBridgeName);
         when(fakeThing.getUID()).thenReturn(fakeThingUid);
         String tempDir = System.getProperty("java.io.tmpdir");
-        LGThinqBindingConstants.THINQ_USER_DATA_FOLDER = "" + tempDir;
-        LGThinqBindingConstants.THINQ_CONNECTION_DATA_FILE = tempDir + File.separator + "token.json";
-        LGThinqBindingConstants.BASE_CAP_CONFIG_DATA_FILE = tempDir + File.separator + "thinq-cap.json";
-        LGThinqBridgeHandler b = new LGThinqBridgeHandler(fakeThing);
-        LGThinqBridgeHandler spyBridge = spy(b);
-        // doReturn(new LGThinqConfiguration(fakeUserName, fakePassword, fakeCountry, fakeLanguage, 60)).when(spyBridge)
+        LGThinQBindingConstants.THINQ_USER_DATA_FOLDER = "" + tempDir;
+        LGThinQBindingConstants.THINQ_CONNECTION_DATA_FILE = tempDir + File.separator + "token.json";
+        LGThinQBindingConstants.BASE_CAP_CONFIG_DATA_FILE = tempDir + File.separator + "thinq-cap.json";
+        LGThinQBridgeHandler b = new LGThinQBridgeHandler(fakeThing);
+        LGThinQBridgeHandler spyBridge = spy(b);
+        // doReturn(new LGThinQConfiguration(fakeUserName, fakePassword, fakeCountry, fakeLanguage, 60)).when(spyBridge)
         // .getConfigAs(any(Class.class));
         // spyBridge.initialize();
-        // LGThinqApiClientService service1 = LGThinqACApiV1ClientServiceImpl.getInstance();
-        LGThinqApiClientService service2 = LGThinqACApiV2ClientServiceImpl.getInstance();
+        // LGThinQApiClientService service1 = LGThinQACApiV1ClientServiceImpl.getInstance();
+        final LGThinQApiClientService service2 = LGThinQACApiV2ClientServiceImpl.getInstance();
         TokenManager tokenManager = TokenManager.getInstance();
         try {
             if (!tokenManager.isOauthTokenRegistered(fakeBridgeName)) {

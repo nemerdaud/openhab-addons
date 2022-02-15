@@ -5,22 +5,24 @@
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
 	<!-- LG Device Type relative to Air Conditioners -->
-	<thing-type id="201">
+	<thing-type id="202">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="bridge"/>
 		</supported-bridge-type-refs>
 
-		<label>LG ThinQ Washer</label>
-		<description>LG ThinQ Washing Machine</description>
+		<label>LG ThinQ Dryer</label>
+		<description>LG ThinQ Dryer</description>
 
 		<channels>
 			<channel id="power" typeId="system.power"/>
-			<channel id="state" typeId="washer-state"/>
-			<channel id="course" typeId="washer-course"/>
-			<channel id="smart-course" typeId="washer-smart-course"/>
-			<channel id="temperature-level" typeId="washer-temp-level"/>
-			<channel id="door-lock" typeId="washer-door-lock"/>
-			<channel id="remain-time" typeId="washer-remain-time"/>
+			<channel id="state" typeId="dryer-state"/>
+			<channel id="process-state" typeId="dryer-process-state"/>
+			<channel id="course" typeId="dryer-course"/>
+			<channel id="smart-course" typeId="dryer-smart-course"/>
+			<channel id="dry-level" typeId="dryer-dry-level"/>
+			<channel id="child-lock" typeId="dryer-child-lock"/>
+			<channel id="remain-time" typeId="dryer-remain-time"/>
+			<channel id="error" typeId="dryer-error"/>
 		</channels>
 
 	</thing-type>

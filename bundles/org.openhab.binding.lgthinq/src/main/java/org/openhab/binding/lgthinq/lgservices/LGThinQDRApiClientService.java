@@ -12,10 +12,15 @@
  */
 package org.openhab.binding.lgthinq.lgservices;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.binding.lgthinq.lgservices.model.dryer.DryerCapability;
+import org.openhab.binding.lgthinq.lgservices.model.dryer.DryerSnapshot;
+
 /**
- * The {@link LGThinqWMApiClientService}
+ * The {@link LGThinQDRApiClientService}
  *
  * @author Nemer Daud - Initial contribution
  */
-public interface LGThinqWMApiClientService extends LGThinqApiClientService {
+@NonNullByDefault
+public interface LGThinQDRApiClientService extends LGThinQApiClientService<DryerCapability, DryerSnapshot> {
 }

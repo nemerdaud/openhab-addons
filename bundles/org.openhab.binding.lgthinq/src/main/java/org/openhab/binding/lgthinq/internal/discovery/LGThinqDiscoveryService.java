@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.lgthinq.internal.discovery;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,10 +22,10 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
-import org.openhab.binding.lgthinq.internal.handler.LGThinqBridgeHandler;
-import org.openhab.binding.lgthinq.lgservices.LGThinqACApiV1ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinqACApiV2ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinqApiClientService;
+import org.openhab.binding.lgthinq.internal.handler.LGThinQBridgeHandler;
+import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV1ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV2ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgservices.LGThinQApiClientService;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.core.config.discovery.AbstractDiscoveryService;
 import org.openhab.core.config.discovery.DiscoveryResult;
@@ -48,14 +48,14 @@ import org.slf4j.LoggerFactory;
 public class LGThinqDiscoveryService extends AbstractDiscoveryService implements DiscoveryService, ThingHandlerService {
 
     private final Logger logger = LoggerFactory.getLogger(LGThinqDiscoveryService.class);
-    private @Nullable LGThinqBridgeHandler bridgeHandler;
+    private @Nullable LGThinQBridgeHandler bridgeHandler;
     private @Nullable ThingUID bridgeHandlerUID;
-    private final LGThinqApiClientService lgApiV1ClientService, lgApiV2ClientService;
+    private final LGThinQApiClientService lgApiV1ClientService, lgApiV2ClientService;
 
     public LGThinqDiscoveryService() {
         super(SUPPORTED_THING_TYPES, SEARCH_TIME);
-        lgApiV1ClientService = LGThinqACApiV1ClientServiceImpl.getInstance();
-        lgApiV2ClientService = LGThinqACApiV2ClientServiceImpl.getInstance();
+        lgApiV1ClientService = LGThinQACApiV1ClientServiceImpl.getInstance();
+        lgApiV2ClientService = LGThinQACApiV2ClientServiceImpl.getInstance();
     }
 
     @Override
@@ -64,8 +64,8 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
 
     @Override
     public void setThingHandler(@Nullable ThingHandler handler) {
-        if (handler instanceof LGThinqBridgeHandler) {
-            bridgeHandler = (LGThinqBridgeHandler) handler;
+        if (handler instanceof LGThinQBridgeHandler) {
+            bridgeHandler = (LGThinQBridgeHandler) handler;
             bridgeHandlerUID = handler.getThing().getUID();
         }
     }
@@ -106,7 +106,6 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
             thingUID = getThingUID(device);
             thingTypeUID = getThingTypeUID(device);
         } catch (LGThinqException e) {
-
             logger.debug("Discovered unsupported LG device of type '{}'({}) and model '{}' with id {}",
                     device.getDeviceType(), device.getDeviceTypeId(), modelId, device.getDeviceId());
             return;
@@ -156,6 +155,8 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
                 return THING_TYPE_AIR_CONDITIONER;
             case WASHING_MACHINE:
                 return THING_TYPE_WASHING_MACHINE;
+            case DRYER:
+                return THING_TYPE_DRYER;
             default:
                 throw new LGThinqException(String.format("device type [%s] not supported", device.getDeviceType()));
         }

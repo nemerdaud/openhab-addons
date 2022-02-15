@@ -12,20 +12,19 @@
  */
 package org.openhab.binding.lgthinq.internal.handler;
 
-import org.openhab.binding.lgthinq.internal.LGThinqDeviceThing;
 import org.openhab.binding.lgthinq.internal.discovery.LGThinqDiscoveryService;
 
 /**
- * The {@link LGThinqBridge}
+ * The {@link LGThinQBridge}
  *
  * @author Nemer Daud - Initial contribution
  */
-public interface LGThinqBridge {
+public interface LGThinQBridge {
     void registerDiscoveryListener(LGThinqDiscoveryService listener);
 
-    void registryListenerThing(LGThinqDeviceThing thing);
+    void registryListenerThing(LGThinQAbstractDeviceHandler thing);
 
-    void unRegistryListenerThing(LGThinqDeviceThing thing);
+    void unRegistryListenerThing(LGThinQAbstractDeviceHandler thing);
 
-    LGThinqDeviceThing getThingByDeviceId(String deviceId);
+    LGThinQAbstractDeviceHandler getThingByDeviceId(String deviceId);
 }

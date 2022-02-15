@@ -27,12 +27,12 @@ import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.model.*;
 
 /**
- * The {@link LGThinqApiClientService}
+ * The {@link LGThinQApiClientService}
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public interface LGThinqApiClientService {
+public interface LGThinQApiClientService<C extends Capability, S extends Snapshot> {
 
     List<LGDevice> listAccountDevices(String bridgeName) throws LGThinqApiException;
 
@@ -46,14 +46,14 @@ public interface LGThinqApiClientService {
      * @throws LGThinqApiException if some error interacting with LG API Server occur.
      */
     @Nullable
-    Snapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException;
+    S getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException;
 
     void turnDevicePower(String bridgeName, String deviceId, DevicePowerState newPowerState) throws LGThinqApiException;
 
     String startMonitor(String bridgeName, String deviceId)
             throws LGThinqApiException, LGThinqDeviceV1OfflineException, IOException;
 
-    Capability getCapability(String deviceId, String uri, boolean forceRecreate) throws LGThinqApiException;
+    C getCapability(String deviceId, String uri, boolean forceRecreate) throws LGThinqApiException;
 
     File loadDeviceCapability(String deviceId, String uri, boolean forceRecreate)
             throws LGThinqApiException, IOException;
@@ -61,6 +61,6 @@ public interface LGThinqApiClientService {
     void stopMonitor(String bridgeName, String deviceId, String workId) throws LGThinqException, IOException;
 
     @Nullable
-    Snapshot getMonitorData(@NonNull String bridgeName, @NonNull String deviceId, @NonNull String workerId,
+    S getMonitorData(@NonNull String bridgeName, @NonNull String deviceId, @NonNull String workerId,
             DeviceTypes deviceType) throws LGThinqApiException, LGThinqDeviceV1MonitorExpiredException, IOException;
 }

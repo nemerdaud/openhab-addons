@@ -57,12 +57,19 @@
 				<option value="POWEROFF">Off</option>
 				<option value="INITIAL">Initial</option>
 				<option value="PAUSE">Pause</option>
-				<option value="Rwasher-temp-levelUNNING">Running</option>
+				<option value="RUNNING">Running</option>
 				<option value="RINSING">Rinsing</option>
 				<option value="SPINNING">Spinning</option>
 			</options>
 		</state>
 
+	</channel-type>
+
+	<channel-type id="washer-remain-time">
+		<item-type>String</item-type>
+		<label>Remaining Time</label>
+		<description>Washer Remaining Time</description>
+		<state readOnly="true"/>
 	</channel-type>
 
 	<channel-type id="washer-course">
@@ -122,7 +129,108 @@
 		<state readOnly="true">
 			<options>
 				<option value="DOOR_LOCK_ON">Locked</option>
-				<option value="DOOR_LOCK_ON">Unlocked</option>
+				<option value="DOOR_LOCK_OFF">Unlocked</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="dryer-dry-level">
+		<item-type>String</item-type>
+		<label>Dry Level</label>
+		<description>Target Dry Level</description>
+		<state readOnly="true">
+			<options>
+				<option value="NO_DRY_LEVEL">-</option>
+				<option value="DRYLEVEL_IRON">Iron</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="dryer-state">
+		<item-type>String</item-type>
+		<label>Dryer State</label>
+		<description>Dryer Operation State</description>
+		<state readOnly="true">
+			<options>
+				<option value="POWEROFF">Off</option>
+				<option value="INITIAL">Initial</option>
+				<option value="PAUSE">Pause</option>
+			</options>
+		</state>
+	</channel-type>
+	<channel-type id="dryer-process-state">
+		<item-type>String</item-type>
+		<label>Dryer Process State</label>
+		<description>Dryer Process State</description>
+		<state readOnly="true">
+			<options>
+				<option value="DETECTING">Detecting</option>
+				<option value="STEAM">Steam</option>
+				<option value="DRY_LV1">Dry Level 1</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="dryer-course">
+		<item-type>String</item-type>
+		<label>Dryer Course</label>
+		<description>Dryer Course</description>
+		<state readOnly="true">
+			<options>
+				<option value="ALLERGYCARE">Allergy Care</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="dryer-smart-course">
+		<item-type>String</item-type>
+		<label>Dryer Smart Course</label>
+		<description>Dryer Smart Course</description>
+		<state readOnly="true">
+			<options>
+				<option value="SHOESFABRICDOLL">Allergy Care</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="dryer-dry-level">
+		<item-type>String</item-type>
+		<label>Dry Level Course</label>
+		<description>Dryer Dry Course</description>
+		<state readOnly="true">
+			<options>
+				<option value="NO_DRYLEVEL">-</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="dryer-child-lock">
+		<item-type>String</item-type>
+		<label>Child Lock</label>
+		<description>Dryer Child Lock</description>
+		<state readOnly="true">
+			<options>
+				<option value="CHILDLOCK_OFF">Unlocked</option>
+				<option value="CHILDLOCK_ON">Locked</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="dryer-remain-time">
+		<item-type>String</item-type>
+		<label>Remaining Time</label>
+		<description>Dryer Remaining Time</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="dryer-error">
+		<item-type>String</item-type>
+		<label>Error</label>
+		<description>Dryer Error</description>
+		<state readOnly="true">
+			<options>
+				<option value="ERROR_TE4">ERROR_TE4</option>
+				<option value="ERROR_CE1">ERROR_CE1</option>
 			</options>
 		</state>
 	</channel-type>

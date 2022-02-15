@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.lgthinq.lgservices;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.V2_CTRL_DEVICE_CONFIG_PATH;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.V2_CTRL_DEVICE_CONFIG_PATH;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,7 +31,8 @@ import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1OfflineExcepti
 import org.openhab.binding.lgthinq.internal.errors.RefreshTokenException;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
 import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
-import org.openhab.binding.lgthinq.lgservices.model.Snapshot;
+import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
+import org.openhab.binding.lgthinq.lgservices.model.ac.ACSnapshot;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACTargetTmp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,20 +41,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
- * The {@link LGThinqACApiV2ClientServiceImpl}
+ * The {@link LGThinQACApiV2ClientServiceImpl}
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class LGThinqACApiV2ClientServiceImpl extends LGThinqApiClientServiceImpl implements LGThinqACApiClientService {
-    private static final LGThinqACApiClientService instance;
-    private static final Logger logger = LoggerFactory.getLogger(LGThinqACApiV2ClientServiceImpl.class);
+public class LGThinQACApiV2ClientServiceImpl extends LGThinQAbstractApiClientService<ACCapability, ACSnapshot>
+        implements LGThinQACApiClientService {
+    private static final LGThinQACApiClientService instance;
+    private static final Logger logger = LoggerFactory.getLogger(LGThinQACApiV2ClientServiceImpl.class);
 
     static {
-        instance = new LGThinqACApiV2ClientServiceImpl();
+        instance = new LGThinQACApiV2ClientServiceImpl(ACCapability.class, ACSnapshot.class);
     }
 
-    public static LGThinqACApiClientService getInstance() {
+    protected LGThinQACApiV2ClientServiceImpl(Class<ACCapability> capabilityClass, Class<ACSnapshot> snapshotClass) {
+        super(capabilityClass, snapshotClass);
+    }
+
+    public static LGThinQACApiClientService getInstance() {
         return instance;
     }
 
@@ -170,7 +176,7 @@ public class LGThinqACApiV2ClientServiceImpl extends LGThinqApiClientServiceImpl
     }
 
     @Override
-    public @Nullable Snapshot getMonitorData(@NonNull String bridgeName, @NonNull String deviceId,
+    public @Nullable ACSnapshot getMonitorData(@NonNull String bridgeName, @NonNull String deviceId,
             @NonNull String workId, DeviceTypes deviceType)
             throws LGThinqApiException, LGThinqDeviceV1MonitorExpiredException, IOException {
         throw new UnsupportedOperationException("Not supported in V2 API.");

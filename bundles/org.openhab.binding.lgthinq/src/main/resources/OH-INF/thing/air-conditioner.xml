@@ -10,8 +10,8 @@
 			<bridge-type-ref id="bridge"/>
 		</supported-bridge-type-refs>
 
-		<label>LG Thinq Air Conditioner</label>
-		<description>LG Thinq Air Conditioner</description>
+		<label>LG ThinQ Air Conditioner</label>
+		<description>LG ThinQ Air Conditioner</description>
 
 		<channels>
 			<channel id="target_temperature" typeId="target-temperature"/>

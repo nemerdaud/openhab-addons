@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.lgthinq.lgservices;
 
-import static org.openhab.binding.lgthinq.internal.LGThinqBindingConstants.*;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.lgthinq.internal.LGThinqBindingConstants;
+import org.openhab.binding.lgthinq.internal.LGThinQBindingConstants;
 import org.openhab.binding.lgthinq.internal.api.RestResult;
 import org.openhab.binding.lgthinq.internal.api.RestUtils;
 import org.openhab.binding.lgthinq.internal.api.TokenManager;
@@ -37,7 +37,6 @@ import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1MonitorExpired
 import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1OfflineException;
 import org.openhab.binding.lgthinq.internal.errors.RefreshTokenException;
 import org.openhab.binding.lgthinq.lgservices.model.*;
-import org.openhab.binding.lgthinq.lgservices.model.ac.ACSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,18 +45,24 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * The {@link LGThinqACApiV1ClientServiceImpl}
+ * The {@link LGThinQACApiV1ClientServiceImpl}
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public abstract class LGThinqApiClientServiceImpl implements LGThinqApiClientService {
-    private static final Logger logger = LoggerFactory.getLogger(LGThinqApiClientServiceImpl.class);
+public abstract class LGThinQAbstractApiClientService<C extends Capability, S extends Snapshot>
+        implements LGThinQApiClientService<C, S> {
+    private static final Logger logger = LoggerFactory.getLogger(LGThinQAbstractApiClientService.class);
     protected final ObjectMapper objectMapper = new ObjectMapper();
     protected final TokenManager tokenManager;
+    protected Class<C> capabilityClass;
+    protected Class<S> snapshotClass;
 
-    protected LGThinqApiClientServiceImpl() {
+    protected LGThinQAbstractApiClientService(Class<C> capabilityClass, Class<S> snapshotClass) {
         this.tokenManager = TokenManager.getInstance();
+
+        this.capabilityClass = capabilityClass;
+        this.snapshotClass = snapshotClass;
     }
 
     static Map<String, String> getCommonHeaders(String language, String country, String accessToken,
@@ -114,6 +119,7 @@ public abstract class LGThinqApiClientServiceImpl implements LGThinqApiClientSer
                 }
             }
         } catch (IOException e) {
+            logger.error("Error reading resource from URI: {}", uri, e);
             throw new LGThinqApiException("Error reading IO interface", e);
         }
         return regFile;
@@ -221,12 +227,12 @@ public abstract class LGThinqApiClientServiceImpl implements LGThinqApiClientSer
      * @return return simplified capability
      * @throws LGThinqApiException If some error occurr
      */
-    public Capability getCapability(String deviceId, String uri, boolean forceRecreate) throws LGThinqApiException {
+    public C getCapability(String deviceId, String uri, boolean forceRecreate) throws LGThinqApiException {
         try {
             File regFile = loadDeviceCapability(deviceId, uri, forceRecreate);
             Map<String, Object> mapper = objectMapper.readValue(regFile, new TypeReference<>() {
             });
-            return CapabilityFactory.getInstance().create(mapper);
+            return CapabilityFactory.getInstance().create(mapper, capabilityClass);
         } catch (IOException e) {
             throw new LGThinqApiException("Error reading IO interface", e);
         }
@@ -269,9 +275,8 @@ public abstract class LGThinqApiClientServiceImpl implements LGThinqApiClientSer
         return envelope;
     }
 
-    public @Nullable Snapshot getMonitorData(@NonNull String bridgeName, @NonNull String deviceId,
-            @NonNull String workId, DeviceTypes deviceType)
-            throws LGThinqApiException, LGThinqDeviceV1MonitorExpiredException, IOException {
+    public @Nullable S getMonitorData(@NonNull String bridgeName, @NonNull String deviceId, @NonNull String workId,
+            DeviceTypes deviceType) throws LGThinqApiException, LGThinqDeviceV1MonitorExpiredException, IOException {
         TokenResult token = tokenManager.getValidRegisteredToken(bridgeName);
         UriBuilder builder = UriBuilder.fromUri(token.getGatewayInfo().getApiRootV1()).path(V1_MON_DATA_PATH);
         Map<String, String> headers = getCommonHeaders(token.getGatewayInfo().getLanguage(),
@@ -286,9 +291,15 @@ public abstract class LGThinqApiClientServiceImpl implements LGThinqApiClientSer
         try {
             envelop = handleV1GenericErrorResult(resp);
         } catch (LGThinqDeviceV1OfflineException e) {
-            ACSnapshot shot = new ACSnapshot();
-            shot.setOnline(false);
-            return shot;
+            try {
+                S shot = snapshotClass.getDeclaredConstructor().newInstance();
+                shot.setOnline(false);
+                return shot;
+            } catch (Exception ex) {
+                logger.error("Unexpected Error. The default constructor of this Snapshot wasn't found", ex);
+                throw new IllegalStateException(
+                        "Unexpected Error. The default constructor of this Snapshot wasn't found", ex);
+            }
         }
         if (envelop.get("workList") != null
                 && ((Map<String, Object>) envelop.get("workList")).get("returnData") != null) {
@@ -303,7 +314,7 @@ public abstract class LGThinqApiClientServiceImpl implements LGThinqApiClientSer
 
             String jsonMonDataB64 = (String) workList.get("returnData");
             String jsonMon = new String(Base64.getDecoder().decode(jsonMonDataB64));
-            Snapshot shot = SnapshotFactory.getInstance().create(jsonMon, deviceType);
+            S shot = SnapshotFactory.getInstance().create(jsonMon, deviceType, snapshotClass);
             shot.setOnline("E".equals(workList.get("deviceState")));
             return shot;
         } else {
@@ -322,14 +333,14 @@ public abstract class LGThinqApiClientServiceImpl implements LGThinqApiClientSer
      */
     @Override
     @Nullable
-    public Snapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException {
+    public S getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException {
         Map<String, Object> deviceSettings = getDeviceSettings(bridgeName, deviceId);
         if (deviceSettings.get("snapshot") != null) {
             Map<String, Object> snapMap = (Map<String, Object>) deviceSettings.get("snapshot");
             if (logger.isDebugEnabled()) {
                 try {
                     objectMapper.writeValue(new File(String.format(
-                            LGThinqBindingConstants.THINQ_USER_DATA_FOLDER + File.separator + "thinq-%s-datatrace.json",
+                            LGThinQBindingConstants.THINQ_USER_DATA_FOLDER + File.separator + "thinq-%s-datatrace.json",
                             deviceId)), deviceSettings);
                 } catch (IOException e) {
                     logger.error("Error saving data trace", e);
@@ -340,7 +351,7 @@ public abstract class LGThinqApiClientServiceImpl implements LGThinqApiClientSer
                 return null;
             }
 
-            Snapshot shot = SnapshotFactory.getInstance().create(deviceSettings);
+            S shot = SnapshotFactory.getInstance().create(deviceSettings, snapshotClass);
             shot.setOnline((Boolean) snapMap.get("online"));
             return shot;
         }

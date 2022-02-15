@@ -12,22 +12,32 @@
  */
 package org.openhab.binding.lgthinq.lgservices;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
+import org.openhab.binding.lgthinq.lgservices.model.washer.WasherCapability;
+import org.openhab.binding.lgthinq.lgservices.model.washer.WasherSnapshot;
 
 /**
- * The {@link LGThinqWMApiV2ClientServiceImpl}
+ * The {@link LGThinQWMApiV2ClientServiceImpl}
  *
  * @author Nemer Daud - Initial contribution
  */
-public class LGThinqWMApiV2ClientServiceImpl extends LGThinqApiClientServiceImpl implements LGThinqWMApiClientService {
+@NonNullByDefault
+public class LGThinQWMApiV2ClientServiceImpl extends LGThinQAbstractApiClientService<WasherCapability, WasherSnapshot>
+        implements LGThinQWMApiClientService {
 
-    private static final LGThinqWMApiClientService instance;
+    private static final LGThinQWMApiClientService instance;
     static {
-        instance = new LGThinqWMApiV2ClientServiceImpl();
+        instance = new LGThinQWMApiV2ClientServiceImpl(WasherCapability.class, WasherSnapshot.class);
     }
 
-    public static LGThinqWMApiClientService getInstance() {
+    protected LGThinQWMApiV2ClientServiceImpl(Class<WasherCapability> capabilityClass,
+            Class<WasherSnapshot> snapshotClass) {
+        super(capabilityClass, snapshotClass);
+    }
+
+    public static LGThinQWMApiClientService getInstance() {
         return instance;
     }
 
