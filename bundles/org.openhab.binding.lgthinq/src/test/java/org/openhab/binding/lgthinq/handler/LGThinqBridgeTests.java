@@ -36,9 +36,7 @@ import org.openhab.binding.lgthinq.internal.LGThinQConfiguration;
 import org.openhab.binding.lgthinq.internal.api.RestUtils;
 import org.openhab.binding.lgthinq.internal.api.TokenManager;
 import org.openhab.binding.lgthinq.internal.handler.LGThinQBridgeHandler;
-import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV1ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV2ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinQApiClientService;
+import org.openhab.binding.lgthinq.lgservices.*;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ThingUID;
@@ -185,7 +183,7 @@ class LGThinqBridgeTests {
         // .getConfigAs(any(Class.class));
         // spyBridge.initialize();
         // LGThinQApiClientService service1 = LGThinQACApiV1ClientServiceImpl.getInstance();
-        final LGThinQApiClientService service2 = LGThinQACApiV2ClientServiceImpl.getInstance();
+        final LGThinQWMApiClientService service2 = LGThinQWMApiV2ClientServiceImpl.getInstance();
         TokenManager tokenManager = TokenManager.getInstance();
         try {
             if (!tokenManager.isOauthTokenRegistered(fakeBridgeName)) {

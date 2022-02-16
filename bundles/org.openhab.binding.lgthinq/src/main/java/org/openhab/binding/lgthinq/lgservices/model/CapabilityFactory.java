@@ -128,6 +128,7 @@ public class CapabilityFactory {
                 wmCap.addCourse(k, Objects.requireNonNull(((Map<String, String>) v).get("_comment"),
                         "_comment property for course node must be present"));
             });
+            wmCap.addCourse("NOT_SELECTED", "Not Selected");
 
             Map<String, Object> smartCourseMap = (Map<String, Object>) rootMap.get("SmartCourse");
             Objects.requireNonNull(smartCourseMap,
@@ -136,6 +137,7 @@ public class CapabilityFactory {
                 wmCap.addSmartCourse(k, Objects.requireNonNull(((Map<String, String>) v).get("_comment"),
                         "_comment property for smartCourse node must be present"));
             });
+            wmCap.addSmartCourse("NOT_SELECTED", "Not Selected");
 
             loadWmMonValueCap(WasherCapability.MonitoringCap.STATE, monValue, wmCap);
             loadWmMonValueCap(WasherCapability.MonitoringCap.SOIL_WASH, monValue, wmCap);

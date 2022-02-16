@@ -113,7 +113,7 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
     public File loadDeviceCapability(String deviceId, String uri, boolean forceRecreate) throws LGThinqApiException {
         File regFile = new File(String.format(BASE_CAP_CONFIG_DATA_FILE, deviceId));
         try {
-            if (regFile.isFile() || forceRecreate) {
+            if (!regFile.isFile() || forceRecreate) {
                 try (InputStream in = new URL(uri).openStream()) {
                     Files.copy(in, regFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 }

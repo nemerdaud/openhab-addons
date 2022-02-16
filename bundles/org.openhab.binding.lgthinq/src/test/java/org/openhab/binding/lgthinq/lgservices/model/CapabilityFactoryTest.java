@@ -47,7 +47,7 @@ class CapabilityFactoryTest {
         WasherCapability wpCap = (WasherCapability) CapabilityFactory.getInstance().create(mapper,
                 WasherCapability.class);
         assertNotNull(wpCap);
-        assertEquals(13, wpCap.getCourses().size());
+        assertEquals(14, wpCap.getCourses().size());
         assertTrue(wpCap.getRinse().size() > 1);
         assertTrue(wpCap.getSpin().size() > 1);
         assertTrue(wpCap.getSoilWash().size() > 1);
