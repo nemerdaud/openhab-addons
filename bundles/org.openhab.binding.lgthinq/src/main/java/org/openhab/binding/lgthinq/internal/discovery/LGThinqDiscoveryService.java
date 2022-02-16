@@ -13,6 +13,7 @@
 package org.openhab.binding.lgthinq.internal.discovery;
 
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
+import static org.openhab.core.thing.Thing.PROPERTY_MODEL_ID;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,17 +22,19 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.internal.handler.LGThinQBridgeHandler;
-import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV1ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV2ClientServiceImpl;
+import org.openhab.binding.lgthinq.lgservices.LGThinQAbstractApiClientService;
 import org.openhab.binding.lgthinq.lgservices.LGThinQApiClientService;
+import org.openhab.binding.lgthinq.lgservices.model.Capability;
+import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
+import org.openhab.binding.lgthinq.lgservices.model.Snapshot;
 import org.openhab.core.config.discovery.AbstractDiscoveryService;
 import org.openhab.core.config.discovery.DiscoveryResult;
 import org.openhab.core.config.discovery.DiscoveryResultBuilder;
 import org.openhab.core.config.discovery.DiscoveryService;
-import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.binding.ThingHandler;
@@ -50,12 +53,17 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
     private final Logger logger = LoggerFactory.getLogger(LGThinqDiscoveryService.class);
     private @Nullable LGThinQBridgeHandler bridgeHandler;
     private @Nullable ThingUID bridgeHandlerUID;
-    private final LGThinQApiClientService lgApiV1ClientService, lgApiV2ClientService;
+    private final LGThinQApiClientService<Capability, Snapshot> lgApiClientService;
 
     public LGThinqDiscoveryService() {
         super(SUPPORTED_THING_TYPES, SEARCH_TIME);
-        lgApiV1ClientService = LGThinQACApiV1ClientServiceImpl.getInstance();
-        lgApiV2ClientService = LGThinQACApiV2ClientServiceImpl.getInstance();
+        lgApiClientService = new LGThinQAbstractApiClientService<>(Capability.class, Snapshot.class) {
+            @Override
+            public void turnDevicePower(String bridgeName, String deviceId, DevicePowerState newPowerState)
+                    throws LGThinqApiException {
+                throw new UnsupportedOperationException("Not to use");
+            }
+        };
     }
 
     @Override
@@ -102,7 +110,7 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
         ThingTypeUID thingTypeUID;
         try {
             // load capability to cache and troubleshooting
-            lgApiV2ClientService.loadDeviceCapability(device.getDeviceId(), device.getModelJsonUri(), false);
+            lgApiClientService.loadDeviceCapability(device.getDeviceId(), device.getModelJsonUri(), false);
             thingUID = getThingUID(device);
             thingTypeUID = getThingTypeUID(device);
         } catch (LGThinqException e) {
@@ -119,20 +127,7 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
         properties.put(DEVICE_ALIAS, device.getAlias());
         properties.put(MODEL_URL_INFO, device.getModelJsonUri());
         properties.put(PLATFORM_TYPE, device.getPlatformType());
-        try {
-            // registry the capabilities of the thing
-            if (PLATFORM_TYPE_V1.equals(device.getPlatformType())) {
-                lgApiV1ClientService.getCapability(device.getDeviceId(), device.getModelJsonUri(), true);
-            } else {
-                lgApiV2ClientService.getCapability(device.getDeviceId(), device.getModelJsonUri(), true);
-            }
-
-        } catch (Exception ex) {
-            logger.error(
-                    "Error trying to get device capabilities in discovery service. Fallback to the defaults values",
-                    ex);
-        }
-        properties.put(Thing.PROPERTY_MODEL_ID, modelId);
+        properties.put(PROPERTY_MODEL_ID, modelId);
 
         DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
                 .withProperties(properties).withBridge(bridgeHandlerUID).withRepresentationProperty(DEVICE_ID)
