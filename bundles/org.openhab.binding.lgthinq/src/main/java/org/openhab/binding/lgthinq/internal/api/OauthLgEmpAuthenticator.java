@@ -25,6 +25,8 @@ import javax.ws.rs.core.UriBuilder;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.api.model.GatewayResult;
+import org.openhab.binding.lgthinq.internal.errors.RefreshTokenException;
+import org.openhab.binding.lgthinq.lgservices.model.ResultCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,10 +164,11 @@ public class OauthLgEmpAuthenticator {
                     "Expected HTTP OK return, but received result core:" + result.getJsonResponse());
         } else {
             GatewayResult gwResult = LGThinqCanonicalModelUtil.getGatewayResult(result.getJsonResponse());
-            if (!"0000".equals(gwResult.getReturnedCode())) {
+            ResultCodes resultCode = ResultCodes.fromCode(gwResult.getReturnedCode());
+            if (ResultCodes.OK != resultCode) {
                 throw new IllegalStateException(String.format(
-                        "Result from LGThinq Gateway from Authentication URL was unexpected: %s with message:%s",
-                        gwResult.getReturnedCode(), gwResult.getReturnedMessage()));
+                        "Result from LGThinq Gateway from Authentication URL was unexpected. ResultCode: %s, with message:%s, Error Description:%s",
+                        gwResult.getReturnedCode(), gwResult.getReturnedMessage(), resultCode.getDescription()));
             }
 
             return new LGThinqGateway(gwResult, language, country, alternativeEmpServer);
@@ -322,7 +325,7 @@ public class OauthLgEmpAuthenticator {
                 Objects.requireNonNullElse(accountInfo.get("displayUserID"), ""));
     }
 
-    public TokenResult doRefreshToken(TokenResult currentToken) throws IOException {
+    public TokenResult doRefreshToken(TokenResult currentToken) throws IOException, RefreshTokenException {
         UriBuilder builder = UriBuilder.fromUri(currentToken.getOauthBackendUrl()).path(V2_AUTH_PATH);
         String oauthUrl = builder.build().toURL().toString();
         String timestamp = getCurrentTimestamp();
@@ -343,7 +346,8 @@ public class OauthLgEmpAuthenticator {
     private TokenResult handleTokenResult(RestResult resp) throws IOException {
         Map<String, Object> tokenResult;
         if (resp.getStatusCode() != 200) {
-            logger.error("Error getting oauth token. The reason is:{}", resp.getJsonResponse());
+            logger.error("Error getting oauth token. HTTP Status Code is:{}, The reason is:{}", resp.getStatusCode(),
+                    resp.getJsonResponse());
             throw new IllegalStateException(String.format("Error getting oauth token:%s", resp.getJsonResponse()));
         } else {
             tokenResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
@@ -365,16 +369,18 @@ public class OauthLgEmpAuthenticator {
                         "Unexpected result. oauth2_backend_url must be present in json result"));
     }
 
-    private TokenResult handleRefreshTokenResult(RestResult resp, TokenResult currentToken) throws IOException {
+    private TokenResult handleRefreshTokenResult(RestResult resp, TokenResult currentToken)
+            throws IOException, RefreshTokenException {
         Map<String, String> tokenResult;
         if (resp.getStatusCode() != 200) {
-            logger.error("Error getting oauth token. The reason is:{}", resp.getJsonResponse());
-            throw new IllegalStateException(String.format("Error getting oauth token:%s", resp.getJsonResponse()));
+            logger.error("Error getting oauth token. HTTP Status Code is:{}, The reason is:{}", resp.getStatusCode(),
+                    resp.getJsonResponse());
+            throw new RefreshTokenException(String.format("Error getting oauth token:%s", resp.getJsonResponse()));
         } else {
             tokenResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
             });
             if (tokenResult.get("access_token") == null || tokenResult.get("expires_in") == null) {
-                throw new IllegalStateException(String.format("Status error get refresh token info:%s", tokenResult));
+                throw new RefreshTokenException(String.format("Status error get refresh token info:%s", tokenResult));
             }
         }
 

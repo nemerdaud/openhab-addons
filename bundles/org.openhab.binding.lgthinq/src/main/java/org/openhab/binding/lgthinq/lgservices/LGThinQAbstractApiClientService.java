@@ -164,7 +164,7 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
             try {
                 deviceSettings = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
                 });
-                if (!"0000".equals(deviceSettings.get("resultCode"))) {
+                if (!ResultCodes.OK.containsResultCode("" + deviceSettings.get("resultCode"))) {
                     logErrorResultCodeMessage((String) deviceSettings.get("resultCode"));
                     throw new LGThinqApiException(
                             String.format("Status error getting device list. resultCode must be 0000, but was:%s",
@@ -191,7 +191,7 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
             try {
                 devicesResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
                 });
-                if (!"0000".equals(devicesResult.get("resultCode"))) {
+                if (!ResultCodes.OK.containsResultCode("" + devicesResult.get("resultCode"))) {
                     logErrorResultCodeMessage((String) devicesResult.get("resultCode"));
                     throw new LGThinqApiException(
                             String.format("Status error getting device list. resultCode must be 0000, but was:%s",
@@ -210,13 +210,13 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
         return devices;
     }
 
-    protected static void logErrorResultCodeMessage(@Nullable String resultCode) {
-        if (resultCode == null) {
+    protected static void logErrorResultCodeMessage(@Nullable String code) {
+        if (code == null) {
             return;
         }
-        String errMessage = ERROR_CODE_RESPONSE.get(resultCode.trim());
-        logger.error("LG API report error processing the request -> resultCode=[{}], message=[{}]", resultCode,
-                errMessage == null ? "UNKNOW ERROR MESSAGE" : errMessage);
+        ResultCodes resultCode = ResultCodes.fromCode(code);
+        String errMessage = resultCode.getDescription();
+        logger.error("LG API report error processing the request -> resultCode=[{}], message=[{}]", code, errMessage);
     }
 
     /**
@@ -258,9 +258,10 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
                 if (envelope == null) {
                     throw new LGThinqApiException(String.format(
                             "Unexpected json body returned (without root node lgedmRoot): %s", resp.getJsonResponse()));
-                } else if (!"0000".equals(envelope.get("returnCd"))) {
+                } else if (!ResultCodes.OK.containsResultCode("" + envelope.get("returnCd"))) {
                     logErrorResultCodeMessage((String) envelope.get("returnCd"));
-                    if ("0106".equals(envelope.get("returnCd")) || "D".equals(envelope.get("deviceState"))) {
+                    if (ResultCodes.DEVICE_NOT_RESPONSE.containsResultCode("" + envelope.get("returnCd"))
+                            || "D".equals(envelope.get("deviceState"))) {
                         // Disconnected Device
                         throw new LGThinqDeviceV1OfflineException("Device is offline. No data available");
                     }
@@ -304,7 +305,7 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
         if (envelop.get("workList") != null
                 && ((Map<String, Object>) envelop.get("workList")).get("returnData") != null) {
             Map<String, Object> workList = ((Map<String, Object>) envelop.get("workList"));
-            if (!"0000".equals(workList.get("returnCode"))) {
+            if (!ResultCodes.OK.containsResultCode("" + workList.get("resultCode"))) {
                 logErrorResultCodeMessage((String) workList.get("resultCode"));
                 LGThinqDeviceV1MonitorExpiredException e = new LGThinqDeviceV1MonitorExpiredException(
                         String.format("Monitor for device %s has expired. Please, refresh the monitor.", deviceId));

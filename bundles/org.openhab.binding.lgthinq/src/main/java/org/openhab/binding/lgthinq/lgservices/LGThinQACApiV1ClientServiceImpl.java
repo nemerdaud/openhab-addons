@@ -14,6 +14,7 @@ package org.openhab.binding.lgthinq.lgservices;
 
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -22,6 +23,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.lgthinq.internal.LGThinQBindingConstants;
 import org.openhab.binding.lgthinq.internal.api.RestResult;
 import org.openhab.binding.lgthinq.internal.api.RestUtils;
 import org.openhab.binding.lgthinq.internal.api.TokenResult;
@@ -30,6 +32,7 @@ import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1MonitorExpired
 import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1OfflineException;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
 import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
+import org.openhab.binding.lgthinq.lgservices.model.ResultCodes;
 import org.openhab.binding.lgthinq.lgservices.model.SnapshotFactory;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACSnapshot;
@@ -159,8 +162,17 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
         if (envelop.get("workList") != null
                 && ((Map<String, Object>) envelop.get("workList")).get("returnData") != null) {
             Map<String, Object> workList = ((Map<String, Object>) envelop.get("workList"));
-            if (!"0000".equals(workList.get("returnCode"))) {
-                logErrorResultCodeMessage((String) workList.get("resultCode"));
+            if (logger.isDebugEnabled()) {
+                try {
+                    objectMapper.writeValue(new File(String.format(
+                            LGThinQBindingConstants.THINQ_USER_DATA_FOLDER + File.separator + "thinq-%s-datatrace.json",
+                            deviceId)), workList);
+                } catch (IOException e) {
+                    logger.error("Error saving data trace", e);
+                }
+            }
+            if (!ResultCodes.OK.containsResultCode("" + workList.get("returnCode"))) {
+                logErrorResultCodeMessage((String) workList.get("returnCode"));
                 LGThinqDeviceV1MonitorExpiredException e = new LGThinqDeviceV1MonitorExpiredException(
                         String.format("Monitor for device %s has expired. Please, refresh the monitor.", deviceId));
                 logger.warn("{}", e.getMessage());

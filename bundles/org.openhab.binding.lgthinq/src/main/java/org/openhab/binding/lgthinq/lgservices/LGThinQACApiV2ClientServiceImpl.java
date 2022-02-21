@@ -31,6 +31,7 @@ import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1OfflineExcepti
 import org.openhab.binding.lgthinq.internal.errors.RefreshTokenException;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
 import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
+import org.openhab.binding.lgthinq.lgservices.model.ResultCodes;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACSnapshot;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACTargetTmp;
@@ -156,7 +157,7 @@ public class LGThinQACApiV2ClientServiceImpl extends LGThinQAbstractApiClientSer
             try {
                 metaResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<Map<String, Object>>() {
                 });
-                if (!"0000".equals(metaResult.get("resultCode"))) {
+                if (!ResultCodes.OK.containsResultCode("" + metaResult.get("resultCode"))) {
                     logErrorResultCodeMessage((String) metaResult.get("resultCode"));
                     throw new LGThinqApiException(
                             String.format("Status error executing endpoint. resultCode must be 0000, but was:%s",

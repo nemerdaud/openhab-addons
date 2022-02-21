@@ -83,7 +83,6 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
         updateState(CHANNEL_FAN_SPEED_ID, new DecimalType(shot.getAirWindStrength()));
         updateState(CHANNEL_CURRENT_TEMP_ID, new DecimalType(shot.getCurrentTemperature()));
         updateState(CHANNEL_TARGET_TEMP_ID, new DecimalType(shot.getTargetTemperature()));
-        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override

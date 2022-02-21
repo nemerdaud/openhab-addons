@@ -30,7 +30,6 @@ import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1OfflineExcepti
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.LGThinQApiClientService;
 import org.openhab.binding.lgthinq.lgservices.model.*;
-import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.thing.*;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
@@ -251,13 +250,16 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
             }
             if (!shot.isOnline()) {
                 if (getThing().getStatus() != ThingStatus.OFFLINE) {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.GONE);
-                    updateState(CHANNEL_POWER_ID,
-                            OnOffType.from(shot.getPowerStatus() == DevicePowerState.DV_POWER_OFF));
+                    // only update channels if the device has just gone OFFLINE.
+                    updateDeviceChannels(shot);
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.device-disconnected");
                 }
-                return;
+            } else {
+                // do not update channels if the device is offline
+                updateDeviceChannels(shot);
+                if (getThing().getStatus() != ThingStatus.ONLINE)
+                    updateStatus(ThingStatus.ONLINE);
             }
-            updateDeviceChannels(shot);
 
         } catch (LGThinqException e) {
             getLogger().error("Error updating thing {}/{} from LG API. Thing goes OFFLINE until next retry.",
