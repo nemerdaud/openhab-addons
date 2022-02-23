@@ -170,15 +170,11 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
 
     public abstract String getDeviceAlias();
 
-    public abstract String getDeviceModelName();
-
     public abstract String getDeviceUriJsonConfig();
-
-    public abstract boolean onDeviceStateChanged();
 
     public abstract void onDeviceRemoved();
 
-    public abstract void onDeviceGone();
+    public abstract void onDeviceDisconnected();
 
     public abstract void updateChannelDynStateDescription() throws LGThinqApiException;
 
@@ -253,6 +249,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
                     // only update channels if the device has just gone OFFLINE.
                     updateDeviceChannels(shot);
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.device-disconnected");
+                    onDeviceDisconnected();
                 }
             } else {
                 // do not update channels if the device is offline

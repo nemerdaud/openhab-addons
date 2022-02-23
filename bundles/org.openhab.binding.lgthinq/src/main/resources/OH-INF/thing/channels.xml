@@ -93,6 +93,16 @@
 			</options>
 		</state>
 	</channel-type>
+	<channel-type id="washer-downloaded-course">
+		<item-type>String</item-type>
+		<label>Washer Downloaded Course</label>
+		<description>Washer Downloaded Course</description>
+		<state readOnly="true">
+			<options>
+				<option value="COTTON">Cotton</option>
+			</options>
+		</state>
+	</channel-type>
 	<channel-type id="washer-temp-level">
 		<item-type>String</item-type>
 		<label>Temperature Level</label>
