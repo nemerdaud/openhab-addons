@@ -94,6 +94,17 @@ public class LGThinQACApiV2ClientServiceImpl extends LGThinQAbstractApiClientSer
     }
 
     @Override
+    public void turnCoolJetMode(String bridgeName, String deviceId, String modeOnOff) throws LGThinqApiException {
+        try {
+            RestResult resp = sendControlCommands(bridgeName, deviceId, "Operation", "airState.wMode.jet",
+                    Integer.parseInt(modeOnOff));
+            handleV2GenericErrorResult(resp);
+        } catch (Exception e) {
+            throw new LGThinqApiException("Error adjusting cool jet mode", e);
+        }
+    }
+
+    @Override
     public void changeOperationMode(String bridgeName, String deviceId, int newOpMode) throws LGThinqApiException {
         try {
             RestResult resp = sendControlCommands(bridgeName, deviceId, "Set", "airState.opMode", newOpMode);

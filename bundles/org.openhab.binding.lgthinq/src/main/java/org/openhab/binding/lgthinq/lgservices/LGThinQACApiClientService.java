@@ -31,4 +31,6 @@ public interface LGThinQACApiClientService extends LGThinQApiClientService<ACCap
 
     void changeTargetTemperature(String bridgeName, String deviceId, ACTargetTmp newTargetTemp)
             throws LGThinqApiException;
+
+    void turnCoolJetMode(String bridgeName, String deviceId, String modeOnOff) throws LGThinqApiException;
 }

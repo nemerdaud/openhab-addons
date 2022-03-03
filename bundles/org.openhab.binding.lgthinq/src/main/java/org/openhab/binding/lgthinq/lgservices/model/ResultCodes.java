@@ -94,6 +94,8 @@ public enum ResultCodes {
             case "0110":
             case "0114":
                 return LOGIN_FAILED;
+            case "0100":
+                return GENERAL_FAILURE;
             case "0116":
                 return INVALID_REQUEST;
             case "0108":

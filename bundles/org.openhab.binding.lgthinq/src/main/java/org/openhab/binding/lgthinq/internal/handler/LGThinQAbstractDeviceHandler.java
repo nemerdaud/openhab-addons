@@ -226,6 +226,10 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
         // finally, start command queue, regardless of the thing state, as we can still try to send commands without
         // property ONLINE (the successful result from command request can put the thing in ONLINE status).
         startCommandExecutorQueueJob();
+        if (getThing().getStatus() == ThingStatus.ONLINE) {
+            // force start state pooling if the device is ONLINE
+            startThingStatePolling();
+        }
     }
 
     @Override
@@ -262,6 +266,10 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
             getLogger().error("Error updating thing {}/{} from LG API. Thing goes OFFLINE until next retry.",
                     getDeviceAlias(), getDeviceId(), e);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+        } catch (Exception e) {
+            getLogger().error(
+                    "System error in pooling thread (UpdateDevice) for device {}/{}. Filtering to do not stop the thread",
+                    getDeviceAlias(), getDeviceId(), e);
         }
     }
 

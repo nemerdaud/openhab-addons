@@ -12,6 +12,12 @@
 		<state readOnly="true" pattern="%.0f %unit%"/>
 	</channel-type>
 
+	<channel-type id="cool_jet">
+		<item-type>Switch</item-type>
+		<label>Cool Jet</label>
+		<category>Temperature</category>
+	</channel-type>
+
 	<channel-type id="target-temperature">
 		<item-type>Number:Temperature</item-type>
 		<label>Target Temperature</label>

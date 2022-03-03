@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.lgthinq.lgservices.model;
 
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CAP_AC_COOL_JET;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CAP_AC_COOL_JET_COMMAND_OFF;
 import static org.openhab.binding.lgthinq.lgservices.model.DeviceTypes.*;
 
 import java.util.ArrayList;
@@ -218,7 +220,6 @@ public class CapabilityFactory {
 
             }
             // Set supported modes for the device
-
             Map<String, Map<String, String>> supOpModes = (Map<String, Map<String, String>>) cap.get("SupportOpMode");
             acCap.setSupportedOpMode(new ArrayList<>(supOpModes.get("option").values()));
             acCap.getSupportedOpMode().remove("@NON");
@@ -226,6 +227,19 @@ public class CapabilityFactory {
                     .get("SupportWindStrength");
             acCap.setSupportedFanSpeed(new ArrayList<>(supFanSpeeds.get("option").values()));
             acCap.getSupportedFanSpeed().remove("@NON");
+
+            // set Cool jetMode supportability
+            Map<String, Map<String, String>> supJetModes = (Map<String, Map<String, String>>) cap.get("Jet");
+            if (supJetModes != null) {
+                (supJetModes.get("option")).forEach((k, v) -> {
+                    if (CAP_AC_COOL_JET.containsKey(v)) {
+                        acCap.setJetModeAvailable(true);
+                        acCap.setCoolJetModeCommandOn(k);
+                    } else if (CAP_AC_COOL_JET_COMMAND_OFF.equals(v)) {
+                        acCap.setCoolJetModeCommandOff(k);
+                    }
+                });
+            }
 
             return acCap;
         } else {
@@ -264,6 +278,22 @@ public class CapabilityFactory {
                     .get("support.airState.windStrength");
             acCap.setSupportedFanSpeed(new ArrayList<>(supFanSpeeds.get("value_mapping").values()));
             acCap.getSupportedFanSpeed().remove("@NON");
+
+            // set Cool jetMode supportability
+            Map<String, Map<String, String>> supJetModes = (Map<String, Map<String, String>>) cap
+                    .get("airState.wMode.jet");
+            if (supJetModes != null) {
+                (supJetModes.get("value_mapping")).forEach((k, v) -> {
+                    Map<String, String> jetModes = new HashMap<String, String>();
+                    if (CAP_AC_COOL_JET.containsKey(v)) {
+                        acCap.setJetModeAvailable(true);
+                        acCap.setCoolJetModeCommandOn(k);
+                    } else if (CAP_AC_COOL_JET_COMMAND_OFF.equals(v)) {
+                        acCap.setCoolJetModeCommandOff(k);
+                    }
+                });
+            }
+
             return acCap;
         }
     }

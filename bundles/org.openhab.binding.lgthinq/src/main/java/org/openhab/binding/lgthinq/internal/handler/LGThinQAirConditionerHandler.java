@@ -14,6 +14,7 @@ package org.openhab.binding.lgthinq.internal.handler;
 
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
@@ -34,6 +35,9 @@ import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.thing.*;
+import org.openhab.core.thing.binding.builder.ChannelBuilder;
+import org.openhab.core.thing.type.ChannelKind;
+import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.StateOption;
 import org.slf4j.Logger;
@@ -50,8 +54,8 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
 
     private final ChannelUID opModeChannelUID;
     private final ChannelUID fanSpeedChannelUID;
-    @Nullable
-    private ACCapability acCapability;
+    private final ChannelUID jetModeChannelUID;
+
     private final Logger logger = LoggerFactory.getLogger(LGThinQAirConditionerHandler.class);
     @NonNullByDefault
     private final LGThinQACApiClientService lgThinqACApiClientService;
@@ -65,6 +69,7 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
                 : LGThinQACApiV2ClientServiceImpl.getInstance();
         opModeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_MOD_OP_ID);
         fanSpeedChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_FAN_SPEED_ID);
+        jetModeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_COOL_JET_ID);
     }
 
     @Override
@@ -76,18 +81,41 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
 
     @Override
     protected void updateDeviceChannels(ACSnapshot shot) {
-        updateState(CHANNEL_MOD_OP_ID, new DecimalType(shot.getOperationMode()));
-        updateState(CHANNEL_POWER_ID, OnOffType.from(shot.getPowerStatus() == DevicePowerState.DV_POWER_ON));
-        // TODO - validate if is needed to change the status of the thing from OFFLINE to ONLINE (as
-        // soon as LG WebOs do)
-        updateState(CHANNEL_FAN_SPEED_ID, new DecimalType(shot.getAirWindStrength()));
-        updateState(CHANNEL_CURRENT_TEMP_ID, new DecimalType(shot.getCurrentTemperature()));
-        updateState(CHANNEL_TARGET_TEMP_ID, new DecimalType(shot.getTargetTemperature()));
+
+        updateState(CHANNEL_POWER_ID,
+                DevicePowerState.DV_POWER_ON.equals(shot.getPowerStatus()) ? OnOffType.ON : OnOffType.OFF);
+        updateState(CHANNEL_MOD_OP_ID, new DecimalType(BigDecimal.valueOf(shot.getOperationMode())));
+        updateState(CHANNEL_FAN_SPEED_ID, new DecimalType(BigDecimal.valueOf(shot.getAirWindStrength())));
+        updateState(CHANNEL_CURRENT_TEMP_ID, new DecimalType(BigDecimal.valueOf(shot.getCurrentTemperature())));
+        updateState(CHANNEL_TARGET_TEMP_ID, new DecimalType(BigDecimal.valueOf(shot.getTargetTemperature())));
+        if (getThing().getChannel(jetModeChannelUID) != null) {
+            try {
+                ACCapability acCap = getCapabilities();
+                Double commandCoolJetOn = Double.valueOf(acCap.getCoolJetModeCommandOn());
+                updateState(CHANNEL_COOL_JET_ID,
+                        commandCoolJetOn.equals(shot.getCoolJetMode()) ? OnOffType.ON : OnOffType.OFF);
+            } catch (LGThinqApiException e) {
+                logger.error("Unexpected Error gettinf AC Capabilities", e);
+            } catch (NumberFormatException e) {
+                logger.warn("command value for CoolJetMode is not numeric.", e);
+            }
+        }
     }
 
     @Override
     public void updateChannelDynStateDescription() throws LGThinqApiException {
         ACCapability acCap = getCapabilities();
+        if (getThing().getChannel(jetModeChannelUID) == null && acCap.isJetModeAvailable()) {
+            if (getCallback() == null) {
+                logger.error("Unexpected behaviour. Callback not ready! Can't create dynamic channels");
+            } else {
+                // dynamic create channel
+                ChannelBuilder builder = getCallback().createChannelBuilder(jetModeChannelUID,
+                        new ChannelTypeUID(BINDING_ID, CHANNEL_COOL_JET_ID));
+                Channel channel = builder.withKind(ChannelKind.STATE).withAcceptedItemType("Switch").build();
+                updateThing(editThing().withChannel(channel).build());
+            }
+        }
         if (isLinked(opModeChannelUID)) {
             List<StateOption> options = new ArrayList<>();
             acCap.getSupportedOpMode().forEach((v) -> options
@@ -182,6 +210,16 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
                             command == OnOffType.ON ? DevicePowerState.DV_POWER_ON : DevicePowerState.DV_POWER_OFF);
                 } else {
                     logger.warn("Received command different of OnOffType in Power Channel. Ignoring");
+                }
+                break;
+            }
+            case CHANNEL_COOL_JET_ID: {
+                if (command instanceof OnOffType) {
+                    lgThinqACApiClientService.turnCoolJetMode(getBridgeId(), getDeviceId(),
+                            command == OnOffType.ON ? getCapabilities().getCoolJetModeCommandOn()
+                                    : getCapabilities().getCoolJetModeCommandOff());
+                } else {
+                    logger.warn("Received command different of OnOffType in CoolJet Mode Channel. Ignoring");
                 }
                 break;
             }
