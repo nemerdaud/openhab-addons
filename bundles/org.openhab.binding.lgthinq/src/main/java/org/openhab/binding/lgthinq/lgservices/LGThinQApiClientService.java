@@ -48,6 +48,9 @@ public interface LGThinQApiClientService<C extends Capability, S extends Snapsho
     @Nullable
     S getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException;
 
+    double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
+            throws LGThinqApiException, IOException;
+
     void turnDevicePower(String bridgeName, String deviceId, DevicePowerState newPowerState) throws LGThinqApiException;
 
     String startMonitor(String bridgeName, String deviceId)

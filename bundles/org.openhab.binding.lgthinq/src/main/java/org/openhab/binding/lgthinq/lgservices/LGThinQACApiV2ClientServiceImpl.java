@@ -193,4 +193,10 @@ public class LGThinQACApiV2ClientServiceImpl extends LGThinQAbstractApiClientSer
             throws LGThinqApiException, LGThinqDeviceV1MonitorExpiredException, IOException {
         throw new UnsupportedOperationException("Not supported in V2 API.");
     }
+
+    @Override
+    public double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
+            throws LGThinqApiException {
+        throw new UnsupportedOperationException("Not supporte for this device");
+    }
 }

@@ -178,11 +178,7 @@ class LGThinqBridgeTests {
         LGThinQBindingConstants.THINQ_CONNECTION_DATA_FILE = tempDir + File.separator + "token.json";
         LGThinQBindingConstants.BASE_CAP_CONFIG_DATA_FILE = tempDir + File.separator + "thinq-cap.json";
         LGThinQBridgeHandler b = new LGThinQBridgeHandler(fakeThing);
-        LGThinQBridgeHandler spyBridge = spy(b);
-        // doReturn(new LGThinQConfiguration(fakeUserName, fakePassword, fakeCountry, fakeLanguage, 60)).when(spyBridge)
-        // .getConfigAs(any(Class.class));
-        // spyBridge.initialize();
-        // LGThinQApiClientService service1 = LGThinQACApiV1ClientServiceImpl.getInstance();
+
         final LGThinQWMApiClientService service2 = LGThinQWMApiV2ClientServiceImpl.getInstance();
         TokenManager tokenManager = TokenManager.getInstance();
         try {

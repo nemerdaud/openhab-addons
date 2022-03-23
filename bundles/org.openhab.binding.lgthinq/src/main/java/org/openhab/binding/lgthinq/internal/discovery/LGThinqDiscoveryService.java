@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
@@ -58,6 +59,12 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
     public LGThinqDiscoveryService() {
         super(SUPPORTED_THING_TYPES, SEARCH_TIME);
         lgApiClientService = new LGThinQAbstractApiClientService<>(Capability.class, Snapshot.class) {
+            @Override
+            public double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
+                    throws LGThinqApiException, IOException {
+                return 0;
+            }
+
             @Override
             public void turnDevicePower(String bridgeName, String deviceId, DevicePowerState newPowerState)
                     throws LGThinqApiException {

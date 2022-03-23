@@ -295,7 +295,7 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
             try {
                 S shot = snapshotClass.getDeclaredConstructor().newInstance();
                 shot.setOnline(false);
-                return shot;
+                return (S) shot;
             } catch (Exception ex) {
                 logger.error("Unexpected Error. The default constructor of this Snapshot wasn't found", ex);
                 throw new IllegalStateException(
@@ -305,8 +305,17 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
         if (envelop.get("workList") != null
                 && ((Map<String, Object>) envelop.get("workList")).get("returnData") != null) {
             Map<String, Object> workList = ((Map<String, Object>) envelop.get("workList"));
-            if (!ResultCodes.OK.containsResultCode("" + workList.get("resultCode"))) {
-                logErrorResultCodeMessage((String) workList.get("resultCode"));
+            if (logger.isDebugEnabled()) {
+                try {
+                    objectMapper.writeValue(new File(String.format(
+                            LGThinQBindingConstants.THINQ_USER_DATA_FOLDER + File.separator + "thinq-%s-datatrace.json",
+                            deviceId)), workList);
+                } catch (IOException e) {
+                    logger.error("Error saving data trace", e);
+                }
+            }
+            if (!ResultCodes.OK.containsResultCode("" + workList.get("returnCode"))) {
+                logErrorResultCodeMessage((String) workList.get("returnCode"));
                 LGThinqDeviceV1MonitorExpiredException e = new LGThinqDeviceV1MonitorExpiredException(
                         String.format("Monitor for device %s has expired. Please, refresh the monitor.", deviceId));
                 logger.warn("{}", e.getMessage());
@@ -358,6 +367,9 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
         }
         return null;
     }
+
+    public abstract double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
+            throws LGThinqApiException, IOException;
 
     /**
      * Start monitor data form specific device. This is old one, <b>works only on V1 API supported devices</b>.

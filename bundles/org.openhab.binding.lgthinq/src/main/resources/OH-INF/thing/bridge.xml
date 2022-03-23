@@ -14,6 +14,7 @@
 				<description>The User Language registered in LG Account</description>
 				<options>
 					<option value="en-US">American English</option>
+					<option value="nl-BE">Belgium Dutch</option>
 					<option value="en-GB">British English</option>
 					<option value="pt-BR">Brazilian Portuguese</option>
 					<option value="it-IT">Italian</option>
@@ -22,6 +23,7 @@
 					<option value="pt-PT">Portugal Portuguese</option>
 					<option value="de-DE">German (Standard)</option>
 					<option value="da-DK">Danish</option>
+					<option value="--">Other</option>
 				</options>
 			</parameter>
 			<parameter name="country" type="text" required="true">
@@ -30,6 +32,7 @@
 				<options>
 					<option value="US">United States</option>
 					<option value="UK">United Kingdom</option>
+					<option value="BE">Belgium</option>
 					<option value="BR">Brazil</option>
 					<option value="IT">Italy</option>
 					<option value="LU">Luxembourg</option>
@@ -37,7 +40,16 @@
 					<option value="PT">Portugal</option>
 					<option value="DE">Germany</option>
 					<option value="DK">Denmark</option>
+					<option value="--">Other</option>
 				</options>
+			</parameter>
+			<parameter name="manualLanguage" type="text" required="false">
+				<label>Manual User Language (LG registry)</label>
+				<description>Fill this only if selected "Other" in the Language above</description>
+			</parameter>
+			<parameter name="manualCountry" type="text" required="false">
+				<label>Manual User Country (LG registry)</label>
+				<description>Fill this only if selected "Other" in the Country above</description>
 			</parameter>
 			<parameter name="username" type="text">
 				<label>Username</label>

@@ -12,6 +12,9 @@
  */
 package org.openhab.binding.lgthinq.lgservices;
 
+import java.io.IOException;
+
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
@@ -35,6 +38,12 @@ public class LGThinQWMApiV2ClientServiceImpl extends LGThinQAbstractApiClientSer
     protected LGThinQWMApiV2ClientServiceImpl(Class<WasherCapability> capabilityClass,
             Class<WasherSnapshot> snapshotClass) {
         super(capabilityClass, snapshotClass);
+    }
+
+    @Override
+    public double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
+            throws LGThinqApiException, IOException {
+        return 0;
     }
 
     public static LGThinQWMApiClientService getInstance() {

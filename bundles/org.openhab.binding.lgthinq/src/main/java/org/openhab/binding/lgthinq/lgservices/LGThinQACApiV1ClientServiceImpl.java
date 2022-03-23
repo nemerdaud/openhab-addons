@@ -14,7 +14,6 @@ package org.openhab.binding.lgthinq.lgservices;
 
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -23,17 +22,11 @@ import javax.ws.rs.core.UriBuilder;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.lgthinq.internal.LGThinQBindingConstants;
 import org.openhab.binding.lgthinq.internal.api.RestResult;
 import org.openhab.binding.lgthinq.internal.api.RestUtils;
 import org.openhab.binding.lgthinq.internal.api.TokenResult;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
-import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1MonitorExpiredException;
-import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1OfflineException;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
-import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
-import org.openhab.binding.lgthinq.lgservices.model.ResultCodes;
-import org.openhab.binding.lgthinq.lgservices.model.SnapshotFactory;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACSnapshot;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACTargetTmp;
@@ -77,6 +70,18 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
         throw new UnsupportedOperationException("Method not supported in V1 API device.");
     }
 
+    @Override
+    public double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
+            throws LGThinqApiException, IOException {
+        try {
+            RestResult resp = getConfigCommands(bridgeName, deviceId, "OutTotalInstantPower");
+            Map<String, Object> result = handleV1GenericErrorResult(resp);
+            return 0;
+        } catch (Exception e) {
+            throw new LGThinqApiException("Error adjusting jet mode", e);
+        }
+    }
+
     private RestResult sendControlCommands(String bridgeName, String deviceId, String keyName, int value)
             throws Exception {
         TokenResult token = tokenManager.getValidRegisteredToken(bridgeName);
@@ -89,6 +94,19 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
                         + "      \"value\": {\"%s\": \"%d\"}," + "      \"deviceId\": \"%s\","
                         + "      \"workId\": \"%s\"," + "      \"data\": \"\"" + "   }\n" + "}",
                 keyName, value, deviceId, UUID.randomUUID().toString());
+        return RestUtils.postCall(builder.build().toURL().toString(), headers, payload);
+    }
+
+    private RestResult getConfigCommands(String bridgeName, String deviceId, String keyName) throws Exception {
+        TokenResult token = tokenManager.getValidRegisteredToken(bridgeName);
+        UriBuilder builder = UriBuilder.fromUri(token.getGatewayInfo().getApiRootV1()).path(V1_CONTROL_OP);
+        Map<String, String> headers = getCommonHeaders(token.getGatewayInfo().getLanguage(),
+                token.getGatewayInfo().getCountry(), token.getAccessToken(), token.getUserInfo().getUserNumber());
+
+        String payload = String.format("{\n" + "   \"lgedmRoot\":{\n" + "      \"cmd\": \"Config\","
+                + "      \"cmdOpt\": \"Get\"," + "      \"value\": \"%s\"," + "      \"deviceId\": \"%s\","
+                + "      \"workId\": \"%s\"," + "      \"data\": \"\"" + "   }\n" + "}", keyName, deviceId,
+                UUID.randomUUID().toString());
         return RestUtils.postCall(builder.build().toURL().toString(), headers, payload);
     }
 
@@ -144,59 +162,6 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
             handleV1GenericErrorResult(resp);
         } catch (Exception e) {
             throw new LGThinqApiException("Error adjusting target temperature", e);
-        }
-    }
-
-    @Override
-    public @Nullable ACSnapshot getMonitorData(@NonNull String bridgeName, @NonNull String deviceId,
-            @NonNull String workId, DeviceTypes deviceType)
-            throws LGThinqApiException, LGThinqDeviceV1MonitorExpiredException, IOException {
-        TokenResult token = tokenManager.getValidRegisteredToken(bridgeName);
-        UriBuilder builder = UriBuilder.fromUri(token.getGatewayInfo().getApiRootV1()).path(V1_MON_DATA_PATH);
-        Map<String, String> headers = getCommonHeaders(token.getGatewayInfo().getLanguage(),
-                token.getGatewayInfo().getCountry(), token.getAccessToken(), token.getUserInfo().getUserNumber());
-        String jsonData = String.format("{\n" + "   \"lgedmRoot\":{\n" + "      \"workList\":[\n" + "         {\n"
-                + "            \"deviceId\":\"%s\",\n" + "            \"workId\":\"%s\"\n" + "         }\n"
-                + "      ]\n" + "   }\n" + "}", deviceId, workId);
-        RestResult resp = RestUtils.postCall(builder.build().toURL().toString(), headers, jsonData);
-        Map<String, Object> envelop = null;
-        // to unify the same behaviour then V2, this method handle Offline Exception and return a dummy shot with
-        // offline flag.
-        try {
-            envelop = handleV1GenericErrorResult(resp);
-        } catch (LGThinqDeviceV1OfflineException e) {
-            ACSnapshot shot = new ACSnapshot();
-            shot.setOnline(false);
-            return shot;
-        }
-        if (envelop.get("workList") != null
-                && ((Map<String, Object>) envelop.get("workList")).get("returnData") != null) {
-            Map<String, Object> workList = ((Map<String, Object>) envelop.get("workList"));
-            if (logger.isDebugEnabled()) {
-                try {
-                    objectMapper.writeValue(new File(String.format(
-                            LGThinQBindingConstants.THINQ_USER_DATA_FOLDER + File.separator + "thinq-%s-datatrace.json",
-                            deviceId)), workList);
-                } catch (IOException e) {
-                    logger.error("Error saving data trace", e);
-                }
-            }
-            if (!ResultCodes.OK.containsResultCode("" + workList.get("returnCode"))) {
-                logErrorResultCodeMessage((String) workList.get("returnCode"));
-                LGThinqDeviceV1MonitorExpiredException e = new LGThinqDeviceV1MonitorExpiredException(
-                        String.format("Monitor for device %s has expired. Please, refresh the monitor.", deviceId));
-                logger.warn("{}", e.getMessage());
-                throw e;
-            }
-
-            String jsonMonDataB64 = (String) workList.get("returnData");
-            String jsonMon = new String(Base64.getDecoder().decode(jsonMonDataB64));
-            ACSnapshot shot = SnapshotFactory.getInstance().create(jsonMon, deviceType, snapshotClass);
-            shot.setOnline("E".equals(workList.get("deviceState")));
-            return shot;
-        } else {
-            // no data available yet
-            return null;
         }
     }
 }
