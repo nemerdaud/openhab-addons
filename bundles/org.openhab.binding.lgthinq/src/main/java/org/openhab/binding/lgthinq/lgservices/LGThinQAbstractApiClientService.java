@@ -32,10 +32,7 @@ import org.openhab.binding.lgthinq.internal.api.RestResult;
 import org.openhab.binding.lgthinq.internal.api.RestUtils;
 import org.openhab.binding.lgthinq.internal.api.TokenManager;
 import org.openhab.binding.lgthinq.internal.api.TokenResult;
-import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
-import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1MonitorExpiredException;
-import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1OfflineException;
-import org.openhab.binding.lgthinq.internal.errors.RefreshTokenException;
+import org.openhab.binding.lgthinq.internal.errors.*;
 import org.openhab.binding.lgthinq.lgservices.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,8 +177,10 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
             try {
                 deviceSettings = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
                 });
-                if (!ResultCodes.OK.containsResultCode("" + deviceSettings.get("resultCode"))) {
-                    logErrorResultCodeMessage((String) deviceSettings.get("resultCode"));
+                String code = Objects.requireNonNullElse((String) deviceSettings.get("resultCode"), "");
+                if (!ResultCodes.OK.containsResultCode(code)) {
+                    logger.error("LG API report error processing the request -> resultCode=[{}], message=[{}]", code,
+                            getErrorCodeMessage(code));
                     throw new LGThinqApiException(
                             String.format("Status error getting device list. resultCode must be 0000, but was:%s",
                                     deviceSettings.get("resultCode")));
@@ -207,8 +206,10 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
             try {
                 devicesResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
                 });
-                if (!ResultCodes.OK.containsResultCode("" + devicesResult.get("resultCode"))) {
-                    logErrorResultCodeMessage((String) devicesResult.get("resultCode"));
+                String code = Objects.requireNonNullElse((String) devicesResult.get("resultCode"), "");
+                if (!ResultCodes.OK.containsResultCode(code)) {
+                    logger.error("LG API report error processing the request -> resultCode=[{}], message=[{}]", code,
+                            getErrorCodeMessage(code));
                     throw new LGThinqApiException(
                             String.format("Status error getting device list. resultCode must be 0000, but was:%s",
                                     devicesResult.get("resultCode")));
@@ -226,13 +227,12 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
         return devices;
     }
 
-    protected static void logErrorResultCodeMessage(@Nullable String code) {
+    protected static String getErrorCodeMessage(@Nullable String code) {
         if (code == null) {
-            return;
+            return "";
         }
         ResultCodes resultCode = ResultCodes.fromCode(code);
-        String errMessage = resultCode.getDescription();
-        logger.error("LG API report error processing the request -> resultCode=[{}], message=[{}]", code, errMessage);
+        return resultCode.getDescription();
     }
 
     /**
@@ -275,12 +275,16 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
                     throw new LGThinqApiException(String.format(
                             "Unexpected json body returned (without root node lgedmRoot): %s", resp.getJsonResponse()));
                 } else if (!ResultCodes.OK.containsResultCode("" + envelope.get("returnCd"))) {
-                    logErrorResultCodeMessage((String) envelope.get("returnCd"));
+                    String code = Objects.requireNonNullElse((String) envelope.get("returnCd"), "");
                     if (ResultCodes.DEVICE_NOT_RESPONSE.containsResultCode("" + envelope.get("returnCd"))
                             || "D".equals(envelope.get("deviceState"))) {
+                        logger.debug("LG API report error processing the request -> resultCode=[{}], message=[{}]",
+                                code, getErrorCodeMessage(code));
                         // Disconnected Device
                         throw new LGThinqDeviceV1OfflineException("Device is offline. No data available");
                     }
+                    logger.error("LG API report error processing the request -> resultCode=[{}], message=[{}]", code,
+                            getErrorCodeMessage(code));
                     throw new LGThinqApiException(
                             String.format("Status error executing endpoint. resultCode must be 0000, but was:%s",
                                     metaResult.get("returnCd")));
@@ -293,7 +297,8 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
     }
 
     public @Nullable S getMonitorData(@NonNull String bridgeName, @NonNull String deviceId, @NonNull String workId,
-            DeviceTypes deviceType) throws LGThinqApiException, LGThinqDeviceV1MonitorExpiredException, IOException {
+            DeviceTypes deviceType, @NonNull C deviceCapability) throws LGThinqApiException,
+            LGThinqDeviceV1MonitorExpiredException, IOException, LGThinqUnmarshallException {
         TokenResult token = tokenManager.getValidRegisteredToken(bridgeName);
         UriBuilder builder = UriBuilder.fromUri(token.getGatewayInfo().getApiRootV1()).path(V1_MON_DATA_PATH);
         Map<String, String> headers = getCommonHeaders(token.getGatewayInfo().getLanguage(),
@@ -330,18 +335,37 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
                     logger.error("Error saving data trace", e);
                 }
             }
+
             if (!ResultCodes.OK.containsResultCode("" + workList.get("returnCode"))) {
-                logErrorResultCodeMessage((String) workList.get("returnCode"));
+                String code = Objects.requireNonNullElse((String) workList.get("returnCode"), "");
+                logger.debug("LG API report error processing the request -> resultCode=[{}], message=[{}]", code,
+                        getErrorCodeMessage(code));
                 LGThinqDeviceV1MonitorExpiredException e = new LGThinqDeviceV1MonitorExpiredException(
                         String.format("Monitor for device %s has expired. Please, refresh the monitor.", deviceId));
                 logger.warn("{}", e.getMessage());
                 throw e;
             }
 
-            String jsonMonDataB64 = (String) workList.get("returnData");
-            String jsonMon = new String(Base64.getDecoder().decode(jsonMonDataB64));
-            S shot = SnapshotFactory.getInstance().create(jsonMon, deviceType, snapshotClass);
-            shot.setOnline("E".equals(workList.get("deviceState")));
+            String monDataB64 = (String) workList.get("returnData");
+            String monData = new String(Base64.getDecoder().decode(monDataB64));
+            S shot;
+            try {
+                if (MonitoringResultFormat.JSON_FORMAT.equals(deviceCapability.getMonitoringDataFormat())) {
+                    shot = SnapshotFactory.getInstance().createFromJson(monData, deviceType, snapshotClass);
+                } else if (MonitoringResultFormat.BINARY_FORMAT.equals(deviceCapability.getMonitoringDataFormat())) {
+                    shot = SnapshotFactory.getInstance().createFromBinary(monData,
+                            deviceCapability.getMonitoringBinaryProtocol(), snapshotClass);
+                } else {
+                    logger.error("Returned data format not supported: {}", deviceCapability.getMonitoringDataFormat());
+                    throw new LGThinqApiException("Returned data format not supported");
+                }
+                shot.setOnline("E".equals(workList.get("deviceState")));
+            } catch (LGThinqUnmarshallException ex) {
+                // error in the monitor Data returned. Device is irresponsible
+                logger.debug("Monitored data returned for the device {} is unreadable. Device is not connected",
+                        deviceId);
+                throw ex;
+            }
             return shot;
         } else {
             // no data available yet
@@ -377,7 +401,7 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
                 return null;
             }
 
-            S shot = SnapshotFactory.getInstance().create(deviceSettings, snapshotClass);
+            S shot = SnapshotFactory.getInstance().createFromJson(deviceSettings, snapshotClass);
             shot.setOnline((Boolean) snapMap.get("online"));
             return shot;
         }

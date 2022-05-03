@@ -24,10 +24,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.LGThinQDeviceDynStateDescriptionProvider;
-import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
-import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1MonitorExpiredException;
-import org.openhab.binding.lgthinq.internal.errors.LGThinqDeviceV1OfflineException;
-import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
+import org.openhab.binding.lgthinq.internal.errors.*;
 import org.openhab.binding.lgthinq.lgservices.LGThinQApiClientService;
 import org.openhab.binding.lgthinq.lgservices.model.*;
 import org.openhab.core.thing.*;
@@ -293,6 +290,8 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
         try {
             monitorV1Began = false;
             getLgThinQAPIClientService().stopMonitor(getBridgeId(), deviceId, monitorWorkId);
+        } catch (LGThinqDeviceV1OfflineException e) {
+            getLogger().debug("Monitor stopped. Device is unavailable/disconnected", e);
         } catch (Exception e) {
             getLogger().error("Error stopping LG Device monitor", e);
         }
@@ -344,16 +343,16 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
                 // try to get monitoring data result 3 times.
                 try {
                     shot = getLgThinQAPIClientService().getMonitorData(getBridgeId(), deviceId, monitorWorkId,
-                            getDeviceType());
+                            getDeviceType(), getCapabilities());
                     if (shot != null) {
                         return shot;
                     }
                     Thread.sleep(500);
                     retries--;
-                } catch (LGThinqDeviceV1MonitorExpiredException e) {
-                    forceStopDeviceV1Monitor(deviceId);
-                    getLogger().info("Monitor for device {} was expired. Forcing stop and start to next cycle.",
+                } catch (LGThinqDeviceV1MonitorExpiredException | LGThinqUnmarshallException e) {
+                    getLogger().debug("Monitor for device {} is invalid. Forcing stop and start to next cycle.",
                             deviceId);
+                    forceStopDeviceV1Monitor(deviceId);
                     return null;
                 } catch (Exception e) {
                     // If it can't get monitor handler, then stop monitor and restart the process again in new

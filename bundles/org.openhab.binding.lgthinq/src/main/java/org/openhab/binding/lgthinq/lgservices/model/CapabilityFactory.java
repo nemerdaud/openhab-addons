@@ -16,10 +16,7 @@ import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CAP_A
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CAP_AC_COOL_JET_COMMAND_OFF;
 import static org.openhab.binding.lgthinq.lgservices.model.DeviceTypes.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
@@ -27,6 +24,11 @@ import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV1ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
 import org.openhab.binding.lgthinq.lgservices.model.dryer.DryerCapability;
 import org.openhab.binding.lgthinq.lgservices.model.washer.WasherCapability;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The {@link LGThinQACApiV1ClientServiceImpl}
@@ -39,6 +41,8 @@ public class CapabilityFactory {
     static {
         instance = new CapabilityFactory();
     }
+    private static final Logger logger = LoggerFactory.getLogger(CapabilityFactory.class);
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     public static CapabilityFactory getInstance() {
         return instance;
@@ -202,7 +206,7 @@ public class CapabilityFactory {
                 wmCap.addCourse(k, Objects.requireNonNull(((Map<String, String>) v).get("_comment"),
                         "_comment property for course node must be present"));
             });
-            wmCap.addCourse("NOT_SELECTED", "-");
+            wmCap.addCourse("0", "NOT SELECTED");
 
             Map<String, Object> smartCourseMap = (Map<String, Object>) rootMap.get("SmartCourse");
             Objects.requireNonNull(smartCourseMap,
@@ -211,7 +215,7 @@ public class CapabilityFactory {
                 wmCap.addSmartCourse(k, Objects.requireNonNull(((Map<String, String>) v).get("_comment"),
                         "_comment property for smartCourse node must be present"));
             });
-            wmCap.addSmartCourse("NOT_SELECTED", "-");
+            wmCap.addSmartCourse("0", "NOT SELECTED");
 
             if (monValue.get("ChildLock") != null) {
                 wmCap.setHasDoorLook(true);
@@ -231,10 +235,31 @@ public class CapabilityFactory {
             loadWmMonValueCapV1(WasherCapability.MonitoringCap.TEMPERATURE_V1, monValue, wmCap);
             loadWmMonValueCapV1(WasherCapability.MonitoringCap.RINSE_V1, monValue, wmCap);
 
+            loadMonitoringSessionV1(rootMap, wmCap);
+
             return wmCap;
         } else {
             throw new LGThinqApiException(
                     "Version " + version.getValue() + " for Washers not supported for this binding.");
+        }
+    }
+
+    private void loadMonitoringSessionV1(Map<String, Object> rootMap, WasherCapability wmCap) {
+        Map<String, Object> mon = (Map<String, Object>) rootMap.get("Monitoring");
+        if (mon == null) {
+            logger.warn("No monitoring session defined in the cap data.");
+        } else {
+            MonitoringResultFormat format = MonitoringResultFormat.getFormatOf((String) mon.get("type"));
+            if (!MonitoringResultFormat.UNKNOWN_FORMAT.equals(format)) {
+                wmCap.setMonitoringDataFormat(format);
+            }
+            if (MonitoringResultFormat.BINARY_FORMAT.equals(format)) {
+                // load binary protocol
+                List<MonitoringBinaryProtocol> pojos = mapper.convertValue(mon.get("protocol"),
+                        new TypeReference<List<MonitoringBinaryProtocol>>() {
+                        });
+                wmCap.setMonitoringBinaryProtocol(pojos);
+            }
         }
     }
 
@@ -334,6 +359,15 @@ public class CapabilityFactory {
                 });
             }
 
+            Map<String, Object> mon = (Map<String, Object>) rootMap.get("Monitoring");
+            if (mon == null) {
+                logger.warn("No monitoring session defined in the cap data.");
+            } else {
+                MonitoringResultFormat format = MonitoringResultFormat.getFormatOf((String) mon.get("type"));
+                if (!MonitoringResultFormat.UNKNOWN_FORMAT.equals(format)) {
+                    acCap.setMonitoringDataFormat(format);
+                }
+            }
             return acCap;
         } else {
             Map<String, Object> cap = (Map<String, Object>) rootMap.get("Value");
@@ -386,7 +420,15 @@ public class CapabilityFactory {
                     }
                 });
             }
-
+            Map<String, Object> info = (Map<String, Object>) rootMap.get("Info");
+            if (info == null) {
+                logger.warn("No info session defined in the cap data.");
+            } else {
+                MonitoringResultFormat format = MonitoringResultFormat.getFormatOf((String) info.get("model"));
+                if (!MonitoringResultFormat.UNKNOWN_FORMAT.equals(format)) {
+                    acCap.setMonitoringDataFormat(format);
+                }
+            }
             return acCap;
         }
     }

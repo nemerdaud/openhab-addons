@@ -168,8 +168,10 @@ public class LGThinQACApiV2ClientServiceImpl extends LGThinQAbstractApiClientSer
             try {
                 metaResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<Map<String, Object>>() {
                 });
+                String code = (String) metaResult.get("resultCode");
                 if (!ResultCodes.OK.containsResultCode("" + metaResult.get("resultCode"))) {
-                    logErrorResultCodeMessage((String) metaResult.get("resultCode"));
+                    logger.error("LG API report error processing the request -> resultCode=[{}], message=[{}]", code,
+                            getErrorCodeMessage(code));
                     throw new LGThinqApiException(
                             String.format("Status error executing endpoint. resultCode must be 0000, but was:%s",
                                     metaResult.get("resultCode")));
@@ -189,7 +191,7 @@ public class LGThinQACApiV2ClientServiceImpl extends LGThinQAbstractApiClientSer
 
     @Override
     public @Nullable ACSnapshot getMonitorData(@NonNull String bridgeName, @NonNull String deviceId,
-            @NonNull String workId, DeviceTypes deviceType)
+            @NonNull String workId, DeviceTypes deviceType, @NonNull ACCapability deviceCapability)
             throws LGThinqApiException, LGThinqDeviceV1MonitorExpiredException, IOException {
         throw new UnsupportedOperationException("Not supported in V2 API.");
     }
