@@ -54,7 +54,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
     private final ScheduledExecutorService pollingScheduler = Executors.newScheduledThreadPool(1);
     private boolean monitorV1Began = false;
     private String monitorWorkId = "";
-    protected final LinkedBlockingQueue<AsyncCommandParams> commandBlockQueue = new LinkedBlockingQueue<>(20);
+    protected final LinkedBlockingQueue<AsyncCommandParams> commandBlockQueue = new LinkedBlockingQueue<>(30);
     private String bridgeId = "";
     private ThingStatus lastThingStatus = ThingStatus.UNKNOWN;
     // Bridges status that this thing must top scanning for state change
@@ -245,7 +245,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
             @Nullable
             S shot = getSnapshotDeviceAdapter(getDeviceId());
             if (shot == null) {
-                // no data to update. Maybe, the monitor stopped, then it gonna be restarted next try.
+                // no data to update. Maybe, the monitor stopped, then it going to be restarted next try.
                 return;
             }
             if (!shot.isOnline()) {
@@ -309,6 +309,8 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
         return bridgeId;
     }
 
+    abstract protected DeviceTypes getDeviceType();
+
     @Nullable
     protected S getSnapshotDeviceAdapter(String deviceId) throws LGThinqApiException {
         // analise de platform version
@@ -342,7 +344,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
                 // try to get monitoring data result 3 times.
                 try {
                     shot = getLgThinQAPIClientService().getMonitorData(getBridgeId(), deviceId, monitorWorkId,
-                            DeviceTypes.AIR_CONDITIONER);
+                            getDeviceType());
                     if (shot != null) {
                         return shot;
                     }

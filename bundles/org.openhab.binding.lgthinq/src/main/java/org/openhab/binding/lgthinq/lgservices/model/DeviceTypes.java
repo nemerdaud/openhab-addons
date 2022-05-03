@@ -52,12 +52,16 @@ public enum DeviceTypes {
         }
     }
 
-    public static DeviceTypes fromDeviceTypeAcron(String deviceTypeAcron) {
+    public static DeviceTypes fromDeviceTypeAcron(String deviceTypeAcron, String modelType) {
         switch (deviceTypeAcron) {
             case "AC":
                 return AIR_CONDITIONER;
             case "WM":
-                return WASHING_MACHINE;
+                if ("Dryer".equals(modelType)) {
+                    return DRYER;
+                } else {
+                    return WASHING_MACHINE;
+                }
             default:
                 return UNKNOWN;
         }

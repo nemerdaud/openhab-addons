@@ -27,6 +27,7 @@ import org.openhab.binding.lgthinq.lgservices.*;
 import org.openhab.binding.lgthinq.lgservices.LGThinQACApiClientService;
 import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV1ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
+import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACSnapshot;
@@ -151,6 +152,10 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
             logger.debug("Stopping LG thinq polling for device/alias: {}/{}", getDeviceId(), getDeviceAlias());
             thingStatePollingJob.cancel(true);
         }
+    }
+
+    protected DeviceTypes getDeviceType() {
+        return DeviceTypes.AIR_CONDITIONER;
     }
 
     @Override

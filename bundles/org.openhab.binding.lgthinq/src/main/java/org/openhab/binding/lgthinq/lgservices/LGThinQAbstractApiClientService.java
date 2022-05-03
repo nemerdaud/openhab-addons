@@ -156,10 +156,26 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
     static Map<String, Object> genericHandleDeviceSettingsResult(RestResult resp, Logger logger,
             ObjectMapper objectMapper) throws LGThinqApiException {
         Map<String, Object> deviceSettings;
+        Map<String, String> respMap = Collections.EMPTY_MAP;
+        String resultCode = "???";
         if (resp.getStatusCode() != 200) {
+            try {
+                respMap = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
+                });
+                resultCode = respMap.get("resultCode");
+                if (resultCode != null) {
+                    logger.error(
+                            "Error calling device settings from LG Server API. The code is:{} and The reason is:{}",
+                            resultCode, ResultCodes.fromCode(resultCode));
+                    throw new LGThinqApiException("Error calling device settings from LG Server API.");
+                }
+            } catch (JsonProcessingException e) {
+                // This exception doesn't matter, it's because response is not in json format. Logging raw response.
+            }
             logger.error("Error calling device settings from LG Server API. The reason is:{}", resp.getJsonResponse());
             throw new LGThinqApiException(String.format(
                     "Error calling device settings from LG Server API. The reason is:%s", resp.getJsonResponse()));
+
         } else {
             try {
                 deviceSettings = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {

@@ -83,18 +83,62 @@ public class CapabilityFactory {
             });
             drCap.addSmartCourse("NOT_SELECTED", "-");
 
-            if (monValue.get("childLock") != null) {
+            if (monValue.get("ChildLock") != null) {
                 drCap.setChildLock(true);
             }
-            if (monValue.get("remoteStart") != null) {
+            if (monValue.get("RemoteStart") != null) {
                 drCap.setRemoteStart(true);
             }
-            loadDrMonValueCap(DryerCapability.MonitoringCap.STATE, monValue, drCap, "label");
-            loadDrMonValueCap(DryerCapability.MonitoringCap.DRY_LEVEL, monValue, drCap, "label");
-            loadDrMonValueCap(DryerCapability.MonitoringCap.ERROR, monValue, drCap, "_comment");
-            loadDrMonValueCap(DryerCapability.MonitoringCap.PROCESS_STATE, monValue, drCap, "label");
+            loadDrMonValueCapV2(DryerCapability.MonitoringCap.STATE_V2, monValue, drCap, "label");
+            loadDrMonValueCapV2(DryerCapability.MonitoringCap.DRY_LEVEL_V2, monValue, drCap, "label");
+            loadDrMonValueCapV2(DryerCapability.MonitoringCap.ERROR_V2, monValue, drCap, "_comment");
+            loadDrMonValueCapV2(DryerCapability.MonitoringCap.PROCESS_STATE_V2, monValue, drCap, "label");
 
             return drCap;
+            // } else if (version == LGAPIVerion.V1_0) {
+            // Map<String, Object> monValue = (Map<String, Object>) rootMap.get("Value");
+            // Objects.requireNonNull(monValue, "Unexpected error. MonitoringValue not present in capability schema");
+            // DryerCapability drCap = new DryerCapability();
+            //
+            // Map<String, Object> courseMap = (Map<String, Object>) rootMap.get("Course");
+            // Objects.requireNonNull(courseMap, "Unexpected error. Course not present in capability schema");
+            // courseMap.forEach((k, v) -> {
+            // drCap.addCourse(k, Objects.requireNonNull(((Map<String, String>) v).get("_comment"),
+            // "_comment property for course node must be present"));
+            // });
+            // drCap.addCourse("NOT_SELECTED", "-");
+            //
+            // Map<String, Object> smartCourseMap = (Map<String, Object>) rootMap.get("SmartCourse");
+            // Objects.requireNonNull(smartCourseMap,
+            // "Unexpected error. Info SmartCourse not present in capability schema");
+            // smartCourseMap.forEach((k, v) -> {
+            // drCap.addSmartCourse(k, Objects.requireNonNull(((Map<String, String>) v).get("_comment"),
+            // "_comment property for smartCourse node must be present"));
+            // });
+            // drCap.addSmartCourse("NOT_SELECTED", "-");
+            //
+            // if (monValue.get("childLock") != null) {
+            // drCap.setChildLock(true);
+            // }
+            // if (monValue.get("remoteStart") != null) {
+            // drCap.setRemoteStart(true);
+            // }
+            // // mapping states
+            // Map<String, Object> stateMap = (Map<String, Object>) monValue.get("State");
+            // Map<String, String> options = (Map<String, String>) stateMap.get("option");
+            // options.forEach((k,v) -> {
+            // drCap.addMonitoringValue(DryerCapability.MonitoringCap.STATE_V1, k, v);
+            // });
+            // Map<String, Object> errorMap = (Map<String, Object>) rootMap.get("Error");
+            // Map<String, String> options = (Map<String, String>) stateMap.get("option");
+            // options.forEach((k,v) -> {
+            // drCap.addMonitoringValue(DryerCapability.MonitoringCap.STATE_V1, k, v);
+            // });
+            //
+            // loadDrMonValueCapV1(DryerCapability.MonitoringCap.ERROR_V1, monValue, drCap, "_comment");
+            // loadDrMonValueCapV1(DryerCapability.MonitoringCap.PROCESS_STATE_V1, monValue, drCap, "label");
+            //
+            // return drCap;
         } else {
             throw new LGThinqApiException(
                     "Version " + version.getValue() + " for Washers not supported for this binding.");
@@ -105,15 +149,9 @@ public class CapabilityFactory {
         Map<String, String> infoMap = (Map<String, String>) rootMap.get("Info");
         Objects.requireNonNull(infoMap, "Unexpected error. Info node not present in capability schema");
         String productType = infoMap.get("productType");
+        String modelType = infoMap.get("modelType");
         Objects.requireNonNull(infoMap, "Unexpected error. ProductType attribute not present in capability schema");
-        DeviceTypes type = fromDeviceTypeAcron(productType);
-        if (type == WASHING_MACHINE) {
-            // We could have Dryers that is a submodel of a Washing Machine.
-            String modelType = infoMap.get("modelType");
-            if ("Dryer".equals(modelType)) {
-                type = DRYER;
-            }
-        }
+        DeviceTypes type = fromDeviceTypeAcron(productType, modelType);
         return type;
     }
 
@@ -141,11 +179,11 @@ public class CapabilityFactory {
             });
             wmCap.addSmartCourse("NOT_SELECTED", "Not Selected");
 
-            loadWmMonValueCap(WasherCapability.MonitoringCap.STATE, monValue, wmCap);
-            loadWmMonValueCap(WasherCapability.MonitoringCap.SOIL_WASH, monValue, wmCap);
-            loadWmMonValueCap(WasherCapability.MonitoringCap.SPIN, monValue, wmCap);
-            loadWmMonValueCap(WasherCapability.MonitoringCap.TEMPERATURE, monValue, wmCap);
-            loadWmMonValueCap(WasherCapability.MonitoringCap.RINSE, monValue, wmCap);
+            loadWmMonValueCapV2(WasherCapability.MonitoringCap.STATE_V2, monValue, wmCap);
+            loadWmMonValueCapV2(WasherCapability.MonitoringCap.SOIL_WASH_V2, monValue, wmCap);
+            loadWmMonValueCapV2(WasherCapability.MonitoringCap.SPIN_V2, monValue, wmCap);
+            loadWmMonValueCapV2(WasherCapability.MonitoringCap.TEMPERATURE_V2, monValue, wmCap);
+            loadWmMonValueCapV2(WasherCapability.MonitoringCap.RINSE_V2, monValue, wmCap);
             if (monValue.get("doorLock") != null) {
                 wmCap.setHasDoorLook(true);
             }
@@ -153,13 +191,54 @@ public class CapabilityFactory {
                 wmCap.setHasTurboWash(true);
             }
             return wmCap;
+        } else if (version == LGAPIVerion.V1_0) {
+            Map<String, Object> monValue = (Map<String, Object>) rootMap.get("Value");
+            Objects.requireNonNull(monValue, "Unexpected error. Value not present in capability schema");
+            WasherCapability wmCap = new WasherCapability();
+
+            Map<String, Object> courseMap = (Map<String, Object>) rootMap.get("Course");
+            Objects.requireNonNull(courseMap, "Unexpected error. Course not present in capability schema");
+            courseMap.forEach((k, v) -> {
+                wmCap.addCourse(k, Objects.requireNonNull(((Map<String, String>) v).get("_comment"),
+                        "_comment property for course node must be present"));
+            });
+            wmCap.addCourse("NOT_SELECTED", "-");
+
+            Map<String, Object> smartCourseMap = (Map<String, Object>) rootMap.get("SmartCourse");
+            Objects.requireNonNull(smartCourseMap,
+                    "Unexpected error. Info SmartCourse not present in capability schema");
+            smartCourseMap.forEach((k, v) -> {
+                wmCap.addSmartCourse(k, Objects.requireNonNull(((Map<String, String>) v).get("_comment"),
+                        "_comment property for smartCourse node must be present"));
+            });
+            wmCap.addSmartCourse("NOT_SELECTED", "-");
+
+            if (monValue.get("ChildLock") != null) {
+                wmCap.setHasDoorLook(true);
+            }
+
+            Map<String, Object> errorMap = (Map<String, Object>) rootMap.get("Error");
+
+            errorMap.forEach((k, v) -> {
+                Map<String, String> entry = (Map<String, String>) v;
+                wmCap.addMonitoringValue(WasherCapability.MonitoringCap.ERROR_V1,
+                        Objects.requireNonNull(entry.get("label")), k);
+            });
+            // mapping states
+            loadWmMonValueCapV1(WasherCapability.MonitoringCap.STATE_V1, monValue, wmCap);
+            loadWmMonValueCapV1(WasherCapability.MonitoringCap.SOIL_WASH_V1, monValue, wmCap);
+            loadWmMonValueCapV1(WasherCapability.MonitoringCap.SPIN_V1, monValue, wmCap);
+            loadWmMonValueCapV1(WasherCapability.MonitoringCap.TEMPERATURE_V1, monValue, wmCap);
+            loadWmMonValueCapV1(WasherCapability.MonitoringCap.RINSE_V1, monValue, wmCap);
+
+            return wmCap;
         } else {
             throw new LGThinqApiException(
                     "Version " + version.getValue() + " for Washers not supported for this binding.");
         }
     }
 
-    private void loadWmMonValueCap(WasherCapability.MonitoringCap monCap, Map<String, Object> monMap,
+    private void loadWmMonValueCapV2(WasherCapability.MonitoringCap monCap, Map<String, Object> monMap,
             WasherCapability wmCap) {
         Map<String, Object> nodeMap = (Map<String, Object>) monMap.get(monCap.getValue());
         if (nodeMap == null) {
@@ -174,7 +253,21 @@ public class CapabilityFactory {
         });
     }
 
-    private void loadDrMonValueCap(DryerCapability.MonitoringCap monCap, Map<String, Object> monMap,
+    private void loadWmMonValueCapV1(WasherCapability.MonitoringCap monCap, Map<String, Object> monMap,
+            WasherCapability wmCap) {
+        Map<String, Object> nodeMap = (Map<String, Object>) monMap.get(monCap.getValue());
+        if (nodeMap == null) {
+            // ignore feature, since it doe
+            return;
+        }
+        Map<String, String> map = (Map<String, String>) nodeMap.get("option");
+        Objects.requireNonNull(map, "Unexpected error. option attribute is mandatory");
+        map.forEach((k, v) -> {
+            wmCap.addMonitoringValue(monCap, v, k);
+        });
+    }
+
+    private void loadDrMonValueCapV2(DryerCapability.MonitoringCap monCap, Map<String, Object> monMap,
             DryerCapability dryerCapability, String valueAttribute) {
         Map<String, Object> nodeMap = (Map<String, Object>) monMap.get(monCap.getValue());
         if (nodeMap == null) {
@@ -302,7 +395,7 @@ public class CapabilityFactory {
         DeviceTypes type = getDeviceType(rootMap);
         switch (type) {
             case AIR_CONDITIONER:
-                Map<String, Object> valueNode = getCapabilitySession(rootMap, AIR_CONDITIONER);
+                Map<String, Object> valueNode = (Map<String, Object>) rootMap.get("Value");
                 if (valueNode.containsKey("support.airState.opMode")) {
                     return LGAPIVerion.V2_0;
                 } else if (valueNode.containsKey("SupportOpMode")) {
@@ -314,22 +407,14 @@ public class CapabilityFactory {
 
             case WASHING_MACHINE:
             case DRYER:
-                return LGAPIVerion.V2_0;
-            default:
-                throw new IllegalStateException("Unexpected capability. The type " + type + " was not implemented yet");
-        }
-    }
-
-    private Map<String, Object> getCapabilitySession(Map<String, Object> rootMap, DeviceTypes type) {
-        switch (type) {
-            case AIR_CONDITIONER:
-                Map<String, Object> values = (Map<String, Object>) rootMap.get("Value");
-                Objects.requireNonNull(values, "Unexpected error. Value node is expected for AC Capabilities");
-                return values;
-            case WASHING_MACHINE:
-                Map<String, Object> config = (Map<String, Object>) rootMap.get("Config");
-                Objects.requireNonNull(config, "Unexpected error. Config node is expected for Washing Machines");
-                return config;
+                if (rootMap.containsKey("Value")) {
+                    return LGAPIVerion.V1_0;
+                } else if (rootMap.containsKey("MonitoringValue")) {
+                    return LGAPIVerion.V2_0;
+                } else {
+                    throw new IllegalStateException(
+                            "Unexpected error. Can't find key node attributes to determine AC API version.");
+                }
             default:
                 throw new IllegalStateException("Unexpected capability. The type " + type + " was not implemented yet");
         }

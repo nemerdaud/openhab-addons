@@ -138,7 +138,7 @@ public class LGThinQBindingConstants {
 
     // ====================== WASHING MACHINE CONSTANTS =============================
     public static final String WM_POWER_OFF_VALUE = "POWEROFF";
-    public static final String WM_SNAPSHOT_WASHER_DRYER_NODE = "washerDryer";
+    public static final String WM_SNAPSHOT_WASHER_DRYER_NODE_V2 = "washerDryer";
     public static final String WM_CHANNEL_STATE_ID = "state";
     public static final String WM_CHANNEL_COURSE_ID = "course";
     public static final String WM_CHANNEL_SMART_COURSE_ID = "smart-course";
@@ -157,11 +157,22 @@ public class LGThinQBindingConstants {
             Map.entry("@WM_STATE_DRYING_W", "Drying"), Map.entry("@WM_STATE_DEMO_W", "Demonstration"),
             Map.entry("@WM_STATE_ERROR_W", "Error"));
 
+    public static final Map<String, String> CAP_WP_STATE_V1 = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
+            Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),
+            Map.entry("@WM_STATE_RESERVE_W", "Reverse"), Map.entry("@WM_STATE_DETECTING_W", "Detecting"),
+            Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RINSING_W", "Rinsing"),
+            Map.entry("@WM_STATE_SPINNING_W", "Spinning"), Map.entry("@WM_STATE_COOLDOWN_W", "Cool Down"),
+            Map.entry("@WM_STATE_RINSEHOLD_W", "Rinse Hold"), Map.entry("@WM_STATE_WASH_REFRESHING_W", "Refreshing"),
+            Map.entry("@WM_STATE_STEAMSOFTENING_W", "Steam Softening"), Map.entry("@WM_STATE_END_W", "End"),
+            Map.entry("@WM_STATE_DRYING_W", "Drying"), Map.entry("@WM_STATE_DEMO_W", "Demonstration"),
+            Map.entry("@WM_STATE_ERROR_W", "Error"));
+
     public static final Map<String, String> CAP_WP_TEMPERATURE = Map.ofEntries(
             Map.entry("@WM_TERM_NO_SELECT_W", "Not Selected"), Map.entry("@WM_TITAN2_OPTION_TEMP_20_W", "20"),
             Map.entry("@WM_TITAN2_OPTION_TEMP_COLD_W", "Cold"), Map.entry("@WM_TITAN2_OPTION_TEMP_30_W", "30"),
             Map.entry("@WM_TITAN2_OPTION_TEMP_40_W", "40"), Map.entry("@WM_TITAN2_OPTION_TEMP_50_W", "50"),
             Map.entry("@WM_TITAN2_OPTION_TEMP_60_W", "60"), Map.entry("@WM_TITAN2_OPTION_TEMP_95_W", "95"));
+
     // ==============================================================================
 
     // ======================== DRYER CONSTANTS ============================
