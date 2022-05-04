@@ -314,7 +314,9 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
             envelop = handleV1GenericErrorResult(resp);
         } catch (LGThinqDeviceV1OfflineException e) {
             try {
+                // As I don't know the current device status, then I reset to default values.
                 S shot = snapshotClass.getDeclaredConstructor().newInstance();
+                shot.setPowerStatus(DevicePowerState.DV_POWER_OFF);
                 shot.setOnline(false);
                 return (S) shot;
             } catch (Exception ex) {

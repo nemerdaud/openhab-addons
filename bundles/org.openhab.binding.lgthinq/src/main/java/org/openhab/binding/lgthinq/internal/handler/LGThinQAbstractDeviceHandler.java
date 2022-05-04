@@ -242,7 +242,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
             @Nullable
             S shot = getSnapshotDeviceAdapter(getDeviceId());
             if (shot == null) {
-                // no data to update. Maybe, the monitor stopped, then it going to be restarted next try.
+                // no data to update. Maybe, the monitor stopped, then it'a going to be restarted next try.
                 return;
             }
             if (!shot.isOnline()) {
