@@ -26,7 +26,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.LGThinQDeviceDynStateDescriptionProvider;
 import org.openhab.binding.lgthinq.internal.errors.*;
 import org.openhab.binding.lgthinq.lgservices.LGThinQApiClientService;
-import org.openhab.binding.lgthinq.lgservices.model.*;
+import org.openhab.binding.lgthinq.lgservices.model.Capability;
+import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
+import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
+import org.openhab.binding.lgthinq.lgservices.model.Snapshot;
 import org.openhab.core.thing.*;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
@@ -286,7 +289,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
         }
     }
 
-    private void forceStopDeviceV1Monitor(String deviceId) {
+    private void stopDeviceV1Monitor(String deviceId) {
         try {
             monitorV1Began = false;
             getLgThinQAPIClientService().stopMonitor(getBridgeId(), deviceId, monitorWorkId);
@@ -322,7 +325,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
                     monitorV1Began = true;
                 }
             } catch (LGThinqDeviceV1OfflineException e) {
-                forceStopDeviceV1Monitor(deviceId);
+                stopDeviceV1Monitor(deviceId);
                 try {
                     S shot = snapshotClass.getDeclaredConstructor().newInstance();
                     shot.setOnline(false);
@@ -333,15 +336,16 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
                 }
 
             } catch (Exception e) {
-                forceStopDeviceV1Monitor(deviceId);
+                stopDeviceV1Monitor(deviceId);
                 throw new LGThinqApiException("Error starting device monitor in LG API for the device:" + deviceId, e);
             }
             int retries = 10;
             @Nullable
             S shot;
-            while (retries > 0) {
-                // try to get monitoring data result 3 times.
-                try {
+            try {
+                while (retries > 0) {
+                    // try to get monitoring data result 3 times.
+
                     shot = getLgThinQAPIClientService().getMonitorData(getBridgeId(), deviceId, monitorWorkId,
                             getDeviceType(), getCapabilities());
                     if (shot != null) {
@@ -349,20 +353,19 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
                     }
                     Thread.sleep(500);
                     retries--;
-                } catch (LGThinqDeviceV1MonitorExpiredException | LGThinqUnmarshallException e) {
-                    getLogger().debug("Monitor for device {} is invalid. Forcing stop and start to next cycle.",
-                            deviceId);
-                    forceStopDeviceV1Monitor(deviceId);
-                    return null;
-                } catch (Exception e) {
-                    // If it can't get monitor handler, then stop monitor and restart the process again in new
-                    // interaction
-                    // Force restart monitoring because of the errors returned (just in case)
-                    forceStopDeviceV1Monitor(deviceId);
-                    throw new LGThinqApiException("Error getting monitor data for the device:" + deviceId, e);
+
                 }
+            } catch (LGThinqDeviceV1MonitorExpiredException | LGThinqUnmarshallException e) {
+                getLogger().debug("Monitor for device {} is invalid. Forcing stop and start to next cycle.", deviceId);
+                return null;
+            } catch (Exception e) {
+                // If it can't get monitor handler, then stop monitor and restart the process again in new
+                // interaction
+                // Force restart monitoring because of the errors returned (just in case)
+                throw new LGThinqApiException("Error getting monitor data for the device:" + deviceId, e);
+            } finally {
+                stopDeviceV1Monitor(deviceId);
             }
-            forceStopDeviceV1Monitor(deviceId);
             throw new LGThinqApiException("Exhausted trying to get monitor data for the device:" + deviceId);
         }
     }

@@ -42,6 +42,11 @@ public class LGThinQWMApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
     }
 
     @Override
+    protected void beforeGetDataDevice(@NonNull String bridgeName, @NonNull String deviceId) {
+        // Nothing to do for V1 thinq
+    }
+
+    @Override
     public double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
             throws LGThinqApiException, IOException {
         return 0;

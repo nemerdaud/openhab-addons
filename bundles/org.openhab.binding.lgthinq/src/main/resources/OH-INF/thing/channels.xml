@@ -9,7 +9,7 @@
 		<label>Temperature</label>
 		<description>Current temperature.</description>
 		<category>Temperature</category>
-		<state readOnly="true" pattern="%.0f %unit%"/>
+		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
 
 	<channel-type id="cool_jet">
@@ -23,7 +23,7 @@
 		<label>Target Temperature</label>
 		<description>Target temperature.</description>
 		<category>Temperature</category>
-		<state min="17" max="30" step="1" readOnly="false" pattern="%.0f %unit%"/>
+		<state min="17" max="30" step="1" readOnly="false" pattern="%.1f %unit%"/>
 	</channel-type>
 	<channel-type id="fan-speed">
 		<item-type>Number</item-type>
@@ -228,4 +228,29 @@
 			</options>
 		</state>
 	</channel-type>
+
+	<!-- Fridge -->
+	<channel-type id="fridge-some-door-open">
+		<item-type>String</item-type>
+		<label>Door Open</label>
+		<description>Washer Door Lock</description>
+		<state readOnly="true">
+			<options>
+				<option value="OPEN">Open</option>
+				<option value="CLOSE">Close</option>
+			</options>
+		</state>
+	</channel-type>
+	<channel-type id="fridge-temp-unit">
+		<item-type>String</item-type>
+		<label>Door Open</label>
+		<description>Washer Door Lock</description>
+		<state readOnly="true">
+			<options>
+				<option value="CELSIUS">C</option>
+				<option value="FAHRENHEIT">F</option>
+			</options>
+		</state>
+	</channel-type>
+
 </thing:thing-descriptions>

@@ -21,6 +21,7 @@ public enum DeviceTypes {
     AIR_CONDITIONER(401, "AC", ""),
     WASHING_MACHINE(201, "WM", ""),
     DRYER(202, "DR", "Dryer"),
+    FRIDGE(101, "DR", "Fridge"),
     UNKNOWN(-1, "", "");
 
     private final int deviceTypeId;
@@ -47,6 +48,8 @@ public enum DeviceTypes {
                 return WASHING_MACHINE;
             case 202:
                 return DRYER;
+            case 101:
+                return FRIDGE;
             default:
                 return UNKNOWN;
         }

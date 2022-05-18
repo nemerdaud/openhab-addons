@@ -376,6 +376,14 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
     }
 
     /**
+     * Perform some routine before getting data device. Depending on the kind of the device, this is needed
+     * to update or prepare some informations before go to get the data.
+     *
+     */
+    protected abstract void beforeGetDataDevice(@NonNull String bridgeName, @NonNull String deviceId)
+            throws LGThinqApiException;
+
+    /**
      * Get snapshot data from the device.
      * <b>It works only for API V2 device versions!</b>
      *
@@ -386,6 +394,9 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
     @Override
     @Nullable
     public S getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException {
+        // Exec pre-conditions (normally ask for update monitoring sensors of the device) before call for data
+        beforeGetDataDevice(bridgeName, deviceId);
+
         Map<String, Object> deviceSettings = getDeviceSettings(bridgeName, deviceId);
         if (deviceSettings.get("snapshot") != null) {
             Map<String, Object> snapMap = (Map<String, Object>) deviceSettings.get("snapshot");

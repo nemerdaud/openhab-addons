@@ -16,10 +16,7 @@ import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.lgthinq.internal.handler.LGThinQAirConditionerHandler;
-import org.openhab.binding.lgthinq.internal.handler.LGThinQBridgeHandler;
-import org.openhab.binding.lgthinq.internal.handler.LGThinQDryerHandler;
-import org.openhab.binding.lgthinq.internal.handler.LGThinQWasherHandler;
+import org.openhab.binding.lgthinq.internal.handler.*;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
@@ -64,6 +61,8 @@ public class LGThinQHandlerFactory extends BaseThingHandlerFactory {
             return new LGThinQWasherHandler(thing, stateDescriptionProvider);
         } else if (THING_TYPE_DRYER.equals(thingTypeUID)) {
             return new LGThinQDryerHandler(thing, stateDescriptionProvider);
+        } else if (THING_TYPE_FRIDGE.equals(thingTypeUID)) {
+            return new LGThinQFridgeHandler(thing, stateDescriptionProvider);
         }
         logger.error("Thing not supported by this Factory: {}", thingTypeUID.getId());
         return null;
@@ -79,6 +78,8 @@ public class LGThinQHandlerFactory extends BaseThingHandlerFactory {
         } else if (THING_TYPE_WASHING_MACHINE.equals(thingTypeUID)) {
             return super.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
         } else if (THING_TYPE_DRYER.equals(thingTypeUID)) {
+            return super.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
+        } else if (THING_TYPE_FRIDGE.equals(thingTypeUID)) {
             return super.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
         }
         return null;

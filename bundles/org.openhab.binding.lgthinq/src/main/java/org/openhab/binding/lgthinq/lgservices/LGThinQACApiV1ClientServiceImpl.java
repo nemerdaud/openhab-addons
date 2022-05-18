@@ -52,6 +52,11 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
         super(capabilityClass, snapshotClass);
     }
 
+    @Override
+    protected void beforeGetDataDevice(@NonNull String bridgeName, @NonNull String deviceId) {
+        // Nothing to do on V1 AC here
+    }
+
     public static LGThinQACApiClientService getInstance() {
         return instance;
     }

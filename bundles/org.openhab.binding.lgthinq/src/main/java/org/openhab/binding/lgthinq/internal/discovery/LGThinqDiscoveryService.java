@@ -60,6 +60,11 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
         super(SUPPORTED_THING_TYPES, SEARCH_TIME);
         lgApiClientService = new LGThinQAbstractApiClientService<>(Capability.class, Snapshot.class) {
             @Override
+            protected void beforeGetDataDevice(@NonNull String bridgeName, @NonNull String deviceId)
+                    throws LGThinqApiException {
+            }
+
+            @Override
             public double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
                     throws LGThinqApiException, IOException {
                 return 0;
@@ -159,6 +164,8 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
                 return THING_TYPE_WASHING_MACHINE;
             case DRYER:
                 return THING_TYPE_DRYER;
+            case FRIDGE:
+                return THING_TYPE_FRIDGE;
             default:
                 throw new LGThinqException(String.format("device type [%s] not supported", device.getDeviceType()));
         }

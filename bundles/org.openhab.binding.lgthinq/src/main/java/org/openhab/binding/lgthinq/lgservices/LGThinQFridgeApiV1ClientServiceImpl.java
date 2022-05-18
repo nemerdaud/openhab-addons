@@ -16,33 +16,34 @@ import java.io.IOException;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
-import org.openhab.binding.lgthinq.lgservices.model.dryer.DryerCapability;
-import org.openhab.binding.lgthinq.lgservices.model.dryer.DryerSnapshot;
+import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeCapability;
+import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeSnapshot;
 
 /**
- * The {@link LGThinQDRApiV2ClientServiceImpl}
+ * The {@link LGThinQFridgeApiV1ClientServiceImpl}
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class LGThinQDRApiV2ClientServiceImpl extends LGThinQAbstractApiClientService<DryerCapability, DryerSnapshot>
-        implements LGThinQDRApiClientService {
+public class LGThinQFridgeApiV1ClientServiceImpl extends
+        LGThinQAbstractApiClientService<FridgeCapability, FridgeSnapshot> implements LGThinQFridgeApiClientService {
 
-    private static final LGThinQDRApiV2ClientServiceImpl instance;
+    private static final LGThinQFridgeApiClientService instance;
     static {
-        instance = new LGThinQDRApiV2ClientServiceImpl(DryerCapability.class, DryerSnapshot.class);
+        instance = new LGThinQFridgeApiV1ClientServiceImpl(FridgeCapability.class, FridgeSnapshot.class);
     }
 
-    protected LGThinQDRApiV2ClientServiceImpl(Class<DryerCapability> capabilityClass,
-            Class<DryerSnapshot> snapshotClass) {
+    protected LGThinQFridgeApiV1ClientServiceImpl(Class<FridgeCapability> capabilityClass,
+            Class<FridgeSnapshot> snapshotClass) {
         super(capabilityClass, snapshotClass);
     }
 
     @Override
     protected void beforeGetDataDevice(@NonNull String bridgeName, @NonNull String deviceId) {
-        // TODO - Analise what to do here
+        // Nothing to do for V1 thinq
     }
 
     @Override
@@ -51,7 +52,7 @@ public class LGThinQDRApiV2ClientServiceImpl extends LGThinQAbstractApiClientSer
         return 0;
     }
 
-    public static LGThinQDRApiV2ClientServiceImpl getInstance() {
+    public static LGThinQFridgeApiClientService getInstance() {
         return instance;
     }
 
@@ -59,5 +60,12 @@ public class LGThinQDRApiV2ClientServiceImpl extends LGThinQAbstractApiClientSer
     public void turnDevicePower(String bridgeName, String deviceId, DevicePowerState newPowerState)
             throws LGThinqApiException {
         throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
+    @Override
+    @Nullable
+    public FridgeSnapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId)
+            throws LGThinqApiException {
+        throw new UnsupportedOperationException("Method not supported in V1 API device.");
     }
 }

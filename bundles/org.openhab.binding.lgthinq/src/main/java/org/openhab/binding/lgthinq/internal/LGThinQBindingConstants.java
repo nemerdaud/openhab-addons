@@ -38,6 +38,8 @@ public class LGThinQBindingConstants {
             "" + DeviceTypes.WASHING_MACHINE.deviceTypeId());
     public static final ThingTypeUID THING_TYPE_DRYER = new ThingTypeUID(BINDING_ID,
             "" + DeviceTypes.DRYER.deviceTypeId());
+    public static final ThingTypeUID THING_TYPE_FRIDGE = new ThingTypeUID(BINDING_ID,
+            "" + DeviceTypes.FRIDGE.deviceTypeId());
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_AIR_CONDITIONER,
             THING_TYPE_WASHING_MACHINE, THING_TYPE_DRYER, THING_TYPE_BRIDGE);
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Set.of(THING_TYPE_AIR_CONDITIONER,
@@ -59,7 +61,7 @@ public class LGThinQBindingConstants {
     public static final String V2_SESSION_LOGIN_PATH = "/emp/v2.0/account/session/";
     public static final String V2_LS_PATH = "/service/application/dashboard";
     public static final String V2_DEVICE_CONFIG_PATH = "service/devices/";
-    public static final String V2_CTRL_DEVICE_CONFIG_PATH = "service/devices/%s/control-sync";
+    public static final String V2_CTRL_DEVICE_CONFIG_PATH = "service/devices/%s/%s";
     public static final String V1_START_MON_PATH = "rti/rtiMon";
     public static final String V1_MON_DATA_PATH = "rti/rtiResult";
     public static final String V1_CONTROL_OP = "rti/rtiControl";
@@ -101,12 +103,18 @@ public class LGThinQBindingConstants {
     // delay between each devices's scan for state changes (in seconds)
     public static final int DEFAULT_STATE_POLLING_UPDATE_DELAY = 10;
 
+    // ====================== FRIDGE DEVICE CONSTANTS =============================
+    // CHANNEL IDS
+    // public static final String CHANNEL_MOD_OP_ID = "op_mode";
+    // public static final String CHANNEL_FAN_SPEED_ID = "fan_speed";
+    // public static final String CHANNEL_TARGET_TEMP_ID = "target_temperature";
+    // public static final String CHANNEL_CURRENT_TEMP_ID = "current_temperature";
+    // public static final String CHANNEL_COOL_JET_ID = "cool_jet";
+
     // ====================== AIR CONDITIONER DEVICE CONSTANTS =============================
     // CHANNEL IDS
     public static final String CHANNEL_MOD_OP_ID = "op_mode";
     public static final String CHANNEL_FAN_SPEED_ID = "fan_speed";
-    public static final String CHANNEL_COURSE_ID = "course";
-    public static final String CHANNEL_SMART_COURSE_ID = "smart_course";
     public static final String CHANNEL_POWER_ID = "power";
     public static final String CHANNEL_TARGET_TEMP_ID = "target_temperature";
     public static final String CHANNEL_CURRENT_TEMP_ID = "current_temperature";

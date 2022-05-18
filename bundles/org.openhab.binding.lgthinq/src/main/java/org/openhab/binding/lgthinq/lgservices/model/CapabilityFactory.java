@@ -23,6 +23,7 @@ import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV1ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
 import org.openhab.binding.lgthinq.lgservices.model.dryer.DryerCapability;
+import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeCapability;
 import org.openhab.binding.lgthinq.lgservices.model.washer.WasherCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +59,16 @@ public class CapabilityFactory {
                 return clazz.cast(getWmCapabilities(rootMap));
             case DRYER:
                 return clazz.cast(getDrCapabilities(rootMap));
+            case FRIDGE:
+                return clazz.cast(getFridgeCapabilities(rootMap));
             default:
                 throw new IllegalStateException("Unexpected capability. The type " + type + " was not implemented yet");
         }
+    }
+
+    private Capability getFridgeCapabilities(Map<String, Object> rootMap) throws LGThinqApiException {
+        // TODO - Implement it
+        return new FridgeCapability();
     }
 
     private Capability getDrCapabilities(Map<String, Object> rootMap) throws LGThinqApiException {
@@ -102,7 +110,7 @@ public class CapabilityFactory {
             // } else if (version == LGAPIVerion.V1_0) {
             // Map<String, Object> monValue = (Map<String, Object>) rootMap.get("Value");
             // Objects.requireNonNull(monValue, "Unexpected error. MonitoringValue not present in capability schema");
-            // DryerCapability drCap = new DryerCapability();
+            // FridgeCapability drCap = new FridgeCapability();
             //
             // Map<String, Object> courseMap = (Map<String, Object>) rootMap.get("Course");
             // Objects.requireNonNull(courseMap, "Unexpected error. Course not present in capability schema");
@@ -131,16 +139,16 @@ public class CapabilityFactory {
             // Map<String, Object> stateMap = (Map<String, Object>) monValue.get("State");
             // Map<String, String> options = (Map<String, String>) stateMap.get("option");
             // options.forEach((k,v) -> {
-            // drCap.addMonitoringValue(DryerCapability.MonitoringCap.STATE_V1, k, v);
+            // drCap.addMonitoringValue(FridgeCapability.MonitoringCap.STATE_V1, k, v);
             // });
             // Map<String, Object> errorMap = (Map<String, Object>) rootMap.get("Error");
             // Map<String, String> options = (Map<String, String>) stateMap.get("option");
             // options.forEach((k,v) -> {
-            // drCap.addMonitoringValue(DryerCapability.MonitoringCap.STATE_V1, k, v);
+            // drCap.addMonitoringValue(FridgeCapability.MonitoringCap.STATE_V1, k, v);
             // });
             //
-            // loadDrMonValueCapV1(DryerCapability.MonitoringCap.ERROR_V1, monValue, drCap, "_comment");
-            // loadDrMonValueCapV1(DryerCapability.MonitoringCap.PROCESS_STATE_V1, monValue, drCap, "label");
+            // loadDrMonValueCapV1(FridgeCapability.MonitoringCap.ERROR_V1, monValue, drCap, "_comment");
+            // loadDrMonValueCapV1(FridgeCapability.MonitoringCap.PROCESS_STATE_V1, monValue, drCap, "label");
             //
             // return drCap;
         } else {
@@ -449,6 +457,7 @@ public class CapabilityFactory {
 
             case WASHING_MACHINE:
             case DRYER:
+            case FRIDGE:
                 if (rootMap.containsKey("Value")) {
                     return LGAPIVerion.V1_0;
                 } else if (rootMap.containsKey("MonitoringValue")) {
