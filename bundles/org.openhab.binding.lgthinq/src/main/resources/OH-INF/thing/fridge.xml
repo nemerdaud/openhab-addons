@@ -10,18 +10,17 @@
 			<bridge-type-ref id="bridge"/>
 		</supported-bridge-type-refs>
 
-		<label>LG ThinQ Dryer</label>
-		<description>LG ThinQ Dryer</description>
+		<label>LG ThinQ Fridge</label>
+		<description>LG ThinQ Fridge</description>
 
 		<channels>
-			<channel id="power" typeId="system.power"/>
-			<channel id="some-door-open" typeId="fridge-some-door-open"/>
+			<!-- <channel id="some-door-open" typeId="fridge-some-door-open"/> -->
 			<channel id="freezer-temperature" typeId="fridge-freezer-temperature"/>
 			<channel id="fridge-temperature" typeId="fridge-fridge-temperature"/>
 			<channel id="temp-unit" typeId="fridge-temp-unit"/>
-			<channel id="water-filter-status" typeId="fridge-water-filter-status"/>
-			<channel id="fresh-air-filter-status" typeId="fridge-fresh-air-filter-status"/>
-			<channel id="mon-status" typeId="fridge-mon-status"/>
+			<!-- <channel id="water-filter-status" typeId="fridge-water-filter-status"/> -->
+			<!-- <channel id="fresh-air-filter-status" typeId="fridge-fresh-air-filter-status"/> -->
+			<!-- <channel id="mon-status" typeId="fridge-mon-status"/> -->
 		</channels>
 
 	</thing-type>

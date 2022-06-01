@@ -24,11 +24,13 @@ import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV1ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
 import org.openhab.binding.lgthinq.lgservices.model.dryer.DryerCapability;
 import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeCapability;
+import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeFactory;
 import org.openhab.binding.lgthinq.lgservices.model.washer.WasherCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -59,7 +61,7 @@ public class CapabilityFactory {
                 return clazz.cast(getWmCapabilities(rootMap));
             case DRYER:
                 return clazz.cast(getDrCapabilities(rootMap));
-            case FRIDGE:
+            case REFRIGERATOR:
                 return clazz.cast(getFridgeCapabilities(rootMap));
             default:
                 throw new IllegalStateException("Unexpected capability. The type " + type + " was not implemented yet");
@@ -67,8 +69,10 @@ public class CapabilityFactory {
     }
 
     private Capability getFridgeCapabilities(Map<String, Object> rootMap) throws LGThinqApiException {
-        // TODO - Implement it
-        return new FridgeCapability();
+        LGAPIVerion version = discoveryAPIVersion(rootMap);
+        FridgeCapability fcap = FridgeFactory.getFridgeCapability(version);
+        fcap.loadCapabilities(rootMap);
+        return fcap;
     }
 
     private Capability getDrCapabilities(Map<String, Object> rootMap) throws LGThinqApiException {
@@ -110,7 +114,7 @@ public class CapabilityFactory {
             // } else if (version == LGAPIVerion.V1_0) {
             // Map<String, Object> monValue = (Map<String, Object>) rootMap.get("Value");
             // Objects.requireNonNull(monValue, "Unexpected error. MonitoringValue not present in capability schema");
-            // FridgeCapability drCap = new FridgeCapability();
+            // FridgeCapabilityV2 drCap = new FridgeCapabilityV2();
             //
             // Map<String, Object> courseMap = (Map<String, Object>) rootMap.get("Course");
             // Objects.requireNonNull(courseMap, "Unexpected error. Course not present in capability schema");
@@ -139,16 +143,16 @@ public class CapabilityFactory {
             // Map<String, Object> stateMap = (Map<String, Object>) monValue.get("State");
             // Map<String, String> options = (Map<String, String>) stateMap.get("option");
             // options.forEach((k,v) -> {
-            // drCap.addMonitoringValue(FridgeCapability.MonitoringCap.STATE_V1, k, v);
+            // drCap.addMonitoringValue(FridgeCapabilityV2.MonitoringCapV2.STATE_V1, k, v);
             // });
             // Map<String, Object> errorMap = (Map<String, Object>) rootMap.get("Error");
             // Map<String, String> options = (Map<String, String>) stateMap.get("option");
             // options.forEach((k,v) -> {
-            // drCap.addMonitoringValue(FridgeCapability.MonitoringCap.STATE_V1, k, v);
+            // drCap.addMonitoringValue(FridgeCapabilityV2.MonitoringCapV2.STATE_V1, k, v);
             // });
             //
-            // loadDrMonValueCapV1(FridgeCapability.MonitoringCap.ERROR_V1, monValue, drCap, "_comment");
-            // loadDrMonValueCapV1(FridgeCapability.MonitoringCap.PROCESS_STATE_V1, monValue, drCap, "label");
+            // loadDrMonValueCapV1(FridgeCapabilityV2.MonitoringCapV2.ERROR_V1, monValue, drCap, "_comment");
+            // loadDrMonValueCapV1(FridgeCapabilityV2.MonitoringCapV2.PROCESS_STATE_V1, monValue, drCap, "label");
             //
             // return drCap;
         } else {
@@ -315,6 +319,20 @@ public class CapabilityFactory {
         });
     }
 
+    private void loadFridgeMonValueCapV2(DryerCapability.MonitoringCap monCap, Map<String, Object> monMap,
+            DryerCapability dryerCapability, String valueAttribute) {
+
+        JsonNode node = mapper.valueToTree(monCap);
+        Map<String, Object> nodeMap = (Map<String, Object>) monMap.get(monCap.getValue());
+
+        Map<String, Object> map = (Map<String, Object>) nodeMap.get("valueMapping");
+        Objects.requireNonNull(map, "Unexpected error. valueMapping attribute is mandatory");
+        map.forEach((k, v) -> {
+            dryerCapability.addMonitoringValue(monCap, k, Objects.requireNonNull(
+                    ((Map<String, String>) v).get(valueAttribute), "label property for course node must be present"));
+        });
+    }
+
     private ACCapability getAcCapabilities(Map<String, Object> rootMap) throws LGThinqApiException {
         LGAPIVerion version = discoveryAPIVersion(rootMap);
         if (version == LGAPIVerion.V1_0) {
@@ -457,7 +475,7 @@ public class CapabilityFactory {
 
             case WASHING_MACHINE:
             case DRYER:
-            case FRIDGE:
+            case REFRIGERATOR:
                 if (rootMap.containsKey("Value")) {
                     return LGAPIVerion.V1_0;
                 } else if (rootMap.containsKey("MonitoringValue")) {

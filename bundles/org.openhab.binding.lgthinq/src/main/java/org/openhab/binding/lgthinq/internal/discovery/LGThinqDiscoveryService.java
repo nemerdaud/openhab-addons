@@ -164,7 +164,7 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
                 return THING_TYPE_WASHING_MACHINE;
             case DRYER:
                 return THING_TYPE_DRYER;
-            case FRIDGE:
+            case REFRIGERATOR:
                 return THING_TYPE_FRIDGE;
             default:
                 throw new LGThinqException(String.format("device type [%s] not supported", device.getDeviceType()));

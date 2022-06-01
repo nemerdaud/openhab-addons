@@ -14,7 +14,6 @@ package org.openhab.binding.lgthinq.internal.handler;
 
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
@@ -23,26 +22,15 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.LGThinQDeviceDynStateDescriptionProvider;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
-import org.openhab.binding.lgthinq.lgservices.LGThinQACApiClientService;
-import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV1ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV2ClientServiceImpl;
-import org.openhab.binding.lgthinq.lgservices.LGThinQApiClientService;
-import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
+import org.openhab.binding.lgthinq.lgservices.*;
 import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
-import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
-import org.openhab.binding.lgthinq.lgservices.model.ac.ACSnapshot;
-import org.openhab.binding.lgthinq.lgservices.model.ac.ACTargetTmp;
-import org.openhab.core.library.types.DecimalType;
-import org.openhab.core.library.types.OnOffType;
-import org.openhab.core.library.types.QuantityType;
+import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeCapability;
+import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeSnapshot;
+import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.Bridge;
-import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
-import org.openhab.core.thing.binding.builder.ChannelBuilder;
-import org.openhab.core.thing.type.ChannelKind;
-import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.StateOption;
 import org.slf4j.Logger;
@@ -55,25 +43,24 @@ import org.slf4j.LoggerFactory;
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<ACCapability, ACSnapshot> {
+public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCapability, FridgeSnapshot> {
 
-    private final ChannelUID opModeChannelUID;
     private final ChannelUID fridgeTempChannelUID;
     private final ChannelUID freezerTempChannelUID;
-
+    private boolean isFirstSnapshotReceived;
+    private String tempUnit = TEMP_UNIT_CELSIUS;
     private final Logger logger = LoggerFactory.getLogger(LGThinQFridgeHandler.class);
     @NonNullByDefault
-    private final LGThinQACApiClientService lgThinqACApiClientService;
+    private final LGThinQFridgeApiClientService lgThinqFridgeApiClientService;
     private @Nullable ScheduledFuture<?> thingStatePollingJob;
 
     public LGThinQFridgeHandler(Thing thing, LGThinQDeviceDynStateDescriptionProvider stateDescriptionProvider) {
         super(thing, stateDescriptionProvider);
-        lgThinqACApiClientService = lgPlatformType.equals(PLATFORM_TYPE_V1)
-                ? LGThinQACApiV1ClientServiceImpl.getInstance()
-                : LGThinQACApiV2ClientServiceImpl.getInstance();
-        opModeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_MOD_OP_ID);
-        fridgeTempChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_FAN_SPEED_ID);
-        freezerTempChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_COOL_JET_ID);
+        lgThinqFridgeApiClientService = lgPlatformType.equals(PLATFORM_TYPE_V1)
+                ? LGThinQFridgeApiV1ClientServiceImpl.getInstance()
+                : LGThinQFridgeApiV2ClientServiceImpl.getInstance();
+        fridgeTempChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_FRIDGE_TEMP_ID);
+        freezerTempChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_FREEZER_TEMP_ID);
     }
 
     @Override
@@ -84,65 +71,50 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<ACCapabil
     }
 
     @Override
-    protected void updateDeviceChannels(ACSnapshot shot) {
-
-        updateState(CHANNEL_POWER_ID,
-                DevicePowerState.DV_POWER_ON.equals(shot.getPowerStatus()) ? OnOffType.ON : OnOffType.OFF);
-        updateState(CHANNEL_MOD_OP_ID, new DecimalType(BigDecimal.valueOf(shot.getOperationMode())));
-        updateState(CHANNEL_FAN_SPEED_ID, new DecimalType(BigDecimal.valueOf(shot.getAirWindStrength())));
-        updateState(CHANNEL_CURRENT_TEMP_ID, new DecimalType(BigDecimal.valueOf(shot.getCurrentTemperature())));
-        updateState(CHANNEL_TARGET_TEMP_ID, new DecimalType(BigDecimal.valueOf(shot.getTargetTemperature())));
-        if (getThing().getChannel(freezerTempChannelUID) != null) {
+    protected void updateDeviceChannels(FridgeSnapshot shot) {
+        updateState(CHANNEL_FRIDGE_TEMP_ID, new StringType(shot.getFridgeTemp()));
+        updateState(CHANNEL_FREEZER_TEMP_ID, new StringType(shot.getFreezerTemp()));
+        updateState(CHANNEL_REF_TEMP_UNIT, new StringType(shot.getTempUnit()));
+        tempUnit = shot.getTempUnit();
+        if (!isFirstSnapshotReceived) {
+            isFirstSnapshotReceived = true;
             try {
-                ACCapability acCap = getCapabilities();
-                Double commandCoolJetOn = Double.valueOf(acCap.getCoolJetModeCommandOn());
-                updateState(CHANNEL_COOL_JET_ID,
-                        commandCoolJetOn.equals(shot.getCoolJetMode()) ? OnOffType.ON : OnOffType.OFF);
-            } catch (LGThinqApiException e) {
-                logger.error("Unexpected Error getting AC Capabilities", e);
-            } catch (NumberFormatException e) {
-                logger.warn("command value for CoolJetMode is not numeric.", e);
+                // force update states after first snapshot fetched to fit changes in temperature unit
+                updateChannelDynStateDescription();
+            } catch (Exception ex) {
+                logger.error("Error updating dynamic state description", ex);
             }
         }
     }
 
     @Override
     public void updateChannelDynStateDescription() throws LGThinqApiException {
-        ACCapability acCap = getCapabilities();
-        if (getThing().getChannel(freezerTempChannelUID) == null && acCap.isJetModeAvailable()) {
-            if (getCallback() == null) {
-                logger.error("Unexpected behaviour. Callback not ready! Can't create dynamic channels");
-            } else {
-                // dynamic create channel
-                ChannelBuilder builder = getCallback().createChannelBuilder(freezerTempChannelUID,
-                        new ChannelTypeUID(BINDING_ID, CHANNEL_COOL_JET_ID));
-                Channel channel = builder.withKind(ChannelKind.STATE).withAcceptedItemType("Switch").build();
-                updateThing(editThing().withChannel(channel).build());
+        FridgeCapability refCap = getCapabilities();
+        // temperature channels are little different. First we need to get the tempUnit in the first snapshot,
+
+        if (isLinked(fridgeTempChannelUID)) {
+            List<StateOption> options = new ArrayList<>();
+            if (TEMP_UNIT_CELSIUS.equals(tempUnit)) {
+                refCap.getFridgeTempCMap().forEach((value, label) -> options.add(new StateOption(value, label)));
+            } else if (TEMP_UNIT_FAHRENHEIT.equals(tempUnit)) {
+                refCap.getFridgeTempFMap().forEach((value, label) -> options.add(new StateOption(value, label)));
             }
-        }
-        if (isLinked(opModeChannelUID)) {
-            List<StateOption> options = new ArrayList<>();
-            acCap.getSupportedOpMode().forEach((v) -> options
-                    .add(new StateOption(emptyIfNull(acCap.getOpMod().get(v)), emptyIfNull(CAP_AC_OP_MODE.get(v)))));
-            stateDescriptionProvider.setStateOptions(opModeChannelUID, options);
-        }
-        if (isLinked(fridgeTempChannelUID)) {
-            List<StateOption> options = new ArrayList<>();
-            acCap.getSupportedFanSpeed().forEach((v) -> options.add(
-                    new StateOption(emptyIfNull(acCap.getFanSpeed().get(v)), emptyIfNull(CAP_AC_FAN_SPEED.get(v)))));
             stateDescriptionProvider.setStateOptions(fridgeTempChannelUID, options);
         }
-        if (isLinked(fridgeTempChannelUID)) {
+        if (isLinked(freezerTempChannelUID)) {
             List<StateOption> options = new ArrayList<>();
-            acCap.getSupportedFanSpeed().forEach((v) -> options.add(
-                    new StateOption(emptyIfNull(acCap.getFanSpeed().get(v)), emptyIfNull(CAP_AC_FAN_SPEED.get(v)))));
-            stateDescriptionProvider.setStateOptions(fridgeTempChannelUID, options);
+            if (TEMP_UNIT_CELSIUS.equals(tempUnit)) {
+                refCap.getFreezerTempCMap().forEach((value, label) -> options.add(new StateOption(value, label)));
+            } else if (TEMP_UNIT_FAHRENHEIT.equals(tempUnit)) {
+                refCap.getFreezerTempFMap().forEach((value, label) -> options.add(new StateOption(value, label)));
+            }
+            stateDescriptionProvider.setStateOptions(freezerTempChannelUID, options);
         }
     }
 
     @Override
-    public LGThinQApiClientService<ACCapability, ACSnapshot> getLgThinQAPIClientService() {
-        return lgThinqACApiClientService;
+    public LGThinQApiClientService<FridgeCapability, FridgeSnapshot> getLgThinQAPIClientService() {
+        return lgThinqFridgeApiClientService;
     }
 
     @Override
@@ -193,61 +165,6 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<ACCapabil
 
     protected void processCommand(AsyncCommandParams params) throws LGThinqApiException {
         Command command = params.command;
-        switch (params.channelUID) {
-            case CHANNEL_MOD_OP_ID: {
-                if (params.command instanceof DecimalType) {
-                    lgThinqACApiClientService.changeOperationMode(getBridgeId(), getDeviceId(),
-                            ((DecimalType) command).intValue());
-                } else {
-                    logger.warn("Received command different of Numeric in Mod Operation. Ignoring");
-                }
-                break;
-            }
-            case CHANNEL_FAN_SPEED_ID: {
-                if (command instanceof DecimalType) {
-                    lgThinqACApiClientService.changeFanSpeed(getBridgeId(), getDeviceId(),
-                            ((DecimalType) command).intValue());
-                } else {
-                    logger.warn("Received command different of Numeric in FanSpeed Channel. Ignoring");
-                }
-                break;
-            }
-            case CHANNEL_POWER_ID: {
-                if (command instanceof OnOffType) {
-                    lgThinqACApiClientService.turnDevicePower(getBridgeId(), getDeviceId(),
-                            command == OnOffType.ON ? DevicePowerState.DV_POWER_ON : DevicePowerState.DV_POWER_OFF);
-                } else {
-                    logger.warn("Received command different of OnOffType in Power Channel. Ignoring");
-                }
-                break;
-            }
-            case CHANNEL_COOL_JET_ID: {
-                if (command instanceof OnOffType) {
-                    lgThinqACApiClientService.turnCoolJetMode(getBridgeId(), getDeviceId(),
-                            command == OnOffType.ON ? getCapabilities().getCoolJetModeCommandOn()
-                                    : getCapabilities().getCoolJetModeCommandOff());
-                } else {
-                    logger.warn("Received command different of OnOffType in CoolJet Mode Channel. Ignoring");
-                }
-                break;
-            }
-            case CHANNEL_TARGET_TEMP_ID: {
-                double targetTemp;
-                if (command instanceof DecimalType) {
-                    targetTemp = ((DecimalType) command).doubleValue();
-                } else if (command instanceof QuantityType) {
-                    targetTemp = ((QuantityType<?>) command).doubleValue();
-                } else {
-                    logger.warn("Received command different of Numeric in TargetTemp Channel. Ignoring");
-                    break;
-                }
-                lgThinqACApiClientService.changeTargetTemperature(getBridgeId(), getDeviceId(),
-                        ACTargetTmp.statusOf(targetTemp));
-                break;
-            }
-            default: {
-                logger.error("Command {} to the channel {} not supported. Ignored.", command, params.channelUID);
-            }
-        }
+        // TODO - Implement commands
     }
 }

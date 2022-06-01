@@ -243,14 +243,30 @@
 	</channel-type>
 	<channel-type id="fridge-temp-unit">
 		<item-type>String</item-type>
-		<label>Door Open</label>
-		<description>Washer Door Lock</description>
+		<label>Temp. Unit</label>
+		<description>Temperature Unit</description>
 		<state readOnly="true">
 			<options>
 				<option value="CELSIUS">C</option>
 				<option value="FAHRENHEIT">F</option>
 			</options>
 		</state>
+	</channel-type>
+
+	<channel-type id="fridge-freezer-temperature">
+		<item-type>String</item-type>
+		<label>Freezer Temperature</label>
+		<description>Freezer temperature.</description>
+		<category>Temperature</category>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="fridge-fridge-temperature">
+		<item-type>String</item-type>
+		<label>Fridge Temperature</label>
+		<description>Fridge temperature.</description>
+		<category>Temperature</category>
+		<state readOnly="true"/>
 	</channel-type>
 
 </thing:thing-descriptions>

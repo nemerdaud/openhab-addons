@@ -39,9 +39,9 @@ public class LGThinQBindingConstants {
     public static final ThingTypeUID THING_TYPE_DRYER = new ThingTypeUID(BINDING_ID,
             "" + DeviceTypes.DRYER.deviceTypeId());
     public static final ThingTypeUID THING_TYPE_FRIDGE = new ThingTypeUID(BINDING_ID,
-            "" + DeviceTypes.FRIDGE.deviceTypeId());
+            "" + DeviceTypes.REFRIGERATOR.deviceTypeId());
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_AIR_CONDITIONER,
-            THING_TYPE_WASHING_MACHINE, THING_TYPE_DRYER, THING_TYPE_BRIDGE);
+            THING_TYPE_WASHING_MACHINE, THING_TYPE_DRYER, THING_TYPE_FRIDGE, THING_TYPE_BRIDGE);
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Set.of(THING_TYPE_AIR_CONDITIONER,
             THING_TYPE_WASHING_MACHINE, THING_TYPE_DRYER);
     public static final String THING_STATUS_DETAIL_DISCONNECTED = "Device is Disconnected";
@@ -110,6 +110,16 @@ public class LGThinQBindingConstants {
     // public static final String CHANNEL_TARGET_TEMP_ID = "target_temperature";
     // public static final String CHANNEL_CURRENT_TEMP_ID = "current_temperature";
     // public static final String CHANNEL_COOL_JET_ID = "cool_jet";
+    public static final String FRIDGE_TEMPERATURE_IGNORE_VALUE = "255";
+    public static final String FREEZER_TEMPERATURE_IGNORE_VALUE = "255";
+    public static final String CHANNEL_FRIDGE_TEMP_ID = "fridge-temperature";
+    public static final String CHANNEL_FREEZER_TEMP_ID = "freezer-temperature";
+    public static final String CHANNEL_REF_TEMP_UNIT = "temp-unit";
+    public static final String TEMP_UNIT_CELSIUS = "CELSIUS";
+    public static final String TEMP_UNIT_FAHRENHEIT = "FAHRENHEIT";
+    public static final String FRIDGE_TEMP_NODE_NAME_V2 = "fridgeTemp";
+    public static final String FRIDGE_TEMP_NODE_NAME_V1 = "TempRefrigerator";
+    public static final String REFRIGERATOR_SNAPSHOT_NODE_V2 = "refState";
 
     // ====================== AIR CONDITIONER DEVICE CONSTANTS =============================
     // CHANNEL IDS
