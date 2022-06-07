@@ -16,7 +16,10 @@ import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
+
+import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -27,6 +30,7 @@ import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeCapability;
 import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeSnapshot;
+import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
@@ -47,7 +51,6 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
 
     private final ChannelUID fridgeTempChannelUID;
     private final ChannelUID freezerTempChannelUID;
-    private boolean isFirstSnapshotReceived;
     private String tempUnit = TEMP_UNIT_CELSIUS;
     private final Logger logger = LoggerFactory.getLogger(LGThinQFridgeHandler.class);
     @NonNullByDefault
@@ -72,12 +75,12 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
 
     @Override
     protected void updateDeviceChannels(FridgeSnapshot shot) {
-        updateState(CHANNEL_FRIDGE_TEMP_ID, new StringType(shot.getFridgeTemp()));
-        updateState(CHANNEL_FREEZER_TEMP_ID, new StringType(shot.getFreezerTemp()));
+        updateState(CHANNEL_FRIDGE_TEMP_ID, new QuantityType<Temperature>(shot.getFridgeStrTemp()));
+        updateState(CHANNEL_FREEZER_TEMP_ID, new QuantityType<Temperature>(shot.getFreezerStrTemp()));
+
         updateState(CHANNEL_REF_TEMP_UNIT, new StringType(shot.getTempUnit()));
-        tempUnit = shot.getTempUnit();
-        if (!isFirstSnapshotReceived) {
-            isFirstSnapshotReceived = true;
+        if (!tempUnit.equals(shot.getTempUnit())) {
+            tempUnit = shot.getTempUnit();
             try {
                 // force update states after first snapshot fetched to fit changes in temperature unit
                 updateChannelDynStateDescription();
@@ -93,23 +96,22 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
         // temperature channels are little different. First we need to get the tempUnit in the first snapshot,
 
         if (isLinked(fridgeTempChannelUID)) {
-            List<StateOption> options = new ArrayList<>();
-            if (TEMP_UNIT_CELSIUS.equals(tempUnit)) {
-                refCap.getFridgeTempCMap().forEach((value, label) -> options.add(new StateOption(value, label)));
-            } else if (TEMP_UNIT_FAHRENHEIT.equals(tempUnit)) {
-                refCap.getFridgeTempFMap().forEach((value, label) -> options.add(new StateOption(value, label)));
-            }
-            stateDescriptionProvider.setStateOptions(fridgeTempChannelUID, options);
+            updateTemperatureChannel(fridgeTempChannelUID,
+                    TEMP_UNIT_CELSIUS.equals(tempUnit) ? refCap.getFridgeTempCMap() : refCap.getFridgeTempFMap());
         }
         if (isLinked(freezerTempChannelUID)) {
-            List<StateOption> options = new ArrayList<>();
-            if (TEMP_UNIT_CELSIUS.equals(tempUnit)) {
-                refCap.getFreezerTempCMap().forEach((value, label) -> options.add(new StateOption(value, label)));
-            } else if (TEMP_UNIT_FAHRENHEIT.equals(tempUnit)) {
-                refCap.getFreezerTempFMap().forEach((value, label) -> options.add(new StateOption(value, label)));
-            }
-            stateDescriptionProvider.setStateOptions(freezerTempChannelUID, options);
+            updateTemperatureChannel(freezerTempChannelUID,
+                    TEMP_UNIT_CELSIUS.equals(tempUnit) ? refCap.getFreezerTempCMap() : refCap.getFreezerTempFMap());
         }
+    }
+
+    private void updateTemperatureChannel(ChannelUID tempChannelUID, Map<String, String> mapOptions) {
+        List<StateOption> options = new ArrayList<>();
+        mapOptions.forEach((value, label) -> options.add(new StateOption(value, label)));
+        stateDescriptionProvider.setStatePattern(tempChannelUID,
+                "%.0f " + (TEMP_UNIT_CELSIUS.equals(tempUnit) ? TEMP_UNIT_CELSIUS_SYMBOL
+                        : (TEMP_UNIT_FAHRENHEIT.equals(tempUnit) ? TEMP_UNIT_FAHRENHEIT_SYMBOL : "%unit%")));
+        stateDescriptionProvider.setStateOptions(tempChannelUID, options);
     }
 
     @Override

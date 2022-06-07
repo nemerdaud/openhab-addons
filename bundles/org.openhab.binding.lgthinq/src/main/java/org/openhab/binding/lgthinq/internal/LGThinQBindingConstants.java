@@ -110,13 +110,15 @@ public class LGThinQBindingConstants {
     // public static final String CHANNEL_TARGET_TEMP_ID = "target_temperature";
     // public static final String CHANNEL_CURRENT_TEMP_ID = "current_temperature";
     // public static final String CHANNEL_COOL_JET_ID = "cool_jet";
-    public static final String FRIDGE_TEMPERATURE_IGNORE_VALUE = "255";
-    public static final String FREEZER_TEMPERATURE_IGNORE_VALUE = "255";
+    public static final Double FRIDGE_TEMPERATURE_IGNORE_VALUE = 255.0;
+    public static final Double FREEZER_TEMPERATURE_IGNORE_VALUE = 255.0;
     public static final String CHANNEL_FRIDGE_TEMP_ID = "fridge-temperature";
     public static final String CHANNEL_FREEZER_TEMP_ID = "freezer-temperature";
     public static final String CHANNEL_REF_TEMP_UNIT = "temp-unit";
     public static final String TEMP_UNIT_CELSIUS = "CELSIUS";
     public static final String TEMP_UNIT_FAHRENHEIT = "FAHRENHEIT";
+    public static final String TEMP_UNIT_CELSIUS_SYMBOL = "°C";
+    public static final String TEMP_UNIT_FAHRENHEIT_SYMBOL = "°F";
     public static final String FRIDGE_TEMP_NODE_NAME_V2 = "fridgeTemp";
     public static final String FRIDGE_TEMP_NODE_NAME_V1 = "TempRefrigerator";
     public static final String REFRIGERATOR_SNAPSHOT_NODE_V2 = "refState";
@@ -164,6 +166,7 @@ public class LGThinQBindingConstants {
     public static final String WM_CHANNEL_TEMP_LEVEL_ID = "temperature-level";
     public static final String WM_CHANNEL_DOOR_LOCK_ID = "door-lock";
     public static final String WM_CHANNEL_REMAIN_TIME_ID = "remain-time";
+    public static final String WM_CHANNEL_DELAY_TIME_ID = "delay-time";
 
     public static final Map<String, String> CAP_WP_STATE = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
             Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),

@@ -72,14 +72,21 @@
 	</channel-type>
 
 	<channel-type id="washerdryer-remain-time">
-		<item-type>String</item-type>
+		<item-type>DateTime</item-type>
 		<label>Remaining Time</label>
 		<description>Remaining Time</description>
-		<state readOnly="true"/>
+		<state readOnly="true" pattern="%1$tH:%1$tM"/>
+	</channel-type>
+
+	<channel-type id="washerdryer-delay-time">
+		<item-type>DateTime</item-type>
+		<label>Delay Time</label>
+		<description>Delay Time</description>
+		<state readOnly="true" pattern="%1$tH:%1$tM"/>
 	</channel-type>
 
 	<channel-type id="washer-course">
-		<item-type>String</item-type>
+		<item-type>DateTime</item-type>
 		<label>Washer Course</label>
 		<description>Washer Course</description>
 		<state readOnly="true">
@@ -211,10 +218,10 @@
 	</channel-type>
 
 	<channel-type id="dryer-remain-time">
-		<item-type>String</item-type>
+		<item-type>DateTime</item-type>
 		<label>Remaining Time</label>
 		<description>Dryer Remaining Time</description>
-		<state readOnly="true"/>
+		<state readOnly="true" pattern="%1$tH:%1$tM"/>
 	</channel-type>
 
 	<channel-type id="dryer-error">
@@ -254,19 +261,19 @@
 	</channel-type>
 
 	<channel-type id="fridge-freezer-temperature">
-		<item-type>String</item-type>
+		<item-type>Number:Temperature</item-type>
 		<label>Freezer Temperature</label>
 		<description>Freezer temperature.</description>
 		<category>Temperature</category>
-		<state readOnly="true"/>
+		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
 
 	<channel-type id="fridge-fridge-temperature">
-		<item-type>String</item-type>
+		<item-type>Number:Temperature</item-type>
 		<label>Fridge Temperature</label>
 		<description>Fridge temperature.</description>
 		<category>Temperature</category>
-		<state readOnly="true"/>
+		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
 
 </thing:thing-descriptions>
