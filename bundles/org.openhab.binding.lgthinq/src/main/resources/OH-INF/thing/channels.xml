@@ -86,7 +86,7 @@
 	</channel-type>
 
 	<channel-type id="washer-course">
-		<item-type>DateTime</item-type>
+		<item-type>String</item-type>
 		<label>Washer Course</label>
 		<description>Washer Course</description>
 		<state readOnly="true">
