@@ -52,6 +52,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private @Nullable ScheduledFuture<?> thingStatePollingJob;
     private final ScheduledExecutorService pollingScheduler = Executors.newScheduledThreadPool(1);
+    private Integer fetchMonitorRetries = 0;
     private boolean monitorV1Began = false;
     private String monitorWorkId = "";
     protected final LinkedBlockingQueue<AsyncCommandParams> commandBlockQueue = new LinkedBlockingQueue<>(30);
@@ -248,6 +249,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
                 // no data to update. Maybe, the monitor stopped, then it'a going to be restarted next try.
                 return;
             }
+            fetchMonitorRetries = 0;
             if (!shot.isOnline()) {
                 if (getThing().getStatus() != ThingStatus.OFFLINE) {
                     // only update channels if the device has just gone OFFLINE.
@@ -262,6 +264,16 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
                     updateStatus(ThingStatus.ONLINE);
             }
 
+        } catch (LGThinqApiExhaustionException e) {
+            fetchMonitorRetries++;
+            getLogger().warn("LG API returns null monitoring data for the thing {}/{}. No data available yet ?",
+                    getDeviceAlias(), getDeviceId());
+            if (fetchMonitorRetries > MAX_GET_MONITOR_RETRIES) {
+                getLogger().error(
+                        "The thing {}/{} reach maximum retries for monitor data. Thing goes OFFLINE until next retry.",
+                        getDeviceAlias(), getDeviceId(), e);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+            }
         } catch (LGThinqException e) {
             getLogger().error("Error updating thing {}/{} from LG API. Thing goes OFFLINE until next retry.",
                     getDeviceAlias(), getDeviceId(), e);
@@ -314,7 +326,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
     abstract protected DeviceTypes getDeviceType();
 
     @Nullable
-    protected S getSnapshotDeviceAdapter(String deviceId) throws LGThinqApiException {
+    protected S getSnapshotDeviceAdapter(String deviceId) throws LGThinqApiException, LGThinqApiExhaustionException {
         // analise de platform version
         if (PLATFORM_TYPE_V2.equals(lgPlatformType)) {
             return getLgThinQAPIClientService().getDeviceData(getBridgeId(), getDeviceId());
@@ -366,7 +378,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
             } finally {
                 stopDeviceV1Monitor(deviceId);
             }
-            throw new LGThinqApiException("Exhausted trying to get monitor data for the device:" + deviceId);
+            throw new LGThinqApiExhaustionException("Exhausted trying to get monitor data for the device:" + deviceId);
         }
     }
 

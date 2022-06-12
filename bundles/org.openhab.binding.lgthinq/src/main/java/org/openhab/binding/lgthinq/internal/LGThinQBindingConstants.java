@@ -45,7 +45,8 @@ public class LGThinQBindingConstants {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Set.of(THING_TYPE_AIR_CONDITIONER,
             THING_TYPE_WASHING_MACHINE, THING_TYPE_DRYER);
     public static final String THING_STATUS_DETAIL_DISCONNECTED = "Device is Disconnected";
-
+    // Max number of retries trying to get the monitor (V1) until consider ERROR in the connection
+    public static final Integer MAX_GET_MONITOR_RETRIES = 3;
     public static String THINQ_USER_DATA_FOLDER = OpenHAB.getUserDataFolder() + File.separator + "thinq";
     public static String THINQ_CONNECTION_DATA_FILE = THINQ_USER_DATA_FOLDER + File.separator + "thinqbridge-%s.json";
     public static String BASE_CAP_CONFIG_DATA_FILE = THINQ_USER_DATA_FOLDER + File.separator + "thinq-%s-cap.json";
@@ -170,7 +171,7 @@ public class LGThinQBindingConstants {
 
     public static final Map<String, String> CAP_WP_STATE = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
             Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),
-            Map.entry("@WM_STATE_RESERVE_W", "Reverse"), Map.entry("@WM_STATE_DETECTING_W", "Detecting"),
+            Map.entry("@WM_STATE_RESERVE_W", "Reserved"), Map.entry("@WM_STATE_DETECTING_W", "Detecting"),
             Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RINSING_W", "Rinsing"),
             Map.entry("@WM_STATE_SPINNING_W", "Spinning"), Map.entry("@WM_STATE_COOLDOWN_W", "Cool Down"),
             Map.entry("@WM_STATE_RINSEHOLD_W", "Rinse Hold"), Map.entry("@WM_STATE_WASH_REFRESHING_W", "Refreshing"),
@@ -180,7 +181,7 @@ public class LGThinQBindingConstants {
 
     public static final Map<String, String> CAP_WP_STATE_V1 = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
             Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),
-            Map.entry("@WM_STATE_RESERVE_W", "Reverse"), Map.entry("@WM_STATE_DETECTING_W", "Detecting"),
+            Map.entry("@WM_STATE_RESERVE_W", "Reserved"), Map.entry("@WM_STATE_DETECTING_W", "Detecting"),
             Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RINSING_W", "Rinsing"),
             Map.entry("@WM_STATE_SPINNING_W", "Spinning"), Map.entry("@WM_STATE_COOLDOWN_W", "Cool Down"),
             Map.entry("@WM_STATE_RINSEHOLD_W", "Rinse Hold"), Map.entry("@WM_STATE_WASH_REFRESHING_W", "Refreshing"),
@@ -214,7 +215,7 @@ public class LGThinQBindingConstants {
 
     public static final Map<String, String> CAP_DR_STATE = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
             Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),
-            Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RESERVE_W", "Reverse"),
+            Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RESERVE_W", "Reserved"),
             Map.entry("@WM_STATE_ERROR_W", "Error"), Map.entry("@WM_STATE_SMART_DIAGNOSIS_W", "Smart Diagnosis"));
 
     public static final Map<String, String> CAP_DR_DRY_LEVEL = Map.ofEntries(Map.entry("-", "-"),
