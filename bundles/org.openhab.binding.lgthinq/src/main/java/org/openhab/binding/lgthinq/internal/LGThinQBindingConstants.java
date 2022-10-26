@@ -132,6 +132,9 @@ public class LGThinQBindingConstants {
     public static final String CHANNEL_TARGET_TEMP_ID = "target_temperature";
     public static final String CHANNEL_CURRENT_TEMP_ID = "current_temperature";
     public static final String CHANNEL_COOL_JET_ID = "cool_jet";
+    public static final String CHANNEL_AIR_CLEAN_ID = "air_clean";
+    public static final String CHANNEL_AUTO_DRY_ID = "auto_dry";
+    public static final String CHANNEL_ENERGY_SAVING_ID = "energy_saving";
 
     public static final Map<String, String> CAP_AC_OP_MODE = Map.of("@AC_MAIN_OPERATION_MODE_COOL_W", "Cool",
             "@AC_MAIN_OPERATION_MODE_DRY_W", "Dry", "@AC_MAIN_OPERATION_MODE_FAN_W", "Fan",
@@ -146,7 +149,7 @@ public class LGThinQBindingConstants {
             Map.entry("@AC_MAIN_WIND_STRENGTH_LOW_MID_W", "Low Mid"), Map.entry("@AC_MAIN_WIND_STRENGTH_MID_W", "Mid"),
             Map.entry("@AC_MAIN_WIND_STRENGTH_MID_HIGH_W", "Mid High"),
             Map.entry("@AC_MAIN_WIND_STRENGTH_HIGH_W", "High"), Map.entry("@AC_MAIN_WIND_STRENGTH_POWER_W", "Power"),
-            Map.entry("@AC_MAIN_WIND_STRENGTH_AUTO_W", "Auto"), Map.entry("@AC_MAIN_WIND_STRENGTH_NATURE_W", "Nature"),
+            Map.entry("@AC_MAIN_WIND_STRENGTH_AUTO_W", "Auto"), Map.entry("@AC_MAIN_WIND_STRENGTH_NATURE_W", "Auto"),
             Map.entry("@AC_MAIN_WIND_STRENGTH_LOW_RIGHT_W", "Right Low"),
             Map.entry("@AC_MAIN_WIND_STRENGTH_MID_RIGHT_W", "Right Mid"),
             Map.entry("@AC_MAIN_WIND_STRENGTH_HIGH_RIGHT_W", "Right High"),
@@ -155,7 +158,17 @@ public class LGThinQBindingConstants {
             Map.entry("@AC_MAIN_WIND_STRENGTH_HIGH_LEFT_W", "Left High"));
 
     public static final Map<String, String> CAP_AC_COOL_JET = Map.of("@COOL_JET", "Cool Jet");
-    public static final String CAP_AC_COOL_JET_COMMAND_OFF = "@OFF";
+    // ======= RAC MODES
+    public static final String CAP_AC_AUTODRY = "@AUTODRY";
+    public static final String CAP_AC_AUTODRY_NODE = "AutoDry";
+    public static final String CAP_AC_ENERGYSAVING = "@ENERGYSAVING";
+    public static final String CAP_AC_AIRCLEAN = "@AIRCLEAN";
+    // ====================
+    public static final String CAP_AC_COMMAND_OFF = "@OFF";
+    public static final String CAP_AC_COMMAND_ON = "@ON";
+
+    public static final String CAP_AC_AIR_CLEAN_COMMAND_ON = "@AC_MAIN_AIRCLEAN_ON_W";
+    public static final String CAP_AC_AIR_CLEAN_COMMAND_OFF = "@AC_MAIN_AIRCLEAN_OFF_W";
 
     // ====================== WASHING MACHINE CONSTANTS =============================
     public static final String WM_POWER_OFF_VALUE = "POWEROFF";

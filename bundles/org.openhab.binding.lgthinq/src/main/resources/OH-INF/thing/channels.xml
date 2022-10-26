@@ -18,6 +18,28 @@
 		<category>Temperature</category>
 	</channel-type>
 
+	<channel-type id="cool_jet">
+		<item-type>Switch</item-type>
+		<label>Cool Jet</label>
+		<category>Switch</category>
+	</channel-type>
+
+	<channel-type id="air_clean">
+		<item-type>Switch</item-type>
+		<label>Air Clean</label>
+		<category>Switch</category>
+	</channel-type>
+
+	<channel-type id="auto_dry">
+		<item-type>Switch</item-type>
+		<label>Auto Dry</label>
+		<category>Switch</category>
+	</channel-type>
+	<channel-type id="energy_saving">
+		<item-type>Switch</item-type>
+		<label>Energy Saving</label>
+		<category>Switch</category>
+	</channel-type>
 	<channel-type id="target-temperature">
 		<item-type>Number:Temperature</item-type>
 		<label>Target Temperature</label>

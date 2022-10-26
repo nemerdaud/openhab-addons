@@ -12,8 +12,7 @@
  */
 package org.openhab.binding.lgthinq.lgservices.model;
 
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CAP_AC_COOL_JET;
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CAP_AC_COOL_JET_COMMAND_OFF;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 import static org.openhab.binding.lgthinq.lgservices.model.DeviceTypes.*;
 
 import java.util.*;
@@ -379,8 +378,54 @@ public class CapabilityFactory {
                     if (CAP_AC_COOL_JET.containsKey(v)) {
                         acCap.setJetModeAvailable(true);
                         acCap.setCoolJetModeCommandOn(k);
-                    } else if (CAP_AC_COOL_JET_COMMAND_OFF.equals(v)) {
+                    } else if (CAP_AC_COMMAND_OFF.equals(v)) {
                         acCap.setCoolJetModeCommandOff(k);
+                    }
+                });
+            }
+            // get Supported RAC Mode
+            Map<String, Map<String, String>> supRACModes = (Map<String, Map<String, String>>) cap.get("SupportRACMode");
+            if (supRACModes != null) {
+                (supRACModes.get("option")).forEach((k, v) -> {
+                    switch (v) {
+                        case CAP_AC_AUTODRY:
+                            Map<String, Map<String, String>> dryMode = (Map<String, Map<String, String>>) cap
+                                    .get("AutoDry");
+                            if (dryMode != null) {
+                                acCap.setAutoDryModeAvailable(true);
+                                (dryMode.get("option")).forEach((cmdValue, cmdKey) -> {
+                                    switch (cmdKey) {
+                                        case CAP_AC_COMMAND_OFF:
+                                            acCap.setAutoDryModeCommandOff(cmdValue);
+                                            break;
+                                        case CAP_AC_COMMAND_ON:
+                                            acCap.setAutoDryModeCommandOn(cmdValue);
+                                    }
+                                });
+                            }
+                            break;
+                        case CAP_AC_AIRCLEAN:
+                            Map<String, Map<String, String>> airCleanMode = (Map<String, Map<String, String>>) cap
+                                    .get("AirClean");
+                            if (airCleanMode != null) {
+                                acCap.setAirCleanAvailable(true);
+                                (airCleanMode.get("option")).forEach((cmdValue, cmdKey) -> {
+                                    switch (cmdKey) {
+                                        case CAP_AC_AIR_CLEAN_COMMAND_OFF:
+                                            acCap.setAirCleanModeCommandOff(cmdValue);
+                                            break;
+                                        case CAP_AC_AIR_CLEAN_COMMAND_ON:
+                                            acCap.setAirCleanModeCommandOn(cmdValue);
+                                    }
+                                });
+                            }
+                            break;
+                        case CAP_AC_ENERGYSAVING:
+                            acCap.setEnergySavingAvailable(true);
+                            // there's no definition for this values. Assuming the defaults
+                            acCap.setEnergySavingModeCommandOff("0");
+                            acCap.setEnergySavingModeCommandOn("1");
+                            break;
                     }
                 });
             }
@@ -441,11 +486,60 @@ public class CapabilityFactory {
                     if (CAP_AC_COOL_JET.containsKey(v)) {
                         acCap.setJetModeAvailable(true);
                         acCap.setCoolJetModeCommandOn(k);
-                    } else if (CAP_AC_COOL_JET_COMMAND_OFF.equals(v)) {
+                    } else if (CAP_AC_COMMAND_OFF.equals(v)) {
                         acCap.setCoolJetModeCommandOff(k);
                     }
                 });
             }
+
+            // get Supported RAC Mode
+            Map<String, Map<String, String>> supRACModes = (Map<String, Map<String, String>>) cap
+                    .get("support.racMode");
+            if (supRACModes != null) {
+                (supRACModes.get("value_mapping")).forEach((k, v) -> {
+                    switch (v) {
+                        case CAP_AC_AUTODRY:
+                            Map<String, Map<String, String>> dryMode = (Map<String, Map<String, String>>) cap
+                                    .get("airState.miscFuncState.autoDry");
+                            if (dryMode != null) {
+                                acCap.setAutoDryModeAvailable(true);
+                                (dryMode.get("value_mapping")).forEach((cmdValue, cmdKey) -> {
+                                    switch (cmdKey) {
+                                        case CAP_AC_COMMAND_OFF:
+                                            acCap.setAutoDryModeCommandOff(cmdValue);
+                                            break;
+                                        case CAP_AC_COMMAND_ON:
+                                            acCap.setAutoDryModeCommandOn(cmdValue);
+                                    }
+                                });
+                            }
+                            break;
+                        case CAP_AC_AIRCLEAN:
+                            Map<String, Map<String, String>> airCleanMode = (Map<String, Map<String, String>>) cap
+                                    .get("airState.wMode.airClean");
+                            if (airCleanMode != null) {
+                                acCap.setAirCleanAvailable(true);
+                                (airCleanMode.get("value_mapping")).forEach((cmdValue, cmdKey) -> {
+                                    switch (cmdKey) {
+                                        case CAP_AC_AIR_CLEAN_COMMAND_OFF:
+                                            acCap.setAirCleanModeCommandOff(cmdValue);
+                                            break;
+                                        case CAP_AC_AIR_CLEAN_COMMAND_ON:
+                                            acCap.setAirCleanModeCommandOn(cmdValue);
+                                    }
+                                });
+                            }
+                            break;
+                        case CAP_AC_ENERGYSAVING:
+                            acCap.setEnergySavingAvailable(true);
+                            // there's no definition for this values. Assuming the defaults
+                            acCap.setEnergySavingModeCommandOff("0");
+                            acCap.setEnergySavingModeCommandOn("1");
+                            break;
+                    }
+                });
+            }
+
             Map<String, Object> info = (Map<String, Object>) rootMap.get("Info");
             if (info == null) {
                 logger.warn("No info session defined in the cap data.");

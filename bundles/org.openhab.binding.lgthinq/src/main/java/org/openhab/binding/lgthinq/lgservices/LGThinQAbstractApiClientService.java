@@ -271,11 +271,11 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
                 metaResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
                 });
                 envelope = (Map<String, Object>) metaResult.get("lgedmRoot");
+                String code = "" + envelope.get("returnCd");
                 if (envelope == null) {
                     throw new LGThinqApiException(String.format(
                             "Unexpected json body returned (without root node lgedmRoot): %s", resp.getJsonResponse()));
-                } else if (!ResultCodes.OK.containsResultCode("" + envelope.get("returnCd"))) {
-                    String code = Objects.requireNonNullElse((String) envelope.get("returnCd"), "");
+                } else if (!ResultCodes.OK.containsResultCode(code)) {
                     if (ResultCodes.DEVICE_NOT_RESPONSE.containsResultCode("" + envelope.get("returnCd"))
                             || "D".equals(envelope.get("deviceState"))) {
                         logger.debug("LG API report error processing the request -> resultCode=[{}], message=[{}]",

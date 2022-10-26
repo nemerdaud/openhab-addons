@@ -33,4 +33,10 @@ public interface LGThinQACApiClientService extends LGThinQApiClientService<ACCap
             throws LGThinqApiException;
 
     void turnCoolJetMode(String bridgeName, String deviceId, String modeOnOff) throws LGThinqApiException;
+
+    void turnAirCleanMode(String bridgeName, String deviceId, String modeOnOff) throws LGThinqApiException;
+
+    void turnAutoDryMode(String bridgeName, String deviceId, String modeOnOff) throws LGThinqApiException;
+
+    void turnEnergySavingMode(String bridgeName, String deviceId, String modeOnOff) throws LGThinqApiException;
 }

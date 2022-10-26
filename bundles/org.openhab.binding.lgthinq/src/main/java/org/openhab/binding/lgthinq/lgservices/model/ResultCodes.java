@@ -91,7 +91,7 @@ public enum ResultCodes {
                 return INVALID_HEAD;
             case "0004":
             case "0102":
-            case "0110":
+            case "0110": // Email duplicated
             case "0114":
                 return LOGIN_FAILED;
             case "0100":

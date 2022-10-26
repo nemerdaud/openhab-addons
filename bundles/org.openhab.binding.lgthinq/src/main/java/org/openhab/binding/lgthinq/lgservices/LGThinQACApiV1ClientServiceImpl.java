@@ -128,11 +128,28 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
 
     @Override
     public void turnCoolJetMode(String bridgeName, String deviceId, String modeOnOff) throws LGThinqApiException {
+        turnGenericMode(bridgeName, deviceId, "Jet", modeOnOff);
+    }
+
+    public void turnAirCleanMode(String bridgeName, String deviceId, String modeOnOff) throws LGThinqApiException {
+        turnGenericMode(bridgeName, deviceId, "AirClean", modeOnOff);
+    }
+
+    public void turnAutoDryMode(String bridgeName, String deviceId, String modeOnOff) throws LGThinqApiException {
+        turnGenericMode(bridgeName, deviceId, "AutoDry", modeOnOff);
+    }
+
+    public void turnEnergySavingMode(String bridgeName, String deviceId, String modeOnOff) throws LGThinqApiException {
+        turnGenericMode(bridgeName, deviceId, "PowerSave", modeOnOff);
+    }
+
+    protected void turnGenericMode(String bridgeName, String deviceId, String modeName, String modeOnOff)
+            throws LGThinqApiException {
         try {
-            RestResult resp = sendControlCommands(bridgeName, deviceId, "Jet", Integer.parseInt(modeOnOff));
+            RestResult resp = sendControlCommands(bridgeName, deviceId, modeName, Integer.parseInt(modeOnOff));
             handleV1GenericErrorResult(resp);
         } catch (Exception e) {
-            throw new LGThinqApiException("Error adjusting jet mode", e);
+            throw new LGThinqApiException("Error adjusting " + modeName + " mode", e);
         }
     }
 
