@@ -160,6 +160,8 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
         switch (device.getDeviceType()) {
             case AIR_CONDITIONER:
                 return THING_TYPE_AIR_CONDITIONER;
+            case HEAT_PUMP:
+                return THING_TYPE_HEAT_PUMP;
             case WASHING_MACHINE:
                 return THING_TYPE_WASHING_MACHINE;
             case WASHING_TOWER:

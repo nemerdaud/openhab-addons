@@ -53,7 +53,7 @@ public class LGThinQHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (THING_TYPE_AIR_CONDITIONER.equals(thingTypeUID)) {
+        if (THING_TYPE_AIR_CONDITIONER.equals(thingTypeUID) || THING_TYPE_HEAT_PUMP.equals(thingTypeUID)) {
             return new LGThinQAirConditionerHandler(thing, stateDescriptionProvider);
         } else if (THING_TYPE_BRIDGE.equals(thingTypeUID)) {
             return new LGThinQBridgeHandler((Bridge) thing);
@@ -73,7 +73,7 @@ public class LGThinQHandlerFactory extends BaseThingHandlerFactory {
             @Nullable ThingUID thingUID, @Nullable ThingUID bridgeUID) {
         if (THING_TYPE_BRIDGE.equals(thingTypeUID)) {
             return super.createThing(thingTypeUID, configuration, thingUID, null);
-        } else if (THING_TYPE_AIR_CONDITIONER.equals(thingTypeUID)) {
+        } else if (THING_TYPE_AIR_CONDITIONER.equals(thingTypeUID) || THING_TYPE_HEAT_PUMP.equals(thingTypeUID)) {
             return super.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
         } else if (THING_TYPE_WASHING_MACHINE.equals(thingTypeUID) || THING_TYPE_WASHING_TOWER.equals(thingTypeUID)) {
             return super.createThing(thingTypeUID, configuration, thingUID, bridgeUID);

@@ -140,23 +140,17 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
         if (getThing().getChannel(energySavingChannelUID) == null && acCap.isEnergySavingAvailable()) {
             createDynSwitchChannel(CHANNEL_ENERGY_SAVING_ID, energySavingChannelUID);
         }
+        if (getThing().getChannel(fanSpeedChannelUID) == null && acCap.isFanSpeedAvailable()) {
+            List<StateOption> options = new ArrayList<>();
+            acCap.getSupportedFanSpeed().forEach((v) -> options.add(
+                    new StateOption(emptyIfNull(acCap.getFanSpeed().get(v)), emptyIfNull(CAP_AC_FAN_SPEED.get(v)))));
+            stateDescriptionProvider.setStateOptions(fanSpeedChannelUID, options);
+        }
         if (isLinked(opModeChannelUID)) {
             List<StateOption> options = new ArrayList<>();
             acCap.getSupportedOpMode().forEach((v) -> options
                     .add(new StateOption(emptyIfNull(acCap.getOpMod().get(v)), emptyIfNull(CAP_AC_OP_MODE.get(v)))));
             stateDescriptionProvider.setStateOptions(opModeChannelUID, options);
-        }
-        if (isLinked(fanSpeedChannelUID)) {
-            List<StateOption> options = new ArrayList<>();
-            acCap.getSupportedFanSpeed().forEach((v) -> options.add(
-                    new StateOption(emptyIfNull(acCap.getFanSpeed().get(v)), emptyIfNull(CAP_AC_FAN_SPEED.get(v)))));
-            stateDescriptionProvider.setStateOptions(fanSpeedChannelUID, options);
-        }
-        if (isLinked(fanSpeedChannelUID)) {
-            List<StateOption> options = new ArrayList<>();
-            acCap.getSupportedFanSpeed().forEach((v) -> options.add(
-                    new StateOption(emptyIfNull(acCap.getFanSpeed().get(v)), emptyIfNull(CAP_AC_FAN_SPEED.get(v)))));
-            stateDescriptionProvider.setStateOptions(fanSpeedChannelUID, options);
         }
     }
 
@@ -190,7 +184,14 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
     }
 
     protected DeviceTypes getDeviceType() {
-        return DeviceTypes.AIR_CONDITIONER;
+        if (THING_TYPE_HEAT_PUMP.equals(getThing().getThingTypeUID())) {
+            return DeviceTypes.HEAT_PUMP;
+        } else if (THING_TYPE_AIR_CONDITIONER.equals(getThing().getThingTypeUID())) {
+            return DeviceTypes.AIR_CONDITIONER;
+        } else {
+            throw new IllegalArgumentException(
+                    "DeviceTypeUuid [" + getThing().getThingTypeUID() + "] not expected for AirConditioner/HeatPump");
+        }
     }
 
     @Override

@@ -307,7 +307,7 @@ public class LGThinQBridgeHandler extends ConfigStatusBridgeHandler implements L
             devicePollingJob.cancel(true);
         }
         long pollingInterval;
-        int configPollingInterval = lgthinqConfig.getPollingIntervalSec();
+        int configPollingInterval = lgthinqConfig.getPoolingIntervalSec();
         // It's not recommended to polling for resources in LG API short intervals to do not enter in BlackList
         if (configPollingInterval < 300) {
             pollingInterval = TimeUnit.SECONDS.toSeconds(300);

@@ -54,6 +54,7 @@ public class CapabilityFactory {
         DeviceTypes type = getDeviceType(rootMap);
 
         switch (type) {
+            case HEAT_PUMP:
             case AIR_CONDITIONER:
                 return clazz.cast(getAcCapabilities(rootMap));
             case WASHING_MACHINE:
@@ -448,7 +449,7 @@ public class CapabilityFactory {
                 throw new LGThinqApiException("Error extracting capabilities supported by the device");
             }
             ACCapability acCap = new ACCapability();
-            Map<String, Object> opModes = (Map<String, Object>) cap.get("airState.opMode");
+            Map<String, Object> opModes = (Map<String, Object>) cap.get("support.airState.opMode");
             if (opModes == null) {
                 throw new LGThinqApiException("Error extracting opModes supported by the device");
             } else {
@@ -458,7 +459,7 @@ public class CapabilityFactory {
                 });
                 acCap.setOpMod(modes);
             }
-            Map<String, Object> fanSpeed = (Map<String, Object>) cap.get("airState.windStrength");
+            Map<String, Object> fanSpeed = (Map<String, Object>) cap.get("support.airState.windStrength");
             if (fanSpeed == null) {
                 throw new LGThinqApiException("Error extracting fanSpeed supported by the device");
             } else {
@@ -476,22 +477,39 @@ public class CapabilityFactory {
             acCap.getSupportedOpMode().remove("@NON");
             Map<String, Map<String, String>> supFanSpeeds = (Map<String, Map<String, String>>) cap
                     .get("support.airState.windStrength");
-            acCap.setSupportedFanSpeed(new ArrayList<>(supFanSpeeds.get("value_mapping").values()));
-            acCap.getSupportedFanSpeed().remove("@NON");
+            List<String> supFanSpeedModes = new ArrayList<>(supFanSpeeds.get("value_mapping").values());
+            if (supFanSpeedModes.size() == 1 && "@NON".equals(supFanSpeedModes.get(0))) {
+                acCap.setFanSpeedAvailable(false);
+            } else {
+                acCap.setFanSpeedAvailable(true);
+                acCap.setSupportedFanSpeed(supFanSpeedModes);
+                acCap.getSupportedFanSpeed().remove("@NON");
+            }
+            // ===== get supported extra modes
+            boolean isSupportDryMode = false, isSupportEnergyMode = false, isSupportJetMode = false;
+
+            Map<String, Map<String, String>> supportRacSubMode = (Map<String, Map<String, String>>) cap
+                    .get("support.racSubMode");
+            if (supportRacSubMode != null) {
+                List<String> modesSupported = new ArrayList<>(supportRacSubMode.get("value_mapping").values());
+                isSupportJetMode = modesSupported.contains("@AC_MAIN_WIND_MODE_COOL_JET_W");
+                acCap.setJetModeAvailable(isSupportJetMode);
+            }
 
             // set Cool jetMode supportability
-            Map<String, Map<String, String>> supJetModes = (Map<String, Map<String, String>>) cap
-                    .get("airState.wMode.jet");
-            if (supJetModes != null) {
-                (supJetModes.get("value_mapping")).forEach((k, v) -> {
-                    Map<String, String> jetModes = new HashMap<String, String>();
-                    if (CAP_AC_COOL_JET.containsKey(v)) {
-                        acCap.setJetModeAvailable(true);
-                        acCap.setCoolJetModeCommandOn(k);
-                    } else if (CAP_AC_COMMAND_OFF.equals(v)) {
-                        acCap.setCoolJetModeCommandOff(k);
-                    }
-                });
+            if (isSupportJetMode) {
+                Map<String, Map<String, String>> supJetModes = (Map<String, Map<String, String>>) cap
+                        .get("airState.wMode.jet");
+                if (supJetModes != null) {
+                    (supJetModes.get("value_mapping")).forEach((k, v) -> {
+                        Map<String, String> jetModes = new HashMap<String, String>();
+                        if (CAP_AC_COOL_JET.containsKey(v)) {
+                            acCap.setCoolJetModeCommandOn(k);
+                        } else if (CAP_AC_COMMAND_OFF.equals(v)) {
+                            acCap.setCoolJetModeCommandOff(k);
+                        }
+                    });
+                }
             }
 
             // get Supported RAC Mode
@@ -559,6 +577,7 @@ public class CapabilityFactory {
         DeviceTypes type = getDeviceType(rootMap);
         switch (type) {
             case AIR_CONDITIONER:
+            case HEAT_PUMP:
                 Map<String, Object> valueNode = (Map<String, Object>) rootMap.get("Value");
                 if (valueNode.containsKey("support.airState.opMode")) {
                     return LGAPIVerion.V2_0;
