@@ -57,8 +57,10 @@ public class CapabilityFactory {
             case AIR_CONDITIONER:
                 return clazz.cast(getAcCapabilities(rootMap));
             case WASHING_MACHINE:
+            case WASHING_TOWER:
                 return clazz.cast(getWmCapabilities(rootMap));
             case DRYER:
+            case DRYER_TOWER:
                 return clazz.cast(getDrCapabilities(rootMap));
             case REFRIGERATOR:
                 return clazz.cast(getFridgeCapabilities(rootMap));

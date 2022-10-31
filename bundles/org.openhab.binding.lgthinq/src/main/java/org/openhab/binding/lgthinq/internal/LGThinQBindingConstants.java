@@ -36,14 +36,21 @@ public class LGThinQBindingConstants {
             "" + DeviceTypes.AIR_CONDITIONER.deviceTypeId());
     public static final ThingTypeUID THING_TYPE_WASHING_MACHINE = new ThingTypeUID(BINDING_ID,
             "" + DeviceTypes.WASHING_MACHINE.deviceTypeId());
+    public static final ThingTypeUID THING_TYPE_WASHING_TOWER = new ThingTypeUID(BINDING_ID,
+            "" + DeviceTypes.WASHING_TOWER.deviceTypeId());
     public static final ThingTypeUID THING_TYPE_DRYER = new ThingTypeUID(BINDING_ID,
             "" + DeviceTypes.DRYER.deviceTypeId());
+
+    public static final ThingTypeUID THING_TYPE_DRYER_TOWER = new ThingTypeUID(BINDING_ID,
+            "" + DeviceTypes.DRYER_TOWER.deviceTypeId());
+
     public static final ThingTypeUID THING_TYPE_FRIDGE = new ThingTypeUID(BINDING_ID,
             "" + DeviceTypes.REFRIGERATOR.deviceTypeId());
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_AIR_CONDITIONER,
-            THING_TYPE_WASHING_MACHINE, THING_TYPE_DRYER, THING_TYPE_FRIDGE, THING_TYPE_BRIDGE);
+            THING_TYPE_WASHING_MACHINE, THING_TYPE_WASHING_TOWER, THING_TYPE_DRYER_TOWER, THING_TYPE_DRYER,
+            THING_TYPE_FRIDGE, THING_TYPE_BRIDGE);
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Set.of(THING_TYPE_AIR_CONDITIONER,
-            THING_TYPE_WASHING_MACHINE, THING_TYPE_DRYER);
+            THING_TYPE_WASHING_MACHINE, THING_TYPE_WASHING_TOWER, THING_TYPE_DRYER, THING_TYPE_DRYER_TOWER);
     public static final String THING_STATUS_DETAIL_DISCONNECTED = "Device is Disconnected";
     // Max number of retries trying to get the monitor (V1) until consider ERROR in the connection
     public static final Integer MAX_GET_MONITOR_RETRIES = 3;

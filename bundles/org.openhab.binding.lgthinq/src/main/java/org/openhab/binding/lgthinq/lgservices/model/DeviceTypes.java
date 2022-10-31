@@ -20,7 +20,10 @@ package org.openhab.binding.lgthinq.lgservices.model;
 public enum DeviceTypes {
     AIR_CONDITIONER(401, "AC", ""),
     WASHING_MACHINE(201, "WM", ""),
+
+    WASHING_TOWER(221, "WM", ""),
     DRYER(202, "DR", "Dryer"),
+    DRYER_TOWER(222, "DR", "Dryer"),
     REFRIGERATOR(101, "REF", "Fridge"),
     UNKNOWN(-1, "", "");
 
@@ -46,8 +49,12 @@ public enum DeviceTypes {
                 return AIR_CONDITIONER;
             case 201:
                 return WASHING_MACHINE;
+            case 221:
+                return WASHING_TOWER;
             case 202:
                 return DRYER;
+            case 222:
+                return DRYER_TOWER;
             case 101:
                 return REFRIGERATOR;
             default:

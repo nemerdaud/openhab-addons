@@ -167,7 +167,9 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
 
     public abstract void onDeviceAdded(@NonNullByDefault LGDevice device);
 
-    public abstract String getDeviceId();
+    public String getDeviceId() {
+        return Objects.requireNonNullElse(getThing().getProperties().get(DEVICE_ID), "undef");
+    }
 
     public abstract String getDeviceAlias();
 

@@ -199,11 +199,6 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
     }
 
     @Override
-    public String getDeviceId() {
-        return getThing().getUID().getId();
-    }
-
-    @Override
     public String getDeviceAlias() {
         return emptyIfNull(getThing().getProperties().get(DEVICE_ALIAS));
     }

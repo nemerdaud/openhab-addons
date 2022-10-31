@@ -162,6 +162,10 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
                 return THING_TYPE_AIR_CONDITIONER;
             case WASHING_MACHINE:
                 return THING_TYPE_WASHING_MACHINE;
+            case WASHING_TOWER:
+                return THING_TYPE_WASHING_TOWER;
+            case DRYER_TOWER:
+                return THING_TYPE_DRYER_TOWER;
             case DRYER:
                 return THING_TYPE_DRYER;
             case REFRIGERATOR:
