@@ -76,6 +76,18 @@
 		</state>
 	</channel-type>
 
+	<channel-type id="remote-start">
+		<item-type>String</item-type>
+		<label>Remote Start</label>
+		<description>Washer/Dryer remote start</description>
+	</channel-type>
+
+	<channel-type id="stand-by">
+		<item-type>Switch</item-type>
+		<label>Standby Mode</label>
+		<description>Standby Mode</description>
+	</channel-type>
+
 	<channel-type id="washer-state">
 		<item-type>String</item-type>
 		<label>Washer State</label>

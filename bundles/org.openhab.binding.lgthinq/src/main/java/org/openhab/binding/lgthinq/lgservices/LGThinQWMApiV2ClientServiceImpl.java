@@ -16,10 +16,11 @@ import java.io.IOException;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.binding.lgthinq.internal.api.RestResult;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
-import org.openhab.binding.lgthinq.lgservices.model.washer.WasherCapability;
-import org.openhab.binding.lgthinq.lgservices.model.washer.WasherSnapshot;
+import org.openhab.binding.lgthinq.lgservices.model.washerdryer.WasherCapability;
+import org.openhab.binding.lgthinq.lgservices.model.washerdryer.WasherSnapshot;
 
 /**
  * The {@link LGThinQWMApiV2ClientServiceImpl}
@@ -27,7 +28,7 @@ import org.openhab.binding.lgthinq.lgservices.model.washer.WasherSnapshot;
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class LGThinQWMApiV2ClientServiceImpl extends LGThinQAbstractApiClientService<WasherCapability, WasherSnapshot>
+public class LGThinQWMApiV2ClientServiceImpl extends LGThinQAbstractApiV2ClientService<WasherCapability, WasherSnapshot>
         implements LGThinQWMApiClientService {
 
     private static final LGThinQWMApiClientService instance;
@@ -59,5 +60,31 @@ public class LGThinQWMApiV2ClientServiceImpl extends LGThinQAbstractApiClientSer
     public void turnDevicePower(String bridgeName, String deviceId, DevicePowerState newPowerState)
             throws LGThinqApiException {
         throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
+    @Override
+    public void remoteStart(String bridgeName, String deviceId) throws LGThinqApiException {
+        try {
+            RestResult result = sendControlCommands(bridgeName, deviceId, "control-sync", "WMStart", "WMStart",
+                    "WMStart", "");
+            handleGenericErrorResult(result);
+        } catch (LGThinqApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new LGThinqApiException("Error sending remote start", e);
+        }
+    }
+
+    @Override
+    public void wakeUp(String bridgeName, String deviceId) throws LGThinqApiException {
+        try {
+            RestResult result = sendControlCommands(bridgeName, deviceId, "control-sync", "WMWakeup", "WMWakeup", "",
+                    "");
+            handleGenericErrorResult(result);
+        } catch (LGThinqApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new LGThinqApiException("Error sending remote start", e);
+        }
     }
 }

@@ -13,7 +13,6 @@
 package org.openhab.binding.lgthinq.lgservices.model;
 
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
-import static org.openhab.binding.lgthinq.lgservices.model.DeviceTypes.*;
 
 import java.util.*;
 
@@ -21,10 +20,10 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.lgservices.LGThinQACApiV1ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.model.ac.ACCapability;
-import org.openhab.binding.lgthinq.lgservices.model.dryer.DryerCapability;
 import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeCapability;
 import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeFactory;
-import org.openhab.binding.lgthinq.lgservices.model.washer.WasherCapability;
+import org.openhab.binding.lgthinq.lgservices.model.washerdryer.DryerCapability;
+import org.openhab.binding.lgthinq.lgservices.model.washerdryer.WasherCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +50,7 @@ public class CapabilityFactory {
     }
 
     public <C extends Capability> C create(Map<String, Object> rootMap, Class<C> clazz) throws LGThinqApiException {
-        DeviceTypes type = getDeviceType(rootMap);
+        DeviceTypes type = ModelUtils.getDeviceType(rootMap);
 
         switch (type) {
             case HEAT_PUMP:
@@ -71,14 +70,14 @@ public class CapabilityFactory {
     }
 
     private Capability getFridgeCapabilities(Map<String, Object> rootMap) throws LGThinqApiException {
-        LGAPIVerion version = discoveryAPIVersion(rootMap);
+        LGAPIVerion version = ModelUtils.discoveryAPIVersion(rootMap);
         FridgeCapability fcap = FridgeFactory.getFridgeCapability(version);
         fcap.loadCapabilities(rootMap);
         return fcap;
     }
 
     private Capability getDrCapabilities(Map<String, Object> rootMap) throws LGThinqApiException {
-        LGAPIVerion version = discoveryAPIVersion(rootMap);
+        LGAPIVerion version = ModelUtils.discoveryAPIVersion(rootMap);
         if (version == LGAPIVerion.V2_0) {
             Map<String, Object> monValue = (Map<String, Object>) rootMap.get("MonitoringValue");
             Objects.requireNonNull(monValue, "Unexpected error. MonitoringValue not present in capability schema");
@@ -163,18 +162,8 @@ public class CapabilityFactory {
         }
     }
 
-    private DeviceTypes getDeviceType(Map<String, Object> rootMap) {
-        Map<String, String> infoMap = (Map<String, String>) rootMap.get("Info");
-        Objects.requireNonNull(infoMap, "Unexpected error. Info node not present in capability schema");
-        String productType = infoMap.get("productType");
-        String modelType = infoMap.get("modelType");
-        Objects.requireNonNull(infoMap, "Unexpected error. ProductType attribute not present in capability schema");
-        DeviceTypes type = fromDeviceTypeAcron(productType, modelType);
-        return type;
-    }
-
     private WasherCapability getWmCapabilities(Map<String, Object> rootMap) throws LGThinqApiException {
-        LGAPIVerion version = discoveryAPIVersion(rootMap);
+        LGAPIVerion version = ModelUtils.discoveryAPIVersion(rootMap);
         if (version == LGAPIVerion.V2_0) {
             Map<String, Object> monValue = (Map<String, Object>) rootMap.get("MonitoringValue");
             Objects.requireNonNull(monValue, "Unexpected error. MonitoringValue not present in capability schema");
@@ -336,7 +325,7 @@ public class CapabilityFactory {
     }
 
     private ACCapability getAcCapabilities(Map<String, Object> rootMap) throws LGThinqApiException {
-        LGAPIVerion version = discoveryAPIVersion(rootMap);
+        LGAPIVerion version = ModelUtils.discoveryAPIVersion(rootMap);
         if (version == LGAPIVerion.V1_0) {
             ACCapability acCap = new ACCapability();
             Map<String, Object> cap = (Map<String, Object>) rootMap.get("Value");
@@ -570,37 +559,6 @@ public class CapabilityFactory {
                 }
             }
             return acCap;
-        }
-    }
-
-    private LGAPIVerion discoveryAPIVersion(Map<String, Object> rootMap) {
-        DeviceTypes type = getDeviceType(rootMap);
-        switch (type) {
-            case AIR_CONDITIONER:
-            case HEAT_PUMP:
-                Map<String, Object> valueNode = (Map<String, Object>) rootMap.get("Value");
-                if (valueNode.containsKey("support.airState.opMode")) {
-                    return LGAPIVerion.V2_0;
-                } else if (valueNode.containsKey("SupportOpMode")) {
-                    return LGAPIVerion.V1_0;
-                } else {
-                    throw new IllegalStateException(
-                            "Unexpected error. Can't find key node attributes to determine AC API version.");
-                }
-
-            case WASHING_MACHINE:
-            case DRYER:
-            case REFRIGERATOR:
-                if (rootMap.containsKey("Value")) {
-                    return LGAPIVerion.V1_0;
-                } else if (rootMap.containsKey("MonitoringValue")) {
-                    return LGAPIVerion.V2_0;
-                } else {
-                    throw new IllegalStateException(
-                            "Unexpected error. Can't find key node attributes to determine AC API version.");
-                }
-            default:
-                throw new IllegalStateException("Unexpected capability. The type " + type + " was not implemented yet");
         }
     }
 }

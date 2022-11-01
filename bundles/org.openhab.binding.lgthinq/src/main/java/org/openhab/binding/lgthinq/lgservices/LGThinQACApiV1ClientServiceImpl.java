@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientService<ACCapability, ACSnapshot>
+public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiV1ClientService<ACCapability, ACSnapshot>
         implements LGThinQACApiClientService {
     private static final LGThinQACApiClientService instance;
     private static final Logger logger = LoggerFactory.getLogger(LGThinQACApiV1ClientServiceImpl.class);
@@ -80,26 +80,11 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
             throws LGThinqApiException, IOException {
         try {
             RestResult resp = getConfigCommands(bridgeName, deviceId, "OutTotalInstantPower");
-            Map<String, Object> result = handleV1GenericErrorResult(resp);
+            Map<String, Object> result = handleGenericErrorResult(resp);
             return 0;
         } catch (Exception e) {
             throw new LGThinqApiException("Error adjusting jet mode", e);
         }
-    }
-
-    private RestResult sendControlCommands(String bridgeName, String deviceId, String keyName, int value)
-            throws Exception {
-        TokenResult token = tokenManager.getValidRegisteredToken(bridgeName);
-        UriBuilder builder = UriBuilder.fromUri(token.getGatewayInfo().getApiRootV1()).path(V1_CONTROL_OP);
-        Map<String, String> headers = getCommonHeaders(token.getGatewayInfo().getLanguage(),
-                token.getGatewayInfo().getCountry(), token.getAccessToken(), token.getUserInfo().getUserNumber());
-
-        String payload = String.format(
-                "{\n" + "   \"lgedmRoot\":{\n" + "      \"cmd\": \"Control\"," + "      \"cmdOpt\": \"Set\","
-                        + "      \"value\": {\"%s\": \"%d\"}," + "      \"deviceId\": \"%s\","
-                        + "      \"workId\": \"%s\"," + "      \"data\": \"\"" + "   }\n" + "}",
-                keyName, value, deviceId, UUID.randomUUID().toString());
-        return RestUtils.postCall(builder.build().toURL().toString(), headers, payload);
     }
 
     private RestResult getConfigCommands(String bridgeName, String deviceId, String keyName) throws Exception {
@@ -119,8 +104,9 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
     public void turnDevicePower(String bridgeName, String deviceId, DevicePowerState newPowerState)
             throws LGThinqApiException {
         try {
-            RestResult resp = sendControlCommands(bridgeName, deviceId, "Operation", newPowerState.commandValue());
-            handleV1GenericErrorResult(resp);
+            RestResult resp = sendControlCommands(bridgeName, deviceId, "", "Control", "Set", "Operation",
+                    "" + newPowerState.commandValue());
+            handleGenericErrorResult(resp);
         } catch (Exception e) {
             throw new LGThinqApiException("Error adjusting device power", e);
         }
@@ -146,8 +132,8 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
     protected void turnGenericMode(String bridgeName, String deviceId, String modeName, String modeOnOff)
             throws LGThinqApiException {
         try {
-            RestResult resp = sendControlCommands(bridgeName, deviceId, modeName, Integer.parseInt(modeOnOff));
-            handleV1GenericErrorResult(resp);
+            RestResult resp = sendControlCommands(bridgeName, deviceId, "", "Control", "Set", modeName, modeOnOff);
+            handleGenericErrorResult(resp);
         } catch (Exception e) {
             throw new LGThinqApiException("Error adjusting " + modeName + " mode", e);
         }
@@ -156,9 +142,8 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
     @Override
     public void changeOperationMode(String bridgeName, String deviceId, int newOpMode) throws LGThinqApiException {
         try {
-            RestResult resp = sendControlCommands(bridgeName, deviceId, "OpMode", newOpMode);
-
-            handleV1GenericErrorResult(resp);
+            RestResult resp = sendControlCommands(bridgeName, deviceId, "", "Control", "Set", "OpMode", "" + newOpMode);
+            handleGenericErrorResult(resp);
         } catch (Exception e) {
             throw new LGThinqApiException("Error adjusting operation mode", e);
         }
@@ -167,9 +152,9 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
     @Override
     public void changeFanSpeed(String bridgeName, String deviceId, int newFanSpeed) throws LGThinqApiException {
         try {
-            RestResult resp = sendControlCommands(bridgeName, deviceId, "WindStrength", newFanSpeed);
-
-            handleV1GenericErrorResult(resp);
+            RestResult resp = sendControlCommands(bridgeName, deviceId, "", "Control", "Set", "WindStrength",
+                    "" + newFanSpeed);
+            handleGenericErrorResult(resp);
         } catch (Exception e) {
             throw new LGThinqApiException("Error adjusting fan speed", e);
         }
@@ -179,9 +164,9 @@ public class LGThinQACApiV1ClientServiceImpl extends LGThinQAbstractApiClientSer
     public void changeTargetTemperature(String bridgeName, String deviceId, ACTargetTmp newTargetTemp)
             throws LGThinqApiException {
         try {
-            RestResult resp = sendControlCommands(bridgeName, deviceId, "TempCfg", newTargetTemp.commandValue());
-
-            handleV1GenericErrorResult(resp);
+            RestResult resp = sendControlCommands(bridgeName, deviceId, "", "Control", "Set", "TempCfg",
+                    "" + newTargetTemp.commandValue());
+            handleGenericErrorResult(resp);
         } catch (Exception e) {
             throw new LGThinqApiException("Error adjusting target temperature", e);
         }

@@ -190,6 +190,9 @@ public class LGThinQBindingConstants {
     public static final String WM_CHANNEL_DOWNLOADED_COURSE_ID = "downloaded-course";
     public static final String WM_CHANNEL_TEMP_LEVEL_ID = "temperature-level";
     public static final String WM_CHANNEL_DOOR_LOCK_ID = "door-lock";
+
+    public static final String WM_CHANNEL_REMOTE_START_ID = "remote-start";
+    public static final String WM_CHANNEL_STAND_BY_ID = "stand-by";
     public static final String WM_CHANNEL_REMAIN_TIME_ID = "remain-time";
     public static final String WM_CHANNEL_DELAY_TIME_ID = "delay-time";
 

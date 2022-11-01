@@ -22,7 +22,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.lgthinq.handler.JsonUtils;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
-import org.openhab.binding.lgthinq.lgservices.model.washer.WasherCapability;
+import org.openhab.binding.lgthinq.lgservices.model.washerdryer.WasherCapability;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

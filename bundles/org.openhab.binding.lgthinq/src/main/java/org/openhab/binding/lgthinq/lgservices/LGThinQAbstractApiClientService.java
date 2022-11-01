@@ -141,7 +141,7 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
             RestResult resp = RestUtils.getCall(builder.build().toURL().toString(), headers, null);
             return handleDeviceSettingsResult(resp);
         } catch (Exception e) {
-            throw new LGThinqApiException("Erros list account devices from LG Server API", e);
+            throw new LGThinqApiException("Errors list account devices from LG Server API", e);
         }
     }
 
@@ -254,48 +254,6 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
         }
     }
 
-    @NonNull
-    protected Map<String, Object> handleV1GenericErrorResult(@Nullable RestResult resp)
-            throws LGThinqApiException, LGThinqDeviceV1OfflineException {
-        Map<String, Object> metaResult;
-        Map<String, Object> envelope = Collections.emptyMap();
-        if (resp == null) {
-            return envelope;
-        }
-        if (resp.getStatusCode() != 200) {
-            logger.error("Error returned by LG Server API. The reason is:{}", resp.getJsonResponse());
-            throw new LGThinqApiException(
-                    String.format("Error returned by LG Server API. The reason is:%s", resp.getJsonResponse()));
-        } else {
-            try {
-                metaResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
-                });
-                envelope = (Map<String, Object>) metaResult.get("lgedmRoot");
-                String code = "" + envelope.get("returnCd");
-                if (envelope == null) {
-                    throw new LGThinqApiException(String.format(
-                            "Unexpected json body returned (without root node lgedmRoot): %s", resp.getJsonResponse()));
-                } else if (!ResultCodes.OK.containsResultCode(code)) {
-                    if (ResultCodes.DEVICE_NOT_RESPONSE.containsResultCode("" + envelope.get("returnCd"))
-                            || "D".equals(envelope.get("deviceState"))) {
-                        logger.debug("LG API report error processing the request -> resultCode=[{}], message=[{}]",
-                                code, getErrorCodeMessage(code));
-                        // Disconnected Device
-                        throw new LGThinqDeviceV1OfflineException("Device is offline. No data available");
-                    }
-                    logger.error("LG API report error processing the request -> resultCode=[{}], message=[{}]", code,
-                            getErrorCodeMessage(code));
-                    throw new LGThinqApiException(
-                            String.format("Status error executing endpoint. resultCode must be 0000, but was:%s",
-                                    metaResult.get("returnCd")));
-                }
-            } catch (JsonProcessingException e) {
-                throw new IllegalStateException("Unknown error occurred deserializing json stream", e);
-            }
-        }
-        return envelope;
-    }
-
     public @Nullable S getMonitorData(@NonNull String bridgeName, @NonNull String deviceId, @NonNull String workId,
             DeviceTypes deviceType, @NonNull C deviceCapability) throws LGThinqApiException,
             LGThinqDeviceV1MonitorExpiredException, IOException, LGThinqUnmarshallException {
@@ -311,7 +269,7 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
         // to unify the same behaviour then V2, this method handle Offline Exception and return a dummy shot with
         // offline flag.
         try {
-            envelop = handleV1GenericErrorResult(resp);
+            envelop = handleGenericErrorResult(resp);
         } catch (LGThinqDeviceV1OfflineException e) {
             try {
                 // As I don't know the current device status, then I reset to default values.
@@ -442,7 +400,7 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
         String jsonData = String.format(" { \"lgedmRoot\" : {" + "\"cmd\": \"Mon\"," + "\"cmdOpt\": \"Start\","
                 + "\"deviceId\": \"%s\"," + "\"workId\": \"%s\"" + "} }", deviceId, workerId);
         RestResult resp = RestUtils.postCall(builder.build().toURL().toString(), headers, jsonData);
-        return Objects.requireNonNull((String) handleV1GenericErrorResult(resp).get("workId"),
+        return Objects.requireNonNull((String) handleGenericErrorResult(resp).get("workId"),
                 "Unexpected StartMonitor json result. Node 'workId' not present");
     }
 
@@ -456,6 +414,17 @@ public abstract class LGThinQAbstractApiClientService<C extends Capability, S ex
         String jsonData = String.format(" { \"lgedmRoot\" : {" + "\"cmd\": \"Mon\"," + "\"cmdOpt\": \"Stop\","
                 + "\"deviceId\": \"%s\"," + "\"workId\": \"%s\"" + "} }", deviceId, workId);
         RestResult resp = RestUtils.postCall(builder.build().toURL().toString(), headers, jsonData);
-        handleV1GenericErrorResult(resp);
+        handleGenericErrorResult(resp);
     }
+
+    protected Map<String, String> getCommonV2Headers(String language, String country, String accessToken,
+            String userNumber) {
+        return getCommonHeaders(language, country, accessToken, userNumber);
+    }
+
+    protected abstract RestResult sendControlCommands(String bridgeName, String deviceId, String controlPath,
+            String controlKey, String command, String keyName, String value) throws Exception;
+
+    protected abstract Map<String, Object> handleGenericErrorResult(@Nullable RestResult resp)
+            throws LGThinqApiException;
 }

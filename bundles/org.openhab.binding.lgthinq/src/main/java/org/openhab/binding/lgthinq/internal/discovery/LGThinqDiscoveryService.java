@@ -23,6 +23,7 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.lgthinq.internal.api.RestResult;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.internal.handler.LGThinQBridgeHandler;
@@ -68,6 +69,18 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
             public double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
                     throws LGThinqApiException, IOException {
                 return 0;
+            }
+
+            @Override
+            protected RestResult sendControlCommands(String bridgeName, String deviceId, String controlPath,
+                    String controlKey, String command, String keyName, String value) throws Exception {
+                throw new UnsupportedOperationException("Not to use");
+            }
+
+            @Override
+            protected Map<String, Object> handleGenericErrorResult(@Nullable RestResult resp)
+                    throws LGThinqApiException {
+                throw new UnsupportedOperationException("Not to use");
             }
 
             @Override

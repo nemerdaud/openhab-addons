@@ -29,7 +29,7 @@ import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeSnapshot;
  */
 @NonNullByDefault
 public class LGThinQFridgeApiV1ClientServiceImpl extends
-        LGThinQAbstractApiClientService<FridgeCapability, FridgeSnapshot> implements LGThinQFridgeApiClientService {
+        LGThinQAbstractApiV1ClientService<FridgeCapability, FridgeSnapshot> implements LGThinQFridgeApiClientService {
 
     private static final LGThinQFridgeApiClientService instance;
     static {

@@ -61,8 +61,9 @@
 				<context>password</context>
 			</parameter>
 			<parameter name="poolingIntervalSec" type="integer">
-				<label>Pooling Discovery Interval (>300)</label>
-				<description>Pooling interval to discover new devices agains LG API.</description>
+				<label>Pooling Discovery Interval in Seconds (>300) (0 disabled)</label>
+				<description>Pooling interval to discover new devices from LG Account.</description>
+				<default>86400</default>
 			</parameter>
 			<parameter name="alternativeServer" type="text">
 				<label>Alternative Gateway Server</label>

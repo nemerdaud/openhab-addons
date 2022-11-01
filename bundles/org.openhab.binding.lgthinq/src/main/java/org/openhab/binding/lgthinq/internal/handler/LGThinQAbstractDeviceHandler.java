@@ -32,9 +32,13 @@ import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.binding.lgthinq.lgservices.model.Snapshot;
 import org.openhab.core.thing.*;
 import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.thing.binding.builder.ChannelBuilder;
+import org.openhab.core.thing.type.ChannelKind;
+import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link LGThinQAbstractDeviceHandler} is a main interface contract for all LG Thinq things
@@ -43,7 +47,7 @@ import org.slf4j.Logger;
  */
 @NonNullByDefault
 public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S extends Snapshot> extends BaseThingHandler {
-
+    private final Logger logger = LoggerFactory.getLogger(LGThinQAbstractDeviceHandler.class);
     protected final String lgPlatformType;
     private final Class<S> snapshotClass;
     @Nullable
@@ -417,6 +421,18 @@ public abstract class LGThinQAbstractDeviceHandler<C extends Capability, S exten
             stopThingStatePolling();
             stopCommandExecutorQueueJob();
             thingStatePollingJob = null;
+        }
+    }
+
+    protected void createDynChannel(String channelName, ChannelUID chanelUuid, String itemType) {
+        if (getCallback() == null) {
+            logger.error("Unexpected behaviour. Callback not ready! Can't create dynamic channels");
+        } else {
+            // dynamic create channel
+            ChannelBuilder builder = getCallback().createChannelBuilder(chanelUuid,
+                    new ChannelTypeUID(BINDING_ID, channelName));
+            Channel channel = builder.withKind(ChannelKind.STATE).withAcceptedItemType(itemType).build();
+            updateThing(editThing().withChannel(channel).build());
         }
     }
 }
