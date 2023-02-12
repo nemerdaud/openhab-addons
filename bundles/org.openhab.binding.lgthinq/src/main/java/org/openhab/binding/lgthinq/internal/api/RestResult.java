@@ -13,6 +13,8 @@
 package org.openhab.binding.lgthinq.internal.api;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link RestResult} result from rest calls
@@ -24,9 +26,12 @@ public class RestResult {
     private final String jsonResponse;
     private final int resultCode;
 
+    private final Logger logger = LoggerFactory.getLogger(RestResult.class);
+
     public RestResult(String jsonResponse, int resultCode) {
         this.jsonResponse = jsonResponse;
         this.resultCode = resultCode;
+        logger.debug("API result {}", this.jsonResponse);
     }
 
     public String getJsonResponse() {
