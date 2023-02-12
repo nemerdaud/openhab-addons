@@ -30,13 +30,16 @@ import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeCapability;
 import org.openhab.binding.lgthinq.lgservices.model.fridge.FridgeSnapshot;
+import org.openhab.core.library.types.OpenClosedType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.types.Command;
+import org.openhab.core.types.State;
 import org.openhab.core.types.StateOption;
+import org.openhab.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +54,7 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
 
     private final ChannelUID fridgeTempChannelUID;
     private final ChannelUID freezerTempChannelUID;
+    private final ChannelUID doorChannelUID;
     private String tempUnit = TEMP_UNIT_CELSIUS;
     private final Logger logger = LoggerFactory.getLogger(LGThinQFridgeHandler.class);
     @NonNullByDefault
@@ -64,6 +68,7 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
                 : LGThinQFridgeApiV2ClientServiceImpl.getInstance();
         fridgeTempChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_FRIDGE_TEMP_ID);
         freezerTempChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_FREEZER_TEMP_ID);
+        doorChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DOOR_ID);
     }
 
     @Override
@@ -77,6 +82,7 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
     protected void updateDeviceChannels(FridgeSnapshot shot) {
         updateState(CHANNEL_FRIDGE_TEMP_ID, new QuantityType<Temperature>(shot.getFridgeStrTemp()));
         updateState(CHANNEL_FREEZER_TEMP_ID, new QuantityType<Temperature>(shot.getFreezerStrTemp()));
+        updateState(CHANNEL_DOOR_ID, parseDoorStatus(shot.getDoorStatus()));
 
         updateState(CHANNEL_REF_TEMP_UNIT, new StringType(shot.getTempUnit()));
         if (!tempUnit.equals(shot.getTempUnit())) {
@@ -87,6 +93,16 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
             } catch (Exception ex) {
                 logger.error("Error updating dynamic state description", ex);
             }
+        }
+    }
+
+    private State parseDoorStatus(String doorStatus) {
+        if ("CLOSE".equals(doorStatus)) {
+            return OpenClosedType.CLOSED;
+        } else if ("OPEN".equals(doorStatus)) {
+            return OpenClosedType.OPEN;
+        } else {
+            return UnDefType.UNDEF;
         }
     }
 

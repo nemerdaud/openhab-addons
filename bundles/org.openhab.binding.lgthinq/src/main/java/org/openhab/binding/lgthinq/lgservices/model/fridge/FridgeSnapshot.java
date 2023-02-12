@@ -28,5 +28,7 @@ public interface FridgeSnapshot extends Snapshot {
 
     public String getFreezerStrTemp();
 
+    String getDoorStatus();
+
     public void loadSnapshot(Object veryRootNode);
 }

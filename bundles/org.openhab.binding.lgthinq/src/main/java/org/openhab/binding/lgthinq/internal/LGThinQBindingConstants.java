@@ -126,6 +126,7 @@ public class LGThinQBindingConstants {
     public static final Double FREEZER_TEMPERATURE_IGNORE_VALUE = 255.0;
     public static final String CHANNEL_FRIDGE_TEMP_ID = "fridge-temperature";
     public static final String CHANNEL_FREEZER_TEMP_ID = "freezer-temperature";
+    public static final String CHANNEL_DOOR_ID = "some-door-open";
     public static final String CHANNEL_REF_TEMP_UNIT = "temp-unit";
     public static final String TEMP_UNIT_CELSIUS = "CELSIUS";
     public static final String TEMP_UNIT_FAHRENHEIT = "FAHRENHEIT";

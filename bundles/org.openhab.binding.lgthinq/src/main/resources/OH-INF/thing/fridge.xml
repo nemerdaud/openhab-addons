@@ -14,7 +14,7 @@
 		<description>LG ThinQ Fridge</description>
 
 		<channels>
-			<!-- <channel id="some-door-open" typeId="fridge-some-door-open"/> -->
+			<channel id="some-door-open" typeId="fridge-some-door-open"/>
 			<channel id="freezer-temperature" typeId="fridge-freezer-temperature"/>
 			<channel id="fridge-temperature" typeId="fridge-fridge-temperature"/>
 			<channel id="temp-unit" typeId="fridge-temp-unit"/>

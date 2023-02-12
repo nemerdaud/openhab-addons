@@ -40,6 +40,17 @@ public class FridgeSnapshotV2 implements Snapshot, org.openhab.binding.lgthinq.l
     private Double freezerTemp = FREEZER_TEMPERATURE_IGNORE_VALUE;
     private String tempUnit = TEMP_UNIT_CELSIUS; // celsius as default
 
+    private String doorStatus = "";
+
+    @JsonProperty("atLeastOneDoorOpen")
+    public String getDoorStatus() {
+        return doorStatus;
+    }
+
+    public void setDoorStatus(String doorStatus) {
+        this.doorStatus = doorStatus;
+    }
+
     @Override
     @JsonAlias({ "TempUnit" })
     @JsonProperty("tempUnit")
