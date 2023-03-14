@@ -85,7 +85,12 @@ public abstract class LGThinQAbstractApiV1ClientService<C extends CapabilityDefi
         if (extraNode != null) {
             rootNode.setAll(extraNode);
         }
-        return RestUtils.postCall(builder.build().toURL().toString(), headers, payloadNode.toPrettyString());
+        RestResult resp = RestUtils.postCall(builder.build().toURL().toString(), headers, payloadNode.toPrettyString());
+        if (resp == null) {
+            logger.error("Null result returned sending command to LG API V1");
+            throw new LGThinqApiException("Null result returned sending command to LG API V1");
+        }
+        return resp;
     }
 
     @Override

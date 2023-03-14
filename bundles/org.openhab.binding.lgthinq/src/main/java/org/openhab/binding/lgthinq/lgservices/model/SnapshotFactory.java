@@ -61,47 +61,56 @@ public class SnapshotFactory {
      * @return returns Snapshot implementation based on device type provided
      * @throws LGThinqApiException any error.
      */
-    public <S extends SnapshotDefinition> S createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot,
-            Class<S> clazz) throws LGThinqUnmarshallException, LGThinqApiException {
+    public <S extends AbstractSnapshotDefinition> S createFromBinary(String binaryData,
+            List<MonitoringBinaryProtocol> prot, Class<S> clazz)
+            throws LGThinqUnmarshallException, LGThinqApiException {
         try {
+            Map<String, Object> snapValues = new HashMap<>();
             byte[] data = binaryData.getBytes();
             BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
             S snap = clazz.getConstructor().newInstance();
             PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
-            for (MonitoringBinaryProtocol protField : prot) {
-                String fName = protField.fieldName;
-                for (PropertyDescriptor property : pds) {
-                    // all attributes of class.
-                    Method m = property.getReadMethod(); // getter
-                    List<String> aliases = new ArrayList<>();
-                    if (m.isAnnotationPresent(JsonProperty.class)) {
-                        aliases.add(m.getAnnotation(JsonProperty.class).value());
-                    }
-                    if (m.isAnnotationPresent(JsonAlias.class)) {
-                        aliases.addAll(Arrays.asList(m.getAnnotation(JsonAlias.class).value()));
+            Map<String, PropertyDescriptor> aliasesMethod = new HashMap<>();
+            for (PropertyDescriptor property : pds) {
+                // all attributes of class.
+                Method m = property.getReadMethod(); // getter
+                if (m.isAnnotationPresent(JsonProperty.class)) {
+                    String value = m.getAnnotation(JsonProperty.class).value();
+                    aliasesMethod.putIfAbsent(value, property);
+                }
+                if (m.isAnnotationPresent(JsonAlias.class)) {
+                    String[] values = m.getAnnotation(JsonAlias.class).value();
+                    for (String v : values) {
+                        aliasesMethod.putIfAbsent(v, property);
                     }
 
-                    if (aliases.contains(fName)) {
-                        // found property. Get bit value
-                        int value = 0;
-                        for (int i = protField.startByte; i < protField.startByte + protField.length; i++) {
-                            value = (value << 8) + data[i];
-                        }
-                        m = property.getWriteMethod();
-                        if (m.getParameters()[0].getType() == String.class) {
-                            m.invoke(snap, String.valueOf(value));
-                        } else if (m.getParameters()[0].getType() == Double.class) {
-                            m.invoke(snap, (double) value);
-                        } else if (m.getParameters()[0].getType() == Integer.class) {
-                            m.invoke(snap, value);
-                        } else {
-                            throw new IllegalArgumentException(
-                                    String.format("Parameter type not supported for this factory:%s",
-                                            m.getParameters()[0].getType().toString()));
-                        }
+                }
+            }
+            for (MonitoringBinaryProtocol protField : prot) {
+                String fName = protField.fieldName;
+                int value = 0;
+                for (int i = protField.startByte; i < protField.startByte + protField.length; i++) {
+                    value = (value << 8) + data[i];
+                }
+                snapValues.put(fName, value);
+                PropertyDescriptor property = aliasesMethod.get(fName);
+                if (property != null) {
+                    // found property. Get bit value
+                    Method m = property.getWriteMethod();
+                    if (m.getParameters()[0].getType() == String.class) {
+                        m.invoke(snap, String.valueOf(value));
+                    } else if (m.getParameters()[0].getType() == Double.class) {
+                        m.invoke(snap, (double) value);
+                    } else if (m.getParameters()[0].getType() == Integer.class) {
+                        m.invoke(snap, value);
+                    } else {
+                        throw new IllegalArgumentException(
+                                String.format("Parameter type not supported for this factory:%s",
+                                        m.getParameters()[0].getType().toString()));
                     }
                 }
             }
+            snap.setRawData(snapValues);
             return snap;
         } catch (IntrospectionException | InvocationTargetException | InstantiationException | IllegalAccessException
                 | NoSuchMethodException e) {
@@ -111,7 +120,7 @@ public class SnapshotFactory {
 
     /**
      * Create a Snapshot result based on snapshotData collected from LG API (V1/C2)
-     * 
+     *
      * @param snapshotDataJson V1: decoded returnedData; V2: snapshot body
      * @param deviceType device type
      * @return returns Snapshot implementation based on device type provided

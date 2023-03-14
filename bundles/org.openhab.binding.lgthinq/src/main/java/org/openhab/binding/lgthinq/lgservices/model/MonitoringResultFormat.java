@@ -33,12 +33,10 @@ public enum MonitoringResultFormat {
     }
 
     public static MonitoringResultFormat getFormatOf(String formatValue) {
-        switch (formatValue) {
+        switch (formatValue.toUpperCase()) {
             case "BINARY(BYTE)":
                 return BINARY_FORMAT;
             case "JSON":
-            case "Full ModelJson":
-            case "RAC ModelJson":
                 return JSON_FORMAT;
             default:
                 return UNKNOWN_FORMAT;

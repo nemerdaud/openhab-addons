@@ -16,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.lgthinq.lgservices.model.AbstractJsonCapability;
+import org.openhab.binding.lgthinq.lgservices.model.AbstractCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class FridgeCanonicalCapability extends AbstractJsonCapability implements FridgeCapability {
+public class FridgeCanonicalCapability extends AbstractCapability implements FridgeCapability {
 
     private static final Logger logger = LoggerFactory.getLogger(FridgeCanonicalCapability.class);
     private static final ObjectMapper mapper = new ObjectMapper();

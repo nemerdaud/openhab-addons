@@ -24,6 +24,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.api.model.GatewayResult;
 import org.openhab.binding.lgthinq.internal.errors.RefreshTokenException;
 import org.openhab.binding.lgthinq.lgservices.model.ResultCodes;
@@ -184,9 +185,12 @@ public class OauthLgEmpAuthenticator {
                 "login request / user_id : %s / " + "third_party : null / svc_list : SVC202,SVC710 / 3rd_service : ",
                 username));
         RestResult resp = RestUtils.postCall(preLoginUrl, headers, formData);
-        if (resp.getStatusCode() != 200) {
+        if (resp == null) {
+            logger.error("Error preLogin into account. Null data returned");
+            throw new IllegalStateException("Error login into account. Null data returned");
+        } else if (resp.getStatusCode() != 200) {
             logger.error("Error preLogin into account. The reason is:{}", resp.getJsonResponse());
-            throw new IllegalStateException(String.format("Error loggin into acccount:%s", resp.getJsonResponse()));
+            throw new IllegalStateException(String.format("Error login into account:%s", resp.getJsonResponse()));
         }
 
         Map<String, String> preLoginResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
@@ -213,9 +217,12 @@ public class OauthLgEmpAuthenticator {
         String loginUrl = gw.getEmpBaseUri() + V2_SESSION_LOGIN_PATH
                 + URLEncoder.encode(preLoginResult.getUsername(), StandardCharsets.UTF_8);
         RestResult resp = RestUtils.postCall(loginUrl, headers, formData);
-        if (resp.getStatusCode() != 200) {
+        if (resp == null) {
+            logger.error("Error login into account. Null data returned");
+            throw new IllegalStateException("Error loggin into acccount. Null data returned");
+        } else if (resp.getStatusCode() != 200) {
             logger.error("Error login into account. The reason is:{}", resp.getJsonResponse());
-            throw new IllegalStateException(String.format("Error loggin into acccount:%s", resp.getJsonResponse()));
+            throw new IllegalStateException(String.format("Error login into account:%s", resp.getJsonResponse()));
         }
         Map<String, Object> loginResult = objectMapper.readValue(resp.getJsonResponse(), new TypeReference<>() {
         });
@@ -343,8 +350,11 @@ public class OauthLgEmpAuthenticator {
         return handleRefreshTokenResult(resp, currentToken);
     }
 
-    private TokenResult handleTokenResult(RestResult resp) throws IOException {
+    private TokenResult handleTokenResult(@Nullable RestResult resp) throws IOException {
         Map<String, Object> tokenResult;
+        if (resp == null) {
+            throw new IllegalStateException("Error getting oauth token. Null data returned");
+        }
         if (resp.getStatusCode() != 200) {
             logger.error("Error getting oauth token. HTTP Status Code is:{}, The reason is:{}", resp.getStatusCode(),
                     resp.getJsonResponse());
@@ -369,9 +379,13 @@ public class OauthLgEmpAuthenticator {
                         "Unexpected result. oauth2_backend_url must be present in json result"));
     }
 
-    private TokenResult handleRefreshTokenResult(RestResult resp, TokenResult currentToken)
+    private TokenResult handleRefreshTokenResult(@Nullable RestResult resp, TokenResult currentToken)
             throws IOException, RefreshTokenException {
         Map<String, String> tokenResult;
+        if (resp == null) {
+            logger.error("Error getting oauth token. Null data returned");
+            throw new RefreshTokenException("Error getting oauth token. Null data returned");
+        }
         if (resp.getStatusCode() != 200) {
             logger.error("Error getting oauth token. HTTP Status Code is:{}, The reason is:{}", resp.getStatusCode(),
                     resp.getJsonResponse());

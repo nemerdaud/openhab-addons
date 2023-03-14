@@ -70,6 +70,8 @@ public class LGThinQWasherDryerHandler
     private final ChannelUID doorLockChannelUUID;
 
     private final Map<String, ChannelUID> featureChannels = new HashMap<>();
+
+    private final Map<String, Map<String, Object>> cachedBitKeyDefinitions = new HashMap<>();
     @Nullable
     private WasherDryerSnapshot lastShot;
 
@@ -211,7 +213,19 @@ public class LGThinQWasherDryerHandler
         updateState(WM_CHANNEL_DELAY_TIME_ID, new DateTimeType(shot.getReserveTime()));
         updateState(WM_CHANNEL_DOWNLOADED_COURSE_ID, new StringType(shot.getDownloadedCourse()));
         updateState(WM_CHANNEL_STAND_BY_ID, shot.isStandBy() ? OnOffType.ON : OnOffType.OFF);
-        updateState(WM_CHANNEL_REMOTE_START_ID, shot.isRemoteStartEnabled() ? OnOffType.ON : OnOffType.OFF);
+        if (shot.getRemoteStart().isEmpty()) {
+            // try to resolve RemoteStart by bitValue
+            try {
+                String remoteStartValue = lgThinqWMApiClientService.bitValue(getCapabilities().getRemoteStartFeatName(),
+                        shot.getRawData(), getCapabilities(), cachedBitKeyDefinitions);
+                shot.setRemoteStart(remoteStartValue);
+                updateState(WM_CHANNEL_REMOTE_START_ID, shot.isRemoteStartEnabled() ? OnOffType.ON : OnOffType.OFF);
+            } catch (LGThinqApiException e) {
+                logger.error("Error updating remote start feature");
+            }
+
+        }
+
         updateState(WM_CHANNEL_SPIN_ID, new StringType(shot.getSpin()));
         updateState(WM_CHANNEL_RINSE_ID, new StringType(shot.getRinse()));
         Channel launchRemoteStart = getThing().getChannel(launchRemoteStartUUID);
@@ -268,7 +282,7 @@ public class LGThinQWasherDryerHandler
         String course = lastShot.getCourse();
         String smartCourse = lastShot.getSmartCourse();
         data.put(cap.getDefaultCourseFieldName(), course);
-        data.put(cap.getDefaultSmartCourseFieldName(), smartCourse);
+        data.put(cap.getDefaultSmartCourseFeatName(), smartCourse);
         CourseType courseType = cap.getCourses().get("NOT_SELECTED".equals(smartCourse) ? course : smartCourse)
                 .getCourseType();
         data.put("courseType", courseType.getValue());

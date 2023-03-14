@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
-import org.openhab.binding.lgthinq.lgservices.model.AbstractJsonCapability;
+import org.openhab.binding.lgthinq.lgservices.model.AbstractCapability;
 
 /**
  * The {@link WasherDryerCapability}
@@ -26,10 +26,11 @@ import org.openhab.binding.lgthinq.lgservices.model.AbstractJsonCapability;
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class WasherDryerCapability extends AbstractJsonCapability {
+public class WasherDryerCapability extends AbstractCapability {
     private String defaultCourseFieldName = "";
     private String defaultSmartCourseFieldName = "";
     private String commandRemoteStart = "";
+    private String remoteStartFeatName = "";
     private String commandWakeUp = "";
     private String commandStop = "";
     private FeatureDefinition state = FeatureDefinition.NULL_DEFINITION;
@@ -174,11 +175,19 @@ public class WasherDryerCapability extends AbstractJsonCapability {
         this.defaultCourseFieldName = defaultCourseFieldName;
     }
 
-    public String getDefaultSmartCourseFieldName() {
+    public String getDefaultSmartCourseFeatName() {
         return defaultSmartCourseFieldName;
     }
 
-    public void setDefaultSmartCourseFieldName(String defaultSmartCourseFieldName) {
+    public void setDefaultSmartCourseFeatName(String defaultSmartCourseFieldName) {
         this.defaultSmartCourseFieldName = defaultSmartCourseFieldName;
+    }
+
+    public String getRemoteStartFeatName() {
+        return remoteStartFeatName;
+    }
+
+    public void setRemoteStartFeatName(String remoteStartFeatName) {
+        this.remoteStartFeatName = remoteStartFeatName;
     }
 }

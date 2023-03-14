@@ -15,6 +15,7 @@ package org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer;
 import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.LGAPIVerion;
 import org.slf4j.Logger;
@@ -36,6 +37,13 @@ public class WasherDryerCapabilityFactoryV2 extends AbstractWasherDryerCapabilit
     @Override
     protected List<LGAPIVerion> getSupportedAPIVersions() {
         return List.of(LGAPIVerion.V2_0);
+    }
+
+    @Override
+    public WasherDryerCapability create(JsonNode rootNode) throws LGThinqException {
+        WasherDryerCapability cap = super.create(rootNode);
+        cap.setRemoteStartFeatName("remoteStart");
+        return cap;
     }
 
     @Override

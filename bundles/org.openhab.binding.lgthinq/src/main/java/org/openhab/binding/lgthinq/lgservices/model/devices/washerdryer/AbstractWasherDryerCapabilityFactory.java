@@ -96,7 +96,7 @@ public abstract class AbstractWasherDryerCapabilityFactory extends AbstractCapab
             wdCap.setHasDoorLook(true);
         }
         wdCap.setDefaultCourseFieldName(getConfigCourseType(rootNode));
-        wdCap.setDefaultSmartCourseFieldName(getConfigSmartCourseType(rootNode));
+        wdCap.setDefaultSmartCourseFeatName(getConfigSmartCourseType(rootNode));
         wdCap.setCommandStop(getCommandStopNodeName());
         wdCap.setCommandRemoteStart(getCommandRemoteStartNodeName());
         wdCap.setCommandWakeUp(getCommandWakeUpNodeName());

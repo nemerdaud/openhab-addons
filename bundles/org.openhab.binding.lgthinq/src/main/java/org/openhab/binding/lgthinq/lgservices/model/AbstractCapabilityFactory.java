@@ -13,29 +13,80 @@
 package org.openhab.binding.lgthinq.lgservices.model;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 /**
- * The {@link AbstractJsonCapability}
+ * The {@link AbstractCapability}
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
 public abstract class AbstractCapabilityFactory<T extends CapabilityDefinition> {
     protected ObjectMapper mapper = new ObjectMapper();
+    private static final Logger logger = LoggerFactory.getLogger(AbstractCapabilityFactory.class);
 
     public T create(JsonNode rootNode) throws LGThinqException {
         T cap = getCapabilityInstance();
         cap.setDeviceType(ModelUtils.getDeviceType(rootNode));
         cap.setDeviceVersion(ModelUtils.discoveryAPIVersion(rootNode));
+        cap.setRawData(mapper.convertValue(rootNode, Map.class));
+        switch (cap.getDeviceVersion()) {
+            case V1_0:
+                // V1 has Monitoring node describing the protocol data format
+                JsonNode type = rootNode.path(getMonitoringNodeName()).path("type");
+                if (!type.isMissingNode() && type.isTextual()) {
+                    cap.setMonitoringDataFormat(MonitoringResultFormat.getFormatOf(type.textValue()));
+                }
+                break;
+            case V2_0:
+                // V2 doesn't have node describing the protocol because it's they unified Value (features) and
+                // Monitoring nodes in the MonitoringValue node
+                cap.setMonitoringDataFormat(MonitoringResultFormat.JSON_FORMAT);
+                break;
+            default:
+                cap.setMonitoringDataFormat(MonitoringResultFormat.UNKNOWN_FORMAT);
+        }
+        if (MonitoringResultFormat.BINARY_FORMAT.equals(cap.getMonitoringDataFormat())) {
+            // get MonitorProtocol
+            JsonNode protocol = rootNode.path(getMonitoringNodeName()).path("protocol");
+            if (protocol.isArray()) {
+                ArrayNode pNode = (ArrayNode) protocol;
+                List<MonitoringBinaryProtocol> protocols = mapper.convertValue(pNode, new TypeReference<>() {
+                });
+                cap.setMonitoringBinaryProtocol(protocols);
+            } else {
+                if (protocol.isMissingNode()) {
+                    logger.error("protocol node is missing in the capability descriptor for a binary monitoring");
+                } else {
+                    logger.error(
+                            "protocol node is not and array in the capability descriptor for a binary monitoring ");
+                }
+            }
+        }
         return cap;
+    }
+
+    /**
+     * Return constant pointing to MonitoringNode. This node has information about monitoring response description,
+     * <b>only present in V1 devices</b>. If some device has different node name for this descriptor, please override
+     * it.
+     * 
+     * @return Monitoring node name
+     */
+    protected String getMonitoringNodeName() {
+        return "Monitoring";
     }
 
     protected abstract List<DeviceTypes> getSupportedDeviceTypes();

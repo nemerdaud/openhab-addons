@@ -231,19 +231,22 @@ public class WasherDryerSnapshot extends AbstractSnapshotDefinition {
     }
 
     public void setRemoteStart(String remoteStart) {
-        this.remoteStart = remoteStart;
-        remoteStartEnabled = remoteStart.contains("ON");
-    }
-
-    public String getStandByStatus() {
-        return standByStatus;
+        this.remoteStart = remoteStart.contains("ON") || remoteStart.equals("1") ? "ON"
+                : (remoteStart.contains("OFF") || remoteStart.equals("0") ? "OFF" : remoteStart);
+        remoteStartEnabled = this.remoteStart.equals("ON");
     }
 
     @JsonProperty("standby")
     @JsonAlias({ "Standby" })
+    public String getStandByStatus() {
+        return standByStatus;
+    }
+
     public void setStandByStatus(String standByStatus) {
-        this.standByStatus = standByStatus;
-        standBy = standByStatus.contains("ON");
+        this.standByStatus = standByStatus.contains("ON") || standByStatus.equals("1") ? "ON"
+                : (standByStatus.contains("OFF") || standByStatus.equals("0") ? "OFF" : standByStatus);
+        ;
+        standBy = this.standByStatus.contains("ON");
     }
 
     public boolean isStandBy() {

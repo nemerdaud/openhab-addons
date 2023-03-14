@@ -20,10 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -32,6 +29,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -54,6 +52,12 @@ import org.slf4j.LoggerFactory;
 public class RestUtils {
     private static final Logger logger = LoggerFactory.getLogger(RestUtils.class);
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+    private static final RequestConfig requestConfig;
+    static {
+        int timeout = 5;
+        requestConfig = RequestConfig.custom().setConnectTimeout(timeout * 1000)
+                .setConnectionRequestTimeout(timeout * 1000).setSocketTimeout(timeout * 1000).build();
+    }
 
     public static String getPreLoginEncPwd(String pwdToEnc) {
         MessageDigest digest;
@@ -105,16 +109,18 @@ public class RestUtils {
         }
         URI encodedUri = builder.build();
 
-        CloseableHttpClient client = HttpClientBuilder.create().build();
-        HttpGet request = new HttpGet(encodedUri);
-        if (headers != null) {
-            headers.forEach(request::setHeader);
+        try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+            HttpGet request = new HttpGet(encodedUri);
+            if (headers != null) {
+                headers.forEach(request::setHeader);
+            }
+            HttpResponse resp = client.execute(request);
+            return new RestResult(EntityUtils.toString(resp.getEntity(), "UTF-8"),
+                    resp.getStatusLine().getStatusCode());
         }
-
-        HttpResponse resp = client.execute(request);
-        return new RestResult(EntityUtils.toString(resp.getEntity(), "UTF-8"), resp.getStatusLine().getStatusCode());
     }
 
+    @Nullable
     public static RestResult postCall(String encodedUrl, Map<String, String> headers, String jsonData)
             throws IOException {
         try {
@@ -129,6 +135,7 @@ public class RestUtils {
         }
     }
 
+    @Nullable
     public static RestResult postCall(String encodedUrl, Map<String, String> headers, Map<String, String> formParams)
             throws IOException {
         List<NameValuePair> pairs = new ArrayList<>();
@@ -148,13 +155,37 @@ public class RestUtils {
         }
     }
 
+    @Nullable
     private static RestResult postCall(String encodedUrl, Map<String, String> headers, HttpEntity entity)
             throws IOException {
-        CloseableHttpClient client = HttpClientBuilder.create().build();
-        HttpPost request = new HttpPost(encodedUrl);
-        headers.forEach(request::setHeader);
-        request.setEntity(entity);
-        HttpResponse resp = client.execute(request);
-        return new RestResult(EntityUtils.toString(resp.getEntity(), "UTF-8"), resp.getStatusLine().getStatusCode());
+        try (CloseableHttpClient client = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build()) {
+            HttpPost request = new HttpPost(encodedUrl);
+            headers.forEach(request::setHeader);
+            request.setEntity(entity);
+            int hardTimeout = 6000; // milliseconds
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                    if (request.expectContinue())
+                        request.abort();
+                }
+            };
+            new Timer(true).schedule(task, hardTimeout);
+            HttpResponse resp = client.execute(request);
+            if (request.isAborted()) {
+                logger.warn("POST to LG API was aborted due to timeout waiting for connection or data");
+            }
+            return new RestResult(EntityUtils.toString(resp.getEntity(), "UTF-8"),
+                    resp.getStatusLine().getStatusCode());
+        } catch (java.net.SocketTimeoutException e) {
+            if (logger.isDebugEnabled()) {
+                logger.warn("Timeout reading post call result from LG API", e);
+            } else {
+                logger.warn("Timeout reading post call result from LG API");
+            }
+            // In SocketTimeout cases I'm considering that I have no response on time. Then, I return null data
+            // forcing caller to retry.
+            return null;
+        }
     }
 }

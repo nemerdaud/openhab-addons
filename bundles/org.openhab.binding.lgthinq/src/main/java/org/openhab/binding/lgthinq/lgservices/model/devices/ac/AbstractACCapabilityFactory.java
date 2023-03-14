@@ -210,6 +210,7 @@ public abstract class AbstractACCapabilityFactory extends AbstractCapabilityFact
         if (infoNode.isMissingNode()) {
             logger.warn("No info session defined in the cap data.");
         } else {
+            // try to find monitoring result format
             MonitoringResultFormat format = MonitoringResultFormat.getFormatOf(infoNode.path("model").asText());
             if (!MonitoringResultFormat.UNKNOWN_FORMAT.equals(format)) {
                 acCap.setMonitoringDataFormat(format);

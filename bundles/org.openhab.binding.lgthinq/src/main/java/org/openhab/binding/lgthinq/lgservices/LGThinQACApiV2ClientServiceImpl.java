@@ -160,16 +160,19 @@ public class LGThinQACApiV2ClientServiceImpl extends
     }
 
     @Override
+    public void initializeDevice(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException {
+        super.initializeDevice(bridgeName, deviceId);
+    }
+
+    @Override
     protected void beforeGetDataDevice(@NonNull String bridgeName, @NonNull String deviceId)
             throws LGThinqApiException {
         try {
             RestResult resp = sendControlCommands(bridgeName, deviceId, "control", "allEventEnable", "Set",
                     "airState.mon.timeout", "70");
             handleGenericErrorResult(resp);
-        } catch (LGThinqApiException e) {
-            throw e;
         } catch (Exception e) {
-            throw new LGThinqApiException("Error adjusting operation mode", e);
+            logger.debug("Can't execute Before Update command", e);
         }
     }
 

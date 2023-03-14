@@ -214,10 +214,10 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
 
     protected void initializeThing(@Nullable ThingStatus bridgeStatus) {
         getLogger().debug("initializeThing LQ Thinq {}. Bridge status {}", getThing().getUID(), bridgeStatus);
-        String deviceId = getThing().getUID().getId();
-
+        String thingId = getThing().getUID().getId();
         Bridge bridge = getBridge();
-        if (!deviceId.isBlank()) {
+
+        if (!thingId.isBlank()) {
             try {
                 updateChannelDynStateDescription();
             } catch (LGThinqApiException e) {
@@ -226,6 +226,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
                         e);
             }
             if (bridge != null) {
+                bridgeId = bridge.getUID().getId();
                 LGThinQBridgeHandler handler = (LGThinQBridgeHandler) bridge.getHandler();
                 // registry this thing to the bridge
                 if (handler == null) {
@@ -249,6 +250,19 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
         // property ONLINE (the successful result from command request can put the thing in ONLINE status).
         startCommandExecutorQueueJob();
         if (getThing().getStatus() == ThingStatus.ONLINE) {
+            try {
+                getLgThinQAPIClientService().initializeDevice(bridgeId, getDeviceId());
+            } catch (Exception e) {
+                if (logger.isDebugEnabled()) {
+                    logger.error(
+                            "Error initializing device {} from bridge {}. Is the device support pre-condition setup ?",
+                            thingId, bridgeId, e);
+                } else {
+                    logger.error(
+                            "Error initializing device {} from bridge {}. Is the device support pre-condition setup ?",
+                            getDeviceId(), bridgeId);
+                }
+            }
             // force start state pooling if the device is ONLINE
             startThingStatePolling();
         }
@@ -260,6 +274,13 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
         super.bridgeStatusChanged(bridgeStatusInfo);
         // restart scheduler
         initializeThing(bridgeStatusInfo.getStatus());
+    }
+
+    private class UpdateThingStateFromLG implements Runnable {
+        @Override
+        public void run() {
+            updateThingStateFromLG();
+        }
     }
 
     protected void updateThingStateFromLG() {
@@ -299,7 +320,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
             getLogger().error("Error updating thing {}/{} from LG API. Thing goes OFFLINE until next retry.",
                     getDeviceAlias(), getDeviceId(), e);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             getLogger().error(
                     "System error in pooling thread (UpdateDevice) for device {}/{}. Filtering to do not stop the thread",
                     getDeviceAlias(), getDeviceId(), e);
@@ -317,7 +338,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
 
     protected void startThingStatePolling() {
         if (thingStatePollingJob == null || thingStatePollingJob.isDone()) {
-            thingStatePollingJob = pollingScheduler.scheduleWithFixedDelay(this::updateThingStateFromLG, 10,
+            thingStatePollingJob = pollingScheduler.scheduleWithFixedDelay(new UpdateThingStateFromLG(), 10,
                     DEFAULT_STATE_POLLING_UPDATE_DELAY, TimeUnit.SECONDS);
         }
     }
@@ -431,6 +452,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
 
     @Override
     public void dispose() {
+        logger.debug("Disposing Thinq Thing {}", getDeviceId());
         if (thingStatePollingJob != null) {
             thingStatePollingJob.cancel(true);
             stopThingStatePolling();

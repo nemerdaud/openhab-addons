@@ -54,11 +54,11 @@ public class LGThinqDiscoveryService extends AbstractDiscoveryService implements
     private final Logger logger = LoggerFactory.getLogger(LGThinqDiscoveryService.class);
     private @Nullable LGThinQBridgeHandler bridgeHandler;
     private @Nullable ThingUID bridgeHandlerUID;
-    private final LGThinQApiClientService<AbstractJsonCapability, AbstractSnapshotDefinition> lgApiClientService;
+    private final LGThinQApiClientService<AbstractCapability, AbstractSnapshotDefinition> lgApiClientService;
 
     public LGThinqDiscoveryService() {
         super(SUPPORTED_THING_TYPES, SEARCH_TIME);
-        lgApiClientService = new LGThinQAbstractApiClientService<>(AbstractJsonCapability.class,
+        lgApiClientService = new LGThinQAbstractApiClientService<>(AbstractCapability.class,
                 AbstractSnapshotDefinition.class) {
             @Override
             protected void beforeGetDataDevice(@NonNull String bridgeName, @NonNull String deviceId)

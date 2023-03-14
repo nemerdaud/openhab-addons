@@ -12,22 +12,23 @@
  */
 package org.openhab.binding.lgthinq.lgservices.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
- * The {@link AbstractJsonCapability}
+ * The {@link AbstractCapability}
  *
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public abstract class AbstractJsonCapability implements CapabilityDefinition {
+public abstract class AbstractCapability implements CapabilityDefinition {
     // default result format
     protected DeviceTypes deviceType = DeviceTypes.UNKNOWN;
     protected LGAPIVerion version = LGAPIVerion.UNDEF;
-    private MonitoringResultFormat monitoringDataFormat = MonitoringResultFormat.JSON_FORMAT;
+    private MonitoringResultFormat monitoringDataFormat = MonitoringResultFormat.UNKNOWN_FORMAT;
 
     private List<MonitoringBinaryProtocol> monitoringBinaryProtocol = new ArrayList<>();
 
@@ -69,5 +70,29 @@ public abstract class AbstractJsonCapability implements CapabilityDefinition {
     @Override
     public LGAPIVerion getDeviceVersion() {
         return version;
+    }
+
+    private Map<String, Object> rawData = new HashMap<>();
+
+    @JsonIgnore
+    public Map<String, Object> getRawData() {
+        return rawData;
+    }
+
+    public Map<String, Map<String, Object>> getFeatureValuesRawData() {
+        switch (getDeviceVersion()) {
+            case V1_0:
+                return Objects.requireNonNullElse((Map<String, Map<String, Object>>) getRawData().get("Value"),
+                        Collections.emptyMap());
+            case V2_0:
+                return Objects.requireNonNullElse(
+                        (Map<String, Map<String, Object>>) getRawData().get("MonitoringValue"), Collections.emptyMap());
+            default:
+                throw new IllegalStateException("Invalid version 'UNDEF' to get capability feature monitoring values");
+        }
+    }
+
+    public void setRawData(Map<String, Object> rawData) {
+        this.rawData = rawData;
     }
 }

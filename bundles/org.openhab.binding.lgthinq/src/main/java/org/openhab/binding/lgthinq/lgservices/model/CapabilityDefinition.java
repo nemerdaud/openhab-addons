@@ -13,6 +13,7 @@
 package org.openhab.binding.lgthinq.lgservices.model;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
@@ -38,4 +39,10 @@ public interface CapabilityDefinition {
     void setDeviceType(DeviceTypes deviceType);
 
     void setDeviceVersion(LGAPIVerion version);
+
+    Map<String, Object> getRawData();
+
+    Map<String, Map<String, Object>> getFeatureValuesRawData();
+
+    void setRawData(Map<String, Object> rawData);
 }

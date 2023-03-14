@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
+import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.LGAPIVerion;
 import org.slf4j.Logger;
@@ -35,6 +36,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 @NonNullByDefault
 public class WasherDryerCapabilityFactoryV1 extends AbstractWasherDryerCapabilityFactory {
     private static final Logger logger = LoggerFactory.getLogger(WasherDryerCapabilityFactoryV1.class);
+
+    @Override
+    public WasherDryerCapability create(JsonNode rootNode) throws LGThinqException {
+        WasherDryerCapability cap = super.create(rootNode);
+        cap.setRemoteStartFeatName("RemoteStart");
+        return cap;
+    }
 
     @Override
     protected String getStateFeatureNodeName() {

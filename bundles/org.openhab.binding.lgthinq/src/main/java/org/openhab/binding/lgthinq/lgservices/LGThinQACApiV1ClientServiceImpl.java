@@ -12,20 +12,12 @@
  */
 package org.openhab.binding.lgthinq.lgservices;
 
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.V1_CONTROL_OP;
-
 import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.ws.rs.core.UriBuilder;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.api.RestResult;
-import org.openhab.binding.lgthinq.internal.api.RestUtils;
-import org.openhab.binding.lgthinq.internal.api.TokenResult;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
 import org.openhab.binding.lgthinq.lgservices.model.devices.ac.ACCanonicalSnapshot;
@@ -81,27 +73,24 @@ public class LGThinQACApiV1ClientServiceImpl extends
     @Override
     public double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
             throws LGThinqApiException, IOException {
-        try {
-            RestResult resp = getConfigCommands(bridgeName, deviceId, "OutTotalInstantPower");
-            Map<String, Object> result = handleGenericErrorResult(resp);
-            return 0;
-        } catch (Exception e) {
-            throw new LGThinqApiException("Error adjusting jet mode", e);
-        }
+        // TODO
+        return 0;
     }
 
-    private RestResult getConfigCommands(String bridgeName, String deviceId, String keyName) throws Exception {
-        TokenResult token = tokenManager.getValidRegisteredToken(bridgeName);
-        UriBuilder builder = UriBuilder.fromUri(token.getGatewayInfo().getApiRootV1()).path(V1_CONTROL_OP);
-        Map<String, String> headers = getCommonHeaders(token.getGatewayInfo().getLanguage(),
-                token.getGatewayInfo().getCountry(), token.getAccessToken(), token.getUserInfo().getUserNumber());
-
-        String payload = String.format("{\n" + "   \"lgedmRoot\":{\n" + "      \"cmd\": \"Config\","
-                + "      \"cmdOpt\": \"Get\"," + "      \"value\": \"%s\"," + "      \"deviceId\": \"%s\","
-                + "      \"workId\": \"%s\"," + "      \"data\": \"\"" + "   }\n" + "}", keyName, deviceId,
-                UUID.randomUUID().toString());
-        return RestUtils.postCall(builder.build().toURL().toString(), headers, payload);
-    }
+    // // TODO - Analise this to get power consumption
+    // @Nullable
+    // private RestResult getConfigCommands(String bridgeName, String deviceId, String keyName) throws Exception {
+    // TokenResult token = tokenManager.getValidRegisteredToken(bridgeName);
+    // UriBuilder builder = UriBuilder.fromUri(token.getGatewayInfo().getApiRootV1()).path(V1_CONTROL_OP);
+    // Map<String, String> headers = getCommonHeaders(token.getGatewayInfo().getLanguage(),
+    // token.getGatewayInfo().getCountry(), token.getAccessToken(), token.getUserInfo().getUserNumber());
+    //
+    // String payload = String.format("{\n" + " \"lgedmRoot\":{\n" + " \"cmd\": \"Config\","
+    // + " \"cmdOpt\": \"Get\"," + " \"value\": \"%s\"," + " \"deviceId\": \"%s\","
+    // + " \"workId\": \"%s\"," + " \"data\": \"\"" + " }\n" + "}", keyName, deviceId,
+    // UUID.randomUUID().toString());
+    // return RestUtils.postCall(builder.build().toURL().toString(), headers, payload);
+    // }
 
     @Override
     public void turnDevicePower(String bridgeName, String deviceId, DevicePowerState newPowerState)

@@ -21,6 +21,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.function.Function;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -336,6 +337,10 @@ public abstract class LGThinQAbstractApiClientService<C extends CapabilityDefini
         }
     }
 
+    @Override
+    public void initializeDevice(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException {
+    }
+
     /**
      * Perform some routine before getting data device. Depending on the kind of the device, this is needed
      * to update or prepare some informations before go to get the data.
@@ -355,7 +360,8 @@ public abstract class LGThinQAbstractApiClientService<C extends CapabilityDefini
     @Override
     @Nullable
     public S getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException {
-        // Exec pre-conditions (normally ask for update monitoring sensors of the device) before call for data
+        // Exec pre-conditions (normally ask for update monitoring sensors of the device - temp and power) before call
+        // for data
         beforeGetDataDevice(bridgeName, deviceId);
 
         Map<String, Object> deviceSettings = getDeviceSettings(bridgeName, deviceId);
@@ -418,6 +424,116 @@ public abstract class LGThinQAbstractApiClientService<C extends CapabilityDefini
                 + "\"deviceId\": \"%s\"," + "\"workId\": \"%s\"" + "} }", deviceId, workId);
         RestResult resp = RestUtils.postCall(builder.build().toURL().toString(), headers, jsonData);
         handleGenericErrorResult(resp);
+    }
+
+    protected Map<String, Object> getBitKey(String key, final Map<String, Map<String, Object>> capFeatureValues,
+            final Map<String, Map<String, Object>> cachedBitKey) {
+        // Define a local function to search for the bit key
+        Function<Map<String, Map<String, Object>>, Map<String, Object>> searchBitKey = data -> {
+            if (data.isEmpty()) {
+                return Collections.emptyMap();
+            }
+
+            for (int i = 1; i <= 3; i++) {
+                String optKey = "Option" + i;
+                Map<String, Object> option = data.get(optKey);
+
+                if (option == null) {
+                    continue;
+                }
+
+                List<Map<String, Object>> optionList = (List<Map<String, Object>>) option.get("option");
+
+                if (optionList == null) {
+                    continue;
+                }
+
+                for (Map<String, Object> opt : optionList) {
+                    String value = (String) opt.get("value");
+
+                    if (key.equals(value)) {
+                        Integer startBit = (Integer) opt.get("startbit");
+                        Integer length = (Integer) opt.getOrDefault("length", 1);
+
+                        if (startBit == null) {
+                            return Collections.emptyMap();
+                        }
+
+                        Map<String, Object> bitKey = new HashMap<>();
+                        bitKey.put("option", optKey);
+                        bitKey.put("startbit", startBit);
+                        bitKey.put("length", length);
+
+                        return bitKey;
+                    }
+                }
+            }
+
+            return Collections.emptyMap();
+        };
+
+        Map<String, Object> bitKey = cachedBitKey.get(key);
+
+        if (bitKey == null) {
+            // cache the bitKey if it doesn't was fetched yet.
+            bitKey = searchBitKey.apply(capFeatureValues);
+            cachedBitKey.put(key, bitKey);
+        }
+
+        return bitKey;
+    }
+
+    /**
+     * Find the bit value for a sensor features (described in the "Value" or "MonitorValue" capability json descriptor.
+     * The bitvalue features are one or more bytes in a sequence that eat set of bit(s) defines the value of specific
+     * fiels
+     * Normaly, this definition is under Option1, Option2 and so on ...
+     *
+     * @param key Bit Key
+     * @param snapRawValues
+     * @param capDef
+     * @param cachedBitKey
+     * @return
+     */
+    @Override
+    public String bitValue(String key, Map<String, Object> snapRawValues, final C capDef,
+            final Map<String, Map<String, Object>> cachedBitKey) {
+        // get the capability Values/MonitoringValues Map
+        // Look up the bit value for a specific key
+        if (snapRawValues.isEmpty()) {
+            logger.warn("No snapshot raw values provided. Corrupted data returned or bug");
+            return "";
+        }
+        Map<String, Object> bitKey = this.getBitKey(key, capDef.getFeatureValuesRawData(), cachedBitKey);
+        if (bitKey.isEmpty()) {
+            logger.warn("BitKey {} not found in the Options feature values description capability. It's mostly a bug",
+                    key);
+            return "";
+        }
+
+        String option = (String) bitKey.get("option");
+        Object bitValueDef = snapRawValues.get(option);
+        if (bitValueDef == null) {
+            logger.warn("Value definition not found for the bitValue definition: {}. It's mostly a bug", option);
+            return "";
+        }
+        String value = bitValueDef.toString();
+        if (value.isEmpty()) {
+            return "0";
+        }
+
+        int bitValue = Integer.parseInt(value);
+        int startBit = (int) bitKey.get("startbit");
+        int length = (int) bitKey.get("length");
+        int val = 0;
+
+        for (int i = 0; i < length; i++) {
+            int bitIndex = (int) Math.pow(2, (startBit + i));
+            int bit = (bitValue & bitIndex) != 0 ? 1 : 0;
+            val += bit * (int) Math.pow(2, i);
+        }
+
+        return Integer.toString(val);
     }
 
     protected Map<String, String> getCommonV2Headers(String language, String country, String accessToken,

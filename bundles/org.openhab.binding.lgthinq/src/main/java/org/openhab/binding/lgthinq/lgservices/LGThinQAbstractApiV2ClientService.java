@@ -70,7 +70,12 @@ public abstract class LGThinQAbstractApiV2ClientService<C extends CapabilityDefi
         if (extraNode != null) {
             payload.setAll(extraNode);
         }
-        return RestUtils.postCall(builder.build().toURL().toString(), headers, payload.toPrettyString());
+        RestResult resp = RestUtils.postCall(builder.build().toURL().toString(), headers, payload.toPrettyString());
+        if (resp == null) {
+            logger.error("Null result returned sending command to LG API V2");
+            throw new LGThinqApiException("Null result returned sending command to LG API V2");
+        }
+        return resp;
     }
 
     protected RestResult sendBasicControlCommands(String bridgeName, String deviceId, String command, String keyName,
