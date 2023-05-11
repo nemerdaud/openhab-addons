@@ -15,6 +15,7 @@ package org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
@@ -26,7 +27,7 @@ import org.openhab.binding.lgthinq.lgservices.model.AbstractCapability;
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class WasherDryerCapability extends AbstractCapability {
+public class WasherDryerCapability extends AbstractCapability<WasherDryerCapability> {
     private String defaultCourseFieldName = "";
     private String defaultSmartCourseFieldName = "";
     private String commandRemoteStart = "";
@@ -46,6 +47,34 @@ public class WasherDryerCapability extends AbstractCapability {
     private boolean hasTurboWash;
     private Map<String, CommandDefinition> commandsDefinition = new HashMap<>();
     private Map<String, CourseDefinition> courses = new LinkedHashMap<>();
+
+    static class RinseFeatureFunction implements Function<WasherDryerCapability, FeatureDefinition> {
+        @Override
+        public FeatureDefinition apply(WasherDryerCapability c) {
+            return c.getRinseFeat();
+        }
+    }
+
+    static class TemperatureFeatureFunction implements Function<WasherDryerCapability, FeatureDefinition> {
+        @Override
+        public FeatureDefinition apply(WasherDryerCapability c) {
+            return c.getTemperatureFeat();
+        }
+    }
+
+    static class SpinFeatureFunction implements Function<WasherDryerCapability, FeatureDefinition> {
+        @Override
+        public FeatureDefinition apply(WasherDryerCapability c) {
+            return c.getSpinFeat();
+        }
+    }
+
+    static class StateFeatureFunction implements Function<WasherDryerCapability, FeatureDefinition> {
+        @Override
+        public FeatureDefinition apply(WasherDryerCapability c) {
+            return c.getStateFeat();
+        }
+    }
 
     public Map<String, CommandDefinition> getCommandsDefinition() {
         return commandsDefinition;
@@ -103,7 +132,7 @@ public class WasherDryerCapability extends AbstractCapability {
         this.courses = courses;
     }
 
-    public FeatureDefinition getState() {
+    public FeatureDefinition getStateFeat() {
         return state;
     }
 
@@ -127,27 +156,27 @@ public class WasherDryerCapability extends AbstractCapability {
         this.soilWash = soilWash;
     }
 
-    public FeatureDefinition getSpin() {
+    public FeatureDefinition getSpinFeat() {
         return spin;
     }
 
-    public void setSpin(FeatureDefinition spin) {
+    public void setSpinFeat(FeatureDefinition spin) {
         this.spin = spin;
     }
 
-    public FeatureDefinition getTemperature() {
+    public FeatureDefinition getTemperatureFeat() {
         return temperature;
     }
 
-    public void setTemperature(FeatureDefinition temperature) {
+    public void setTemperatureFeat(FeatureDefinition temperature) {
         this.temperature = temperature;
     }
 
-    public FeatureDefinition getRinse() {
+    public FeatureDefinition getRinseFeat() {
         return rinse;
     }
 
-    public void setRinse(FeatureDefinition rinse) {
+    public void setRinseFeat(FeatureDefinition rinse) {
         this.rinse = rinse;
     }
 

@@ -46,10 +46,10 @@ class CapabilityFactoryTest {
                 WasherDryerCapability.class);
         assertNotNull(wpCap);
         assertEquals(40, wpCap.getCourses().size());
-        assertTrue(wpCap.getRinse().getValuesMapping().size() > 1);
-        assertTrue(wpCap.getSpin().getValuesMapping().size() > 1);
+        assertTrue(wpCap.getRinseFeat().getValuesMapping().size() > 1);
+        assertTrue(wpCap.getSpinFeat().getValuesMapping().size() > 1);
         assertTrue(wpCap.getSoilWash().getValuesMapping().size() > 1);
-        assertTrue(wpCap.getTemperature().getValuesMapping().size() > 1);
+        assertTrue(wpCap.getTemperatureFeat().getValuesMapping().size() > 1);
         assertTrue(wpCap.hasDoorLook());
     }
 }

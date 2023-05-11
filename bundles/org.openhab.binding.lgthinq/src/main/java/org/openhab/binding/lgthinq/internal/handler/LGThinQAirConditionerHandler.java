@@ -37,12 +37,8 @@ import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.thing.Bridge;
-import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
-import org.openhab.core.thing.binding.builder.ChannelBuilder;
-import org.openhab.core.thing.type.ChannelKind;
-import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.StateOption;
 import org.slf4j.Logger;
@@ -154,18 +150,6 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
             List<StateOption> options = new ArrayList<>();
             acCap.getOpMode().forEach((k, v) -> options.add(new StateOption(k, emptyIfNull(CAP_AC_OP_MODE.get(v)))));
             stateDescriptionProvider.setStateOptions(opModeChannelUID, options);
-        }
-    }
-
-    private void createDynSwitchChannel(String channelName, ChannelUID chanelUuid) {
-        if (getCallback() == null) {
-            logger.error("Unexpected behaviour. Callback not ready! Can't create dynamic channels");
-        } else {
-            // dynamic create channel
-            ChannelBuilder builder = getCallback().createChannelBuilder(chanelUuid,
-                    new ChannelTypeUID(BINDING_ID, channelName));
-            Channel channel = builder.withKind(ChannelKind.STATE).withAcceptedItemType("Switch").build();
-            updateThing(editThing().withChannel(channel).build());
         }
     }
 

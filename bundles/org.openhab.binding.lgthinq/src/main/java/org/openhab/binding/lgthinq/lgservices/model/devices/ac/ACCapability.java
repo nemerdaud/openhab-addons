@@ -24,7 +24,7 @@ import org.openhab.binding.lgthinq.lgservices.model.AbstractCapability;
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class ACCapability extends AbstractCapability {
+public class ACCapability extends AbstractCapability<ACCapability> {
 
     private Map<String, String> opMod = Collections.emptyMap();
     private Map<String, String> fanSpeed = Collections.emptyMap();

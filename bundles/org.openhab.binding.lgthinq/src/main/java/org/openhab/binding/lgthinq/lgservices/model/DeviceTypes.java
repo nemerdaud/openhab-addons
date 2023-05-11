@@ -18,9 +18,9 @@ package org.openhab.binding.lgthinq.lgservices.model;
  * @author Nemer Daud - Initial contribution
  */
 public enum DeviceTypes {
-    AIR_CONDITIONER(401, "ACCapability", ""),
+    AIR_CONDITIONER(401, "AC", ""),
 
-    HEAT_PUMP(401, "ACCapability", "AWHP"),
+    HEAT_PUMP(401, "AC", "AWHP"),
     WASHERDRYER_MACHINE(201, "WM", ""),
 
     WASHING_TOWER(221, "WM", ""),
@@ -70,17 +70,15 @@ public enum DeviceTypes {
     public static DeviceTypes fromDeviceTypeAcron(String deviceTypeAcron, String modelType) {
         switch (deviceTypeAcron) {
             case "AC":
-                if ("RAC".equals(modelType)) {
-                    return AIR_CONDITIONER;
-                } else if ("AWHP".equals(modelType)) {
+                if ("AWHP".equals(modelType)) {
                     return HEAT_PUMP;
                 }
+                return AIR_CONDITIONER;
             case "WM":
                 if ("Dryer".equals(modelType)) {
                     return DRYER;
-                } else {
-                    return WASHERDRYER_MACHINE;
                 }
+                return WASHERDRYER_MACHINE;
             case "REF":
                 return REFRIGERATOR;
             default:

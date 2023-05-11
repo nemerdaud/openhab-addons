@@ -20,6 +20,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
 import org.openhab.core.OpenHAB;
 import org.openhab.core.thing.ThingTypeUID;
+import org.openhab.core.thing.type.ChannelGroupTypeUID;
+import org.openhab.core.thing.type.ChannelTypeUID;
 
 /**
  * The {@link LGThinQBindingConstants} class defines common constants, which are
@@ -31,11 +33,24 @@ import org.openhab.core.thing.ThingTypeUID;
 public class LGThinQBindingConstants {
 
     public static final String BINDING_ID = "lgthinq";
+
+    public static final String CONFIG_DESCRIPTION_URI_CHANNEL = "channel-type:thinq:config";
     public static final ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
+    public static final String PROPERTY_VENDOR_NAME = "LG Thinq";
     public static final ThingTypeUID THING_TYPE_AIR_CONDITIONER = new ThingTypeUID(BINDING_ID,
-            "" + DeviceTypes.AIR_CONDITIONER.deviceTypeId());
-    public static final ThingTypeUID THING_TYPE_WASHING_MACHINE = new ThingTypeUID(BINDING_ID,
-            "" + DeviceTypes.WASHERDRYER_MACHINE.deviceTypeId());
+            String.valueOf(DeviceTypes.AIR_CONDITIONER.deviceTypeId()));
+    public static final ThingTypeUID THING_TYPE_WASHING_MACHINE = new ThingTypeUID(BINDING_ID, "201");
+    public static final String WM_CHANNEL_REMOTE_START_GRP_ID = "remote-start-grp";
+    public static final String WM_CHANNEL_DASHBOARD_GRP_ID = "dashboard";
+    public static final ChannelTypeUID WM_RS_RINSE_CHANNEL_TYPE_UUID = new ChannelTypeUID(BINDING_ID, "washer-rinse");
+    public static final ChannelTypeUID WM_RS_SPIN_CHANNEL_TYPE_UUID = new ChannelTypeUID(BINDING_ID, "washer-spin");
+    public static final ChannelTypeUID WM_RS_TEMP_LEVEL_CHANNEL_TYPE_UUID = new ChannelTypeUID(BINDING_ID,
+            "washer-temp-level");
+    public static final ChannelTypeUID WM_RS_START_STOP_CHANNEL_TYPE_UUID = new ChannelTypeUID(BINDING_ID,
+            "rs-washer-start-stop");
+
+    public static final ChannelGroupTypeUID WM_CHANNEL_GROUP_TYPE_REMOTE_START_UID = new ChannelGroupTypeUID(BINDING_ID,
+            WM_CHANNEL_REMOTE_START_GRP_ID);
     public static final ThingTypeUID THING_TYPE_WASHING_TOWER = new ThingTypeUID(BINDING_ID,
             "" + DeviceTypes.WASHING_TOWER.deviceTypeId());
     public static final ThingTypeUID THING_TYPE_DRYER = new ThingTypeUID(BINDING_ID,
@@ -182,6 +197,7 @@ public class LGThinQBindingConstants {
     public static final String CAP_AC_AIR_CLEAN_COMMAND_OFF = "@AC_MAIN_AIRCLEAN_OFF_W";
 
     // ====================== WASHING MACHINE CONSTANTS =============================
+    public static final String WM_COURSE_NOT_SELECTED_VALUE = "NOT_SELECTED";
     public static final String WM_POWER_OFF_VALUE = "POWEROFF";
     public static final String WM_SNAPSHOT_WASHER_DRYER_NODE_V2 = "washerDryer";
     public static final String WM_CHANNEL_STATE_ID = "state";
@@ -195,13 +211,16 @@ public class LGThinQBindingConstants {
 
     public static final String WM_CHANNEL_SPIN_ID = "spin";
 
-    public static final String WM_CHANNEL_LAUNCH_REMOTE_START_ID = "launch-remote-start";
-    public static final String WM_CHANNEL_REMOTE_START_ID = "washer-remote-start";
-    public static final String WM_CHANNEL_STAND_BY_ID = "washer-stand-by";
+    public static final String WM_CHANNEL_REMOTE_START_START_STOP = "rs-start-stop";
+    public static final String WM_CHANNEL_REMOTE_START_RINSE = "rs-rinse";
+    public static final String WM_CHANNEL_REMOTE_START_TEMP = "rs-temperature-level";
+    public static final String WM_CHANNEL_REMOTE_START_SPIN = "rs-spin";
+    public static final String WM_CHANNEL_REMOTE_START_ID = "remote-start-flag";
+    public static final String WM_CHANNEL_STAND_BY_ID = "stand-by";
     public static final String WM_CHANNEL_REMAIN_TIME_ID = "remain-time";
     public static final String WM_CHANNEL_DELAY_TIME_ID = "delay-time";
 
-    public static final Map<String, String> CAP_WP_STATE = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
+    public static final Map<String, String> CAP_WM_STATE = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
             Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),
             Map.entry("@WM_STATE_RESERVE_W", "Reserved"), Map.entry("@WM_STATE_DETECTING_W", "Detecting"),
             Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RINSING_W", "Rinsing"),
@@ -211,23 +230,13 @@ public class LGThinQBindingConstants {
             Map.entry("@WM_STATE_DRYING_W", "Drying"), Map.entry("@WM_STATE_DEMO_W", "Demonstration"),
             Map.entry("@WM_STATE_ERROR_W", "Error"));
 
-    public static final Map<String, String> CAP_WP_STATE_V1 = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
-            Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),
-            Map.entry("@WM_STATE_RESERVE_W", "Reserved"), Map.entry("@WM_STATE_DETECTING_W", "Detecting"),
-            Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RINSING_W", "Rinsing"),
-            Map.entry("@WM_STATE_SPINNING_W", "Spinning"), Map.entry("@WM_STATE_COOLDOWN_W", "Cool Down"),
-            Map.entry("@WM_STATE_RINSEHOLD_W", "Rinse Hold"), Map.entry("@WM_STATE_WASH_REFRESHING_W", "Refreshing"),
-            Map.entry("@WM_STATE_STEAMSOFTENING_W", "Steam Softening"), Map.entry("@WM_STATE_END_W", "End"),
-            Map.entry("@WM_STATE_DRYING_W", "Drying"), Map.entry("@WM_STATE_DEMO_W", "Demonstration"),
-            Map.entry("@WM_STATE_ERROR_W", "Error"));
-
-    public static final Map<String, String> CAP_WP_TEMPERATURE = Map.ofEntries(
+    public static final Map<String, String> CAP_WM_TEMPERATURE = Map.ofEntries(
             Map.entry("@WM_TERM_NO_SELECT_W", "Not Selected"), Map.entry("@WM_TITAN2_OPTION_TEMP_20_W", "20"),
             Map.entry("@WM_TITAN2_OPTION_TEMP_COLD_W", "Cold"), Map.entry("@WM_TITAN2_OPTION_TEMP_30_W", "30"),
             Map.entry("@WM_TITAN2_OPTION_TEMP_40_W", "40"), Map.entry("@WM_TITAN2_OPTION_TEMP_50_W", "50"),
             Map.entry("@WM_TITAN2_OPTION_TEMP_60_W", "60"), Map.entry("@WM_TITAN2_OPTION_TEMP_95_W", "95"));
 
-    public static final Map<String, String> CAP_WP_SPIN = Map.ofEntries(
+    public static final Map<String, String> CAP_WM_SPIN = Map.ofEntries(
             Map.entry("@WM_TERM_NO_SELECT_W", "Not Selected"), Map.entry("@M_TITAN2_OPTION_SPIN_NO_SPIN_W", "No Spin"),
             Map.entry("@WM_TITAN2_OPTION_SPIN_400_W", "400"), Map.entry("@WM_TITAN2_OPTION_SPIN_600_W", "600"),
             Map.entry("@WM_TITAN2_OPTION_SPIN_700_W", "700"), Map.entry("@WM_TITAN2_OPTION_SPIN_800_W", "800"),
@@ -236,13 +245,18 @@ public class LGThinQBindingConstants {
             Map.entry("@WM_TITAN2_OPTION_SPIN_1400_W", "1400"), Map.entry("@WM_TITAN2_OPTION_SPIN_1600_W", "1600"),
             Map.entry("@WM_TITAN2_OPTION_SPIN_MAX_W", "Max Spin"));
 
-    public static final Map<String, String> CAP_WP_RINSE = Map.ofEntries(
+    public static final Map<String, String> CAP_WM_RINSE = Map.ofEntries(
             Map.entry("@WM_TERM_NO_SELECT_W", "Not Selected"), Map.entry("@WM_TITAN2_OPTION_RINSE_NORMAL_W", "Normal"),
             Map.entry("@WM_TITAN2_OPTION_RINSE_RINSE+_W", "Plus"),
             Map.entry("@WM_TITAN2_OPTION_RINSE_RINSE++_W", "Plus +"),
             Map.entry("@WM_TITAN2_OPTION_RINSE_NORMALHOLD_W", "Normal Hold"),
             Map.entry("@WM_TITAN2_OPTION_SPIN_800_W", "800"),
             Map.entry("@WM_TITAN2_OPTION_RINSE_RINSE+HOLD_W", "Plus Hold"));
+
+    // This is the dictionary os course functions translations for V2
+    public static final Map<String, Map<String, String>> CAP_WM_DICT_V2 = Map.of("spin", CAP_WM_SPIN, "rinse",
+            CAP_WM_RINSE, "temp", CAP_WM_TEMPERATURE, "state", CAP_WM_STATE);
+
     public static final String WM_COMMAND_REMOTE_START_V2 = "WMStart";
     // ==============================================================================
 

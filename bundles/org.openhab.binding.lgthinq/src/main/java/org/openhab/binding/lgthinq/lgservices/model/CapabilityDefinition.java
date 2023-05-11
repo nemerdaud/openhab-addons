@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
 
 /**
  * The {@link CapabilityDefinition}
@@ -43,6 +44,24 @@ public interface CapabilityDefinition {
     Map<String, Object> getRawData();
 
     Map<String, Map<String, Object>> getFeatureValuesRawData();
+
+    /**
+     * This method get the feature based on its name in the JSON device's definition.
+     * Ex: For V2: "MonitoringValue": {
+     * ...
+     * "spin" : {
+     * ...
+     * valueMapping{
+     * ...
+     * }
+     * }
+     * }
+     * getFeatureDefinition("spin") will return the FeatureDefinition object representing "spin" feature configuration.
+     * 
+     * @param featureName name of the feature node in the json definition
+     * @return return FeatureDefinition object representing the feature in case.
+     */
+    FeatureDefinition getFeatureDefinition(String featureName);
 
     void setRawData(Map<String, Object> rawData);
 }

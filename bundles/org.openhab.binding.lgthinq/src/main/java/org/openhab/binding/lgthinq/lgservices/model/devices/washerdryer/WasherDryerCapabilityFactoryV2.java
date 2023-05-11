@@ -15,8 +15,10 @@ package org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer;
 import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
+import org.openhab.binding.lgthinq.lgservices.model.FeatureDataType;
 import org.openhab.binding.lgthinq.lgservices.model.LGAPIVerion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,19 +49,25 @@ public class WasherDryerCapabilityFactoryV2 extends AbstractWasherDryerCapabilit
     }
 
     @Override
-    protected FeatureDefinition getFeatureDefinition(String featureName, JsonNode featuresNode) {
+    protected FeatureDefinition newFeatureDefinition(String featureName, JsonNode featuresNode,
+            @Nullable String targetChannelId, @Nullable String refChannelId) {
         JsonNode featureNode = featuresNode.path(featureName);
         if (featureNode.isMissingNode()) {
             return FeatureDefinition.NULL_DEFINITION;
         }
         FeatureDefinition fd = new FeatureDefinition();
         fd.setName(featureName);
+        fd.setChannelId(Objects.requireNonNullElse(targetChannelId, ""));
+        fd.setRefChannelId(Objects.requireNonNullElse(refChannelId, ""));
+
         JsonNode labelNode = featureNode.path("label");
         if (!labelNode.isMissingNode() && !labelNode.isNull()) {
             fd.setLabel(labelNode.asText());
         } else {
             fd.setLabel(featureName);
         }
+        // all features from V2 are enums
+        fd.setDataType(FeatureDataType.ENUM);
         JsonNode valuesMappingNode = featureNode.path("valueMapping");
         if (!valuesMappingNode.isMissingNode()) {
 

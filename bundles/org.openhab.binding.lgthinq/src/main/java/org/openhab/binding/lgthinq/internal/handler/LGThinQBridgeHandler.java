@@ -12,8 +12,7 @@
  */
 package org.openhab.binding.lgthinq.internal.handler;
 
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.THINQ_CONNECTION_DATA_FILE;
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.THINQ_USER_DATA_FOLDER;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -280,7 +279,7 @@ public class LGThinQBridgeHandler extends ConfigStatusBridgeHandler implements L
         logger.debug("Initializing LGThinq bridge handler.");
         lgthinqConfig = getConfigAs(LGThinQBridgeConfiguration.class);
         lgDevicePollingRunnable.lgthinqConfig = lgthinqConfig;
-
+        // generateWasherDryerThingTypes();
         if (lgthinqConfig.username.isEmpty() || lgthinqConfig.password.isEmpty() || lgthinqConfig.language.isEmpty()
                 || lgthinqConfig.country.isEmpty()) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
@@ -290,6 +289,17 @@ public class LGThinQBridgeHandler extends ConfigStatusBridgeHandler implements L
             startLGThinqDevicePolling();
         }
     }
+
+    // private void generateWasherDryerThingTypes() {
+    // // TODO - i18n labels and descriptions
+    // // Creating static channels
+    // List<ThinqChannel> channels = new ArrayList<>();
+    // channels.add(new ThinqChannel())
+    // ThinqDevice device = new ThinqDevice(THING_TYPE_WASHING_MACHINE.getId(),"Washer Machine", "LG Thinq Washer
+    // Machine",
+    //
+    // )
+    // }
 
     @Override
     public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {

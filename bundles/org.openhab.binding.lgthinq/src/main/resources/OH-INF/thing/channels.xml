@@ -83,6 +83,12 @@
 		<state readOnly="true"/>
 	</channel-type>
 
+	<channel-type id="rs-start-stop">
+		<item-type>Switch</item-type>
+		<label>Remote Start/Stop Switch</label>
+		<description>Washer/Dryer remote Start/Stop</description>
+	</channel-type>
+
 	<channel-type id="washer-stand-by">
 		<item-type>Switch</item-type>
 		<label>Standby Mode</label>
@@ -93,9 +99,23 @@
 		<item-type>String</item-type>
 		<label>Rinse</label>
 		<description>Rinse</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="rs-rinse">
+		<item-type>String</item-type>
+		<label>Rinse</label>
+		<description>Rinse</description>
 	</channel-type>
 
 	<channel-type id="washer-spin">
+		<item-type>String</item-type>
+		<label>Spin</label>
+		<description>Spin Speed</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="rs-spin">
 		<item-type>String</item-type>
 		<label>Spin</label>
 		<description>Spin Speed</description>
@@ -169,6 +189,12 @@
 		<description>Target Temperature Level</description>
 		<category>Temperature</category>
 		<state readOnly="true"/>
+	</channel-type>
+	<channel-type id="rs-temperature-level">
+		<item-type>String</item-type>
+		<label>Temperature Level</label>
+		<description>Target Temperature Level</description>
+		<category>Temperature</category>
 	</channel-type>
 	<channel-type id="washer-door-lock">
 		<item-type>String</item-type>

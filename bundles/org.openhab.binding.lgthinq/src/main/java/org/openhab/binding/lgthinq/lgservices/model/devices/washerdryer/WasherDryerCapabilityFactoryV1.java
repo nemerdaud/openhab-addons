@@ -12,16 +12,15 @@
  */
 package org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
+import org.openhab.binding.lgthinq.lgservices.model.FeatureDataType;
 import org.openhab.binding.lgthinq.lgservices.model.LGAPIVerion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +121,8 @@ public class WasherDryerCapabilityFactoryV1 extends AbstractWasherDryerCapabilit
     }
 
     @Override
-    protected FeatureDefinition getFeatureDefinition(String featureName, JsonNode featuresNode) {
+    protected FeatureDefinition newFeatureDefinition(String featureName, JsonNode featuresNode,
+            @Nullable String targetChannelId, @Nullable String refChannelId) {
         JsonNode featureNode = featuresNode.path(featureName);
         if (featureNode.isMissingNode()) {
             return FeatureDefinition.NULL_DEFINITION;
@@ -130,6 +130,10 @@ public class WasherDryerCapabilityFactoryV1 extends AbstractWasherDryerCapabilit
         FeatureDefinition fd = new FeatureDefinition();
         fd.setName(featureName);
         fd.setLabel(featureName);
+        fd.setChannelId(Objects.requireNonNullElse(targetChannelId, ""));
+        fd.setRefChannelId(Objects.requireNonNullElse(refChannelId, ""));
+        // All features from V1 are ENUMs
+        fd.setDataType(FeatureDataType.ENUM);
         JsonNode valuesMappingNode = featureNode.path("option");
         if (!valuesMappingNode.isMissingNode()) {
 

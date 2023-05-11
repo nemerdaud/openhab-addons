@@ -23,21 +23,16 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.LGThinQDeviceDynStateDescriptionProvider;
-import org.openhab.binding.lgthinq.internal.ThinqChannelTypeProvider;
 import org.openhab.binding.lgthinq.internal.errors.*;
+import org.openhab.binding.lgthinq.internal.type.ThinqChannelGroupTypeProvider;
+import org.openhab.binding.lgthinq.internal.type.ThinqChannelTypeProvider;
 import org.openhab.binding.lgthinq.lgservices.LGThinQApiClientService;
-import org.openhab.binding.lgthinq.lgservices.model.CapabilityDefinition;
-import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
-import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
-import org.openhab.binding.lgthinq.lgservices.model.SnapshotDefinition;
+import org.openhab.binding.lgthinq.lgservices.model.*;
 import org.openhab.core.thing.*;
 import org.openhab.core.thing.binding.BaseThingHandler;
-import org.openhab.core.thing.binding.ThingHandlerService;
+import org.openhab.core.thing.binding.ThingHandlerCallback;
 import org.openhab.core.thing.binding.builder.ChannelBuilder;
-import org.openhab.core.thing.type.ChannelKind;
-import org.openhab.core.thing.type.ChannelType;
-import org.openhab.core.thing.type.ChannelTypeBuilder;
-import org.openhab.core.thing.type.ChannelTypeUID;
+import org.openhab.core.thing.type.*;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
@@ -73,7 +68,10 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
             ThingStatusDetail.CONFIGURATION_ERROR);
 
     protected final LGThinQDeviceDynStateDescriptionProvider stateDescriptionProvider;
-    protected ThinqChannelTypeProvider thinqChannelProvider = new ThinqChannelTypeProvider(); // Dummy inicialization
+    @Nullable
+    protected ThinqChannelTypeProvider thinqChannelProvider;
+    @Nullable
+    protected ThinqChannelGroupTypeProvider thinqChannelGroupProvider;
 
     public LGThinQAbstractDeviceHandler(Thing thing,
             LGThinQDeviceDynStateDescriptionProvider stateDescriptionProvider) {
@@ -82,15 +80,6 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
         lgPlatformType = "" + thing.getProperties().get(PLATFORM_TYPE);
         this.snapshotClass = (Class<S>) ((ParameterizedType) getClass().getGenericSuperclass())
                 .getActualTypeArguments()[1];
-    }
-
-    public void setChannelTypeProvider(ThinqChannelTypeProvider provider) {
-        this.thinqChannelProvider = provider;
-    }
-
-    @Override
-    public Collection<Class<? extends ThingHandlerService>> getServices() {
-        return Collections.singleton(ThinqChannelTypeProvider.class);
     }
 
     protected static class AsyncCommandParams {
@@ -201,6 +190,18 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
     public abstract void updateChannelDynStateDescription() throws LGThinqApiException;
 
     public abstract LGThinQApiClientService<C, S> getLgThinQAPIClientService();
+
+    protected void createDynSwitchChannel(String channelName, ChannelUID chanelUuid) {
+        if (getCallback() == null) {
+            logger.error("Unexpected behaviour. Callback not ready! Can't create dynamic channels");
+        } else {
+            // dynamic create channel
+            ChannelBuilder builder = getCallback().createChannelBuilder(chanelUuid,
+                    new ChannelTypeUID(BINDING_ID, channelName));
+            Channel channel = builder.withKind(ChannelKind.STATE).withAcceptedItemType("Switch").build();
+            updateThing(editThing().withChannel(channel).build());
+        }
+    }
 
     public C getCapabilities() throws LGThinqApiException {
         if (thinQCapability == null) {
@@ -328,6 +329,21 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
     }
 
     protected abstract void updateDeviceChannels(S snapshot);
+
+    protected String translateFeatureToItemType(FeatureDataType dataType) {
+        switch (dataType) {
+            case UNDEF:
+            case ENUM:
+                return "String";
+            case RANGE:
+                return "Dimmer";
+            case BOOLEAN:
+                return "Switch";
+            default:
+                throw new IllegalStateException(
+                        String.format("Feature DataType %s not supported for this ThingHandler", dataType));
+        }
+    }
 
     protected void stopThingStatePolling() {
         if (thingStatePollingJob != null && !thingStatePollingJob.isDone()) {
@@ -461,15 +477,16 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
         }
     }
 
-    protected void createDynChannel(String channelName, ChannelUID chanelUuid, String itemType) {
+    protected Channel createDynChannel(String channelName, ChannelUID chanelUuid, String itemType) {
         if (getCallback() == null) {
-            logger.error("Unexpected behaviour. Callback not ready! Can't create dynamic channels");
+            throw new IllegalStateException("Unexpected behaviour. Callback not ready! Can't create dynamic channels");
         } else {
             // dynamic create channel
             ChannelBuilder builder = getCallback().createChannelBuilder(chanelUuid,
                     new ChannelTypeUID(BINDING_ID, channelName));
             Channel channel = builder.withKind(ChannelKind.STATE).withAcceptedItemType(itemType).build();
             updateThing(editThing().withChannel(channel).build());
+            return channel;
         }
     }
 
@@ -483,5 +500,37 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
                 .withConfigDescriptionURI(URI.create(String.format("channel-type:lgthinq:%s-type", normLabel))).build();
         channelTypeProvider.addChannelType(channelType);
         return channelTypeUID;
+    }
+
+    protected ChannelGroupTypeUID createDynGroupTypeChannel(ThinqChannelGroupTypeProvider channelTypeProvider,
+            final ChannelGroupTypeUID channelTypeUID, final String channelGroupLabel,
+            final List<ChannelDefinition> channelDefinitions) {
+        final StateDescriptionFragmentBuilder sdb = StateDescriptionFragmentBuilder.create();
+        String normLabel = channelGroupLabel.replace(" ", "");
+        final ChannelGroupType channelGroupType = ChannelGroupTypeBuilder.instance(channelTypeUID, normLabel)
+                .withChannelDefinitions(channelDefinitions).build();
+        channelTypeProvider.addChannelGroupType(channelGroupType);
+        return channelTypeUID;
+    }
+
+    protected List<Channel> createChannelsForGroup(ChannelGroupUID channelGroupUID,
+            ChannelGroupTypeUID channelGroupTypeUID) {
+        logger.debug("Building channel group '{}' for thing '{}'.", channelGroupUID.getId(), getThing().getUID());
+        List<Channel> channels = new ArrayList<>();
+        ThingHandlerCallback callback = getCallback();
+
+        if (callback != null) {
+            for (ChannelBuilder channelBuilder : callback.createChannelBuilders(channelGroupUID, channelGroupTypeUID)) {
+                Channel newChannel = channelBuilder.build(),
+                        existingChannel = getThing().getChannel(newChannel.getUID().getId());
+                if (existingChannel != null) {
+                    logger.trace("Thing '{}' already has an existing channel '{}'. Omit adding new channel '{}'.",
+                            getThing().getUID(), existingChannel.getUID(), newChannel.getUID());
+                    continue;
+                }
+                channels.add(newChannel);
+            }
+        }
+        return channels;
     }
 }

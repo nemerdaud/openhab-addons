@@ -39,7 +39,7 @@ public class ACCapabilityFactoryV2 extends AbstractACCapabilityFactory {
 
     @Override
     protected String getOpModeNodeName() {
-        return "support.airState.opMode";
+        return "airState.opMode";
     }
 
     @Override

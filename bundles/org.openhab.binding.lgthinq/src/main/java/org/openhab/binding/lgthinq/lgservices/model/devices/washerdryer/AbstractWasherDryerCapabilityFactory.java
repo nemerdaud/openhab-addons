@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer;
 
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,16 +83,19 @@ public abstract class AbstractWasherDryerCapabilityFactory extends AbstractCapab
             throw new LGThinqException("MonitoringValue node not found in the V2 WashingDryer cap definition.");
         }
         // mapping possible states
-        wdCap.setState(getFeatureDefinition(getStateFeatureNodeName(), monitorValueNode));
-        wdCap.setProcessState(getFeatureDefinition(getProcessStateNodeName(), monitorValueNode));
-        wdCap.setPreState(getFeatureDefinition(getPreStateFeatureNodeName(), monitorValueNode));
+        wdCap.setState(newFeatureDefinition(getStateFeatureNodeName(), monitorValueNode));
+        wdCap.setProcessState(newFeatureDefinition(getProcessStateNodeName(), monitorValueNode));
+        wdCap.setPreState(newFeatureDefinition(getPreStateFeatureNodeName(), monitorValueNode));
         // --- Selectable features -----
-        wdCap.setRinse(getFeatureDefinition(getRinseFeatureNodeName(), monitorValueNode));
-        wdCap.setTemperature(getFeatureDefinition(getTemperatureFeatureNodeName(), monitorValueNode));
-        wdCap.setSpin(getFeatureDefinition(getSpinFeatureNodeName(), monitorValueNode));
+        wdCap.setRinseFeat(newFeatureDefinition(getRinseFeatureNodeName(), monitorValueNode,
+                WM_CHANNEL_REMOTE_START_RINSE, WM_CHANNEL_RINSE_ID));
+        wdCap.setTemperatureFeat(newFeatureDefinition(getTemperatureFeatureNodeName(), monitorValueNode,
+                WM_CHANNEL_REMOTE_START_TEMP, WM_CHANNEL_TEMP_LEVEL_ID));
+        wdCap.setSpinFeat(newFeatureDefinition(getSpinFeatureNodeName(), monitorValueNode, WM_CHANNEL_REMOTE_START_SPIN,
+                WM_CHANNEL_SPIN_ID));
         // ----------------------------
-        wdCap.setDryLevel(getFeatureDefinition(getDryLevelNodeName(), monitorValueNode));
-        wdCap.setSoilWash(getFeatureDefinition(getSoilWashFeatureNodeName(), monitorValueNode));
+        wdCap.setDryLevel(newFeatureDefinition(getDryLevelNodeName(), monitorValueNode));
+        wdCap.setSoilWash(newFeatureDefinition(getSoilWashFeatureNodeName(), monitorValueNode));
         wdCap.setCommandsDefinition(getCommandsDefinition(rootNode));
         if (monitorValueNode.get(getDoorLockFeatureNodeName()) != null) {
             wdCap.setHasDoorLook(true);
@@ -100,6 +105,11 @@ public abstract class AbstractWasherDryerCapabilityFactory extends AbstractCapab
         wdCap.setCommandStop(getCommandStopNodeName());
         wdCap.setCommandRemoteStart(getCommandRemoteStartNodeName());
         wdCap.setCommandWakeUp(getCommandWakeUpNodeName());
+        // custom feature values map.
+        wdCap.setFeatureDefinitionMap(
+                Map.of(getTemperatureFeatureNodeName(), new WasherDryerCapability.TemperatureFeatureFunction(),
+                        getRinseFeatureNodeName(), new WasherDryerCapability.RinseFeatureFunction(),
+                        getSpinFeatureNodeName(), new WasherDryerCapability.SpinFeatureFunction()));
         return wdCap;
     }
 

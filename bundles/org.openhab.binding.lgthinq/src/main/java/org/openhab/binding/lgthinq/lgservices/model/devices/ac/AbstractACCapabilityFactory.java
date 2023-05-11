@@ -18,6 +18,7 @@ import static org.openhab.binding.lgthinq.lgservices.model.DeviceTypes.HEAT_PUMP
 import java.util.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
@@ -47,7 +48,8 @@ public abstract class AbstractACCapabilityFactory extends AbstractCapabilityFact
     protected abstract Map<String, String> extractFeatureOptions(JsonNode optionsNode);
 
     @Override
-    protected FeatureDefinition getFeatureDefinition(String featureName, JsonNode featuresNode) {
+    protected FeatureDefinition newFeatureDefinition(String featureName, JsonNode featuresNode,
+            @Nullable String targetChannelId, @Nullable String refChannelId) {
         JsonNode featureNode = featuresNode.path(featureName);
         if (featureNode.isMissingNode()) {
             return FeatureDefinition.NULL_DEFINITION;

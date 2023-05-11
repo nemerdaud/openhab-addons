@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
@@ -93,7 +94,24 @@ public abstract class AbstractCapabilityFactory<T extends CapabilityDefinition> 
 
     protected abstract List<LGAPIVerion> getSupportedAPIVersions();
 
-    protected abstract FeatureDefinition getFeatureDefinition(String featureName, JsonNode featuresNode);
+    /**
+     * Return the feature definition, i.e, the defition of the device attributes that can be mapped to Channels.
+     * The targetChannelId is needed if you intend to get the destination channelId for that feature, typically for
+     * dynamic channels.
+     *
+     * @param featureName Name of the features: feature node name
+     * @param featuresNode The jsonNode containing the data definition of the feature
+     * @param targetChannelId The destination channelID, normally used when you want to create dynamic channels (outside
+     *            xml)
+     * @param refChannelId
+     * @return the Feature definition.
+     */
+    protected abstract FeatureDefinition newFeatureDefinition(String featureName, JsonNode featuresNode,
+            @Nullable String targetChannelId, @Nullable String refChannelId);
+
+    protected FeatureDefinition newFeatureDefinition(String featureName, JsonNode featuresNode) {
+        return newFeatureDefinition(featureName, featuresNode, null, null);
+    }
 
     protected abstract T getCapabilityInstance();
 

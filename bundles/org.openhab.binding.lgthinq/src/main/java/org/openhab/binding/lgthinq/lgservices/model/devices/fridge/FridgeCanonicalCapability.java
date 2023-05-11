@@ -28,7 +28,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Nemer Daud - Initial contribution
  */
 @NonNullByDefault
-public class FridgeCanonicalCapability extends AbstractCapability implements FridgeCapability {
+public class FridgeCanonicalCapability extends AbstractCapability<FridgeCanonicalCapability>
+        implements FridgeCapability {
 
     private static final Logger logger = LoggerFactory.getLogger(FridgeCanonicalCapability.class);
     private static final ObjectMapper mapper = new ObjectMapper();

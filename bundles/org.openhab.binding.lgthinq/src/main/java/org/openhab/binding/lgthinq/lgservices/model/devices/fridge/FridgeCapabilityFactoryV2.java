@@ -13,6 +13,7 @@
 package org.openhab.binding.lgthinq.lgservices.model.devices.fridge;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,7 +26,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 @NonNullByDefault
 public class FridgeCapabilityFactoryV2 extends AbstractFridgeCapabilityFactory {
     @Override
-    protected FeatureDefinition getFeatureDefinition(String featureName, JsonNode featuresNode) {
+    protected FeatureDefinition newFeatureDefinition(String featureName, JsonNode featuresNode,
+            @Nullable String targetChannelId, @Nullable String refChannelId) {
         return FeatureDefinition.NULL_DEFINITION;
     }
 
