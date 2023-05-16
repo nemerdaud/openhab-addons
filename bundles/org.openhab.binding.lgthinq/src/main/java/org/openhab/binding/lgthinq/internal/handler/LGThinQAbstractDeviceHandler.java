@@ -15,7 +15,6 @@ package org.openhab.binding.lgthinq.internal.handler;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.*;
 
 import java.lang.reflect.ParameterizedType;
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -30,12 +29,10 @@ import org.openhab.binding.lgthinq.lgservices.LGThinQApiClientService;
 import org.openhab.binding.lgthinq.lgservices.model.*;
 import org.openhab.core.thing.*;
 import org.openhab.core.thing.binding.BaseThingHandler;
-import org.openhab.core.thing.binding.ThingHandlerCallback;
 import org.openhab.core.thing.binding.builder.ChannelBuilder;
 import org.openhab.core.thing.type.*;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
-import org.openhab.core.types.StateDescriptionFragmentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +74,18 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
             LGThinQDeviceDynStateDescriptionProvider stateDescriptionProvider) {
         super(thing);
         this.stateDescriptionProvider = stateDescriptionProvider;
+        normalizeConfigurationsAndProperties();
         lgPlatformType = "" + thing.getProperties().get(PLATFORM_TYPE);
         this.snapshotClass = (Class<S>) ((ParameterizedType) getClass().getGenericSuperclass())
                 .getActualTypeArguments()[1];
+    }
+
+    private void normalizeConfigurationsAndProperties() {
+        List.of(PLATFORM_TYPE, MODEL_URL_INFO, DEVICE_ID).forEach(p -> {
+            if (!thing.getProperties().containsKey(p)) {
+                thing.setProperty(p, (String) thing.getConfiguration().get(p));
+            }
+        });
     }
 
     protected static class AsyncCommandParams {
@@ -489,49 +495,5 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
             updateThing(editThing().withChannel(channel).build());
             return channel;
         }
-    }
-
-    protected ChannelTypeUID createDynTypeChannel(ThinqChannelTypeProvider channelTypeProvider,
-            final String channelTypeId, final String channelLabel, final String itemType, final Boolean readOnly) {
-        final StateDescriptionFragmentBuilder sdb = StateDescriptionFragmentBuilder.create();
-        final ChannelTypeUID channelTypeUID = new ChannelTypeUID(BINDING_ID, channelTypeId + "-Type");
-        String normLabel = channelLabel.replace(" ", "");
-        final ChannelType channelType = ChannelTypeBuilder.state(channelTypeUID, normLabel, itemType)
-                .withStateDescriptionFragment(sdb.withReadOnly(readOnly).build())
-                .withConfigDescriptionURI(URI.create(String.format("channel-type:lgthinq:%s-type", normLabel))).build();
-        channelTypeProvider.addChannelType(channelType);
-        return channelTypeUID;
-    }
-
-    protected ChannelGroupTypeUID createDynGroupTypeChannel(ThinqChannelGroupTypeProvider channelTypeProvider,
-            final ChannelGroupTypeUID channelTypeUID, final String channelGroupLabel,
-            final List<ChannelDefinition> channelDefinitions) {
-        final StateDescriptionFragmentBuilder sdb = StateDescriptionFragmentBuilder.create();
-        String normLabel = channelGroupLabel.replace(" ", "");
-        final ChannelGroupType channelGroupType = ChannelGroupTypeBuilder.instance(channelTypeUID, normLabel)
-                .withChannelDefinitions(channelDefinitions).build();
-        channelTypeProvider.addChannelGroupType(channelGroupType);
-        return channelTypeUID;
-    }
-
-    protected List<Channel> createChannelsForGroup(ChannelGroupUID channelGroupUID,
-            ChannelGroupTypeUID channelGroupTypeUID) {
-        logger.debug("Building channel group '{}' for thing '{}'.", channelGroupUID.getId(), getThing().getUID());
-        List<Channel> channels = new ArrayList<>();
-        ThingHandlerCallback callback = getCallback();
-
-        if (callback != null) {
-            for (ChannelBuilder channelBuilder : callback.createChannelBuilders(channelGroupUID, channelGroupTypeUID)) {
-                Channel newChannel = channelBuilder.build(),
-                        existingChannel = getThing().getChannel(newChannel.getUID().getId());
-                if (existingChannel != null) {
-                    logger.trace("Thing '{}' already has an existing channel '{}'. Omit adding new channel '{}'.",
-                            getThing().getUID(), existingChannel.getUID(), newChannel.getUID());
-                    continue;
-                }
-                channels.add(newChannel);
-            }
-        }
-        return channels;
     }
 }
