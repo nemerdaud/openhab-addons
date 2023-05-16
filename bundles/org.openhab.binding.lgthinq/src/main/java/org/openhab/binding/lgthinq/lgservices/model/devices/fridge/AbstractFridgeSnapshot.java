@@ -19,6 +19,7 @@ import org.openhab.binding.lgthinq.lgservices.model.AbstractSnapshotDefinition;
  * The {@link AbstractFridgeSnapshot}
  *
  * @author Nemer Daud - Initial contribution
+ * @author Arne Seime - Complementary sensors
  */
 @NonNullByDefault
 public abstract class AbstractFridgeSnapshot extends AbstractSnapshotDefinition {
@@ -27,4 +28,6 @@ public abstract class AbstractFridgeSnapshot extends AbstractSnapshotDefinition 
     public abstract String getFridgeStrTemp();
 
     public abstract String getFreezerStrTemp();
+
+    public abstract String getDoorStatus();
 }

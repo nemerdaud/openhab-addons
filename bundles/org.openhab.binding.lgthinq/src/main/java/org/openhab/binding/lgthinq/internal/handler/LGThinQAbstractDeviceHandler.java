@@ -287,7 +287,7 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
     protected void updateThingStateFromLG() {
         try {
             @Nullable
-            S shot = getSnapshotDeviceAdapter(getDeviceId());
+            S shot = getSnapshotDeviceAdapter(getDeviceId(), getCapabilities());
             if (shot == null) {
                 // no data to update. Maybe, the monitor stopped, then it'a going to be restarted next try.
                 return;
@@ -384,10 +384,11 @@ public abstract class LGThinQAbstractDeviceHandler<C extends CapabilityDefinitio
     abstract protected DeviceTypes getDeviceType();
 
     @Nullable
-    protected S getSnapshotDeviceAdapter(String deviceId) throws LGThinqApiException, LGThinqApiExhaustionException {
+    protected S getSnapshotDeviceAdapter(String deviceId, CapabilityDefinition capDef)
+            throws LGThinqApiException, LGThinqApiExhaustionException {
         // analise de platform version
         if (PLATFORM_TYPE_V2.equals(lgPlatformType)) {
-            return getLgThinQAPIClientService().getDeviceData(getBridgeId(), getDeviceId());
+            return getLgThinQAPIClientService().getDeviceData(getBridgeId(), getDeviceId(), getCapabilities());
         } else {
             try {
                 if (!monitorV1Began) {

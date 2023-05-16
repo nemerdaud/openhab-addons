@@ -189,8 +189,13 @@ public class WasherDryerCapabilityFactoryV2 extends AbstractWasherDryerCapabilit
             return Collections.EMPTY_MAP;
         }
         Map<String, CommandDefinition> commands = new HashMap<>();
-        commandNode.fields().forEachRemaining(e -> {
+        for (Iterator<Map.Entry<String, JsonNode>> it = commandNode.fields(); it.hasNext();) {
+            Map.Entry<String, JsonNode> e = it.next();
             String commandName = e.getKey();
+            if (commandName.equals("vtCtrl")) {
+                // ignore command
+                continue;
+            }
             CommandDefinition cd = new CommandDefinition();
             JsonNode thisCommandNode = e.getValue();
             cd.setCommand(thisCommandNode.path("command").textValue());
@@ -219,7 +224,7 @@ public class WasherDryerCapabilityFactoryV2 extends AbstractWasherDryerCapabilit
                 logger.warn("Data node not found in the WasherDryer definition. It's most likely a bug");
             }
             commands.put(commandName, cd);
-        });
+        }
         return commands;
     }
 

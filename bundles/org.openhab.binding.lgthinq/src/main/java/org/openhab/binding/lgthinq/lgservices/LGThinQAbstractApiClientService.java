@@ -315,10 +315,11 @@ public abstract class LGThinQAbstractApiClientService<C extends CapabilityDefini
             S shot;
             try {
                 if (MonitoringResultFormat.JSON_FORMAT.equals(deviceCapability.getMonitoringDataFormat())) {
-                    shot = SnapshotFactory.getInstance().createFromJson(monData, deviceType, snapshotClass);
+                    shot = (S) SnapshotBuilderFactory.getInstance().getBuilder(snapshotClass).createFromJson(monData,
+                            deviceType, deviceCapability);
                 } else if (MonitoringResultFormat.BINARY_FORMAT.equals(deviceCapability.getMonitoringDataFormat())) {
-                    shot = SnapshotFactory.getInstance().createFromBinary(monData,
-                            deviceCapability.getMonitoringBinaryProtocol(), snapshotClass);
+                    shot = (S) SnapshotBuilderFactory.getInstance().getBuilder(snapshotClass).createFromBinary(monData,
+                            deviceCapability.getMonitoringBinaryProtocol());
                 } else {
                     logger.error("Returned data format not supported: {}", deviceCapability.getMonitoringDataFormat());
                     throw new LGThinqApiException("Returned data format not supported");
@@ -354,12 +355,14 @@ public abstract class LGThinQAbstractApiClientService<C extends CapabilityDefini
      * <b>It works only for API V2 device versions!</b>
      *
      * @param deviceId device ID for de desired V2 LG Thinq.
+     * @param capDef
      * @return return map containing metamodel of settings and snapshot
      * @throws LGThinqApiException if some communication error occur.
      */
     @Override
     @Nullable
-    public S getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException {
+    public S getDeviceData(@NonNull String bridgeName, @NonNull String deviceId, @NonNull CapabilityDefinition capDef)
+            throws LGThinqApiException {
         // Exec pre-conditions (normally ask for update monitoring sensors of the device - temp and power) before call
         // for data
         beforeGetDataDevice(bridgeName, deviceId);
@@ -380,8 +383,8 @@ public abstract class LGThinQAbstractApiClientService<C extends CapabilityDefini
                 // No snapshot value provided
                 return null;
             }
-
-            S shot = SnapshotFactory.getInstance().createFromJson(deviceSettings, snapshotClass);
+            S shot = (S) SnapshotBuilderFactory.getInstance().getBuilder(snapshotClass).createFromJson(deviceSettings,
+                    capDef);
             shot.setOnline((Boolean) snapMap.get("online"));
             return shot;
         }

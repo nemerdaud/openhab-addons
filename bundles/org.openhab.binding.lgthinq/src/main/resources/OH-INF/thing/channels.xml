@@ -313,11 +313,11 @@
 	<channel-type id="fridge-some-door-open">
 		<item-type>String</item-type>
 		<label>Door Open</label>
-		<description>Washer Door Lock</description>
+		<description>Door status (at least one if combined fridge/freezer)</description>
 		<state readOnly="true">
 			<options>
 				<option value="OPEN">Open</option>
-				<option value="CLOSE">Close</option>
+				<option value="CLOSE">Closed</option>
 			</options>
 		</state>
 	</channel-type>
@@ -335,16 +335,16 @@
 
 	<channel-type id="fridge-freezer-temperature">
 		<item-type>Number:Temperature</item-type>
-		<label>Freezer Temperature</label>
-		<description>Freezer temperature.</description>
+		<label>Freezer Setpoint Temperature</label>
+		<description>Freezer setpoint temperature</description>
 		<category>Temperature</category>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
 
 	<channel-type id="fridge-fridge-temperature">
 		<item-type>Number:Temperature</item-type>
-		<label>Fridge Temperature</label>
-		<description>Fridge temperature.</description>
+		<label>Fridge Setpoint Temperature</label>
+		<description>Fridge setpoint temperature.</description>
 		<category>Temperature</category>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>

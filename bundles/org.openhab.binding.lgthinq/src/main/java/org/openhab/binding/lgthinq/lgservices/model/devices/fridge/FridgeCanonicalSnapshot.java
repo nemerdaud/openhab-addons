@@ -29,6 +29,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * to map field below washerDryer
  * 
  * @author Nemer Daud - Initial contribution
+ * @author Arne Seime - Complementary sensors
  */
 @NonNullByDefault
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -38,6 +39,17 @@ public class FridgeCanonicalSnapshot extends AbstractFridgeSnapshot {
     private Double fridgeTemp = FRIDGE_TEMPERATURE_IGNORE_VALUE;
     private Double freezerTemp = FREEZER_TEMPERATURE_IGNORE_VALUE;
     private String tempUnit = TEMP_UNIT_CELSIUS; // celsius as default
+
+    private String doorStatus = "";
+
+    @JsonProperty("atLeastOneDoorOpen")
+    public String getDoorStatus() {
+        return doorStatus;
+    }
+
+    public void setDoorStatus(String doorStatus) {
+        this.doorStatus = doorStatus;
+    }
 
     @Override
     @JsonAlias({ "TempUnit" })

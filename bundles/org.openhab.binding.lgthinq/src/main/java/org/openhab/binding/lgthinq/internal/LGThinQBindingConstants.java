@@ -127,7 +127,7 @@ public class LGThinQBindingConstants {
     static final Set<String> SUPPORTED_LG_PLATFORMS = Set.of(PLATFORM_TYPE_V1, PLATFORM_TYPE_V2);
 
     public static final int SEARCH_TIME = 20;
-    // delay between each devices's scan for state changes (in seconds)
+    // delay between each device's scan for state changes (in seconds)
     public static final int DEFAULT_STATE_POLLING_UPDATE_DELAY = 10;
 
     // ====================== FRIDGE DEVICE CONSTANTS =============================
@@ -207,6 +207,7 @@ public class LGThinQBindingConstants {
     public static final String WM_CHANNEL_TEMP_LEVEL_ID = "temperature-level";
     public static final String WM_CHANNEL_DOOR_LOCK_ID = "door-lock";
 
+    public static final String CHANNEL_DOOR_ID = "some-door-open";
     public static final String WM_CHANNEL_RINSE_ID = "rinse";
 
     public static final String WM_CHANNEL_SPIN_ID = "spin";
@@ -228,30 +229,48 @@ public class LGThinQBindingConstants {
             Map.entry("@WM_STATE_RINSEHOLD_W", "Rinse Hold"), Map.entry("@WM_STATE_WASH_REFRESHING_W", "Refreshing"),
             Map.entry("@WM_STATE_STEAMSOFTENING_W", "Steam Softening"), Map.entry("@WM_STATE_END_W", "End"),
             Map.entry("@WM_STATE_DRYING_W", "Drying"), Map.entry("@WM_STATE_DEMO_W", "Demonstration"),
-            Map.entry("@WM_STATE_ERROR_W", "Error"));
+            Map.entry("@WM_STATE_ADD_DRAIN_W", "Add Drain"), Map.entry("@WM_STATE_LOAD_DISPLAY_W", "Loading Display"),
+            Map.entry("@WM_STATE_FRESHCARE_W", "Refreshing"), Map.entry("@WM_STATE_ERROR_AUTO_OFF_W", "Error Auto Off"),
+            Map.entry("@WM_STATE_FROZEN_PREVENT_INITIAL_W", "Frozen Preventing"),
+            Map.entry("@FROZEN_PREVENT_PAUSE", "Frozen Preventing Paused"),
+            Map.entry("@FROZEN_PREVENT_RUNNING", "Frozen Preventing Running"),
+            Map.entry("@AUDIBLE_DIAGNOSIS", "Diagnosing"), Map.entry("@WM_STATE_ERROR_W", "Error"));
 
     public static final Map<String, String> CAP_WM_TEMPERATURE = Map.ofEntries(
             Map.entry("@WM_TERM_NO_SELECT_W", "Not Selected"), Map.entry("@WM_TITAN2_OPTION_TEMP_20_W", "20"),
             Map.entry("@WM_TITAN2_OPTION_TEMP_COLD_W", "Cold"), Map.entry("@WM_TITAN2_OPTION_TEMP_30_W", "30"),
             Map.entry("@WM_TITAN2_OPTION_TEMP_40_W", "40"), Map.entry("@WM_TITAN2_OPTION_TEMP_50_W", "50"),
-            Map.entry("@WM_TITAN2_OPTION_TEMP_60_W", "60"), Map.entry("@WM_TITAN2_OPTION_TEMP_95_W", "95"));
+            Map.entry("@WM_TITAN27_BIG_OPTION_TEMP_TAP_COLD_W", "Tap Cold"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_TEMP_COLD_W", "Cold"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_TEMP_ECO_WARM_W", "Eco Warm"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_TEMP_WARM_W", "Warm"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_TEMP_HOT_W", "Hot"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_TEMP_EXTRA_HOT_W", "Extra Hot"));
 
     public static final Map<String, String> CAP_WM_SPIN = Map.ofEntries(
-            Map.entry("@WM_TERM_NO_SELECT_W", "Not Selected"), Map.entry("@M_TITAN2_OPTION_SPIN_NO_SPIN_W", "No Spin"),
+            Map.entry("@WM_TERM_NO_SELECT_W", "Not Selected"), Map.entry("@WM_TITAN2_OPTION_SPIN_NO_SPIN_W", "No Spin"),
             Map.entry("@WM_TITAN2_OPTION_SPIN_400_W", "400"), Map.entry("@WM_TITAN2_OPTION_SPIN_600_W", "600"),
             Map.entry("@WM_TITAN2_OPTION_SPIN_700_W", "700"), Map.entry("@WM_TITAN2_OPTION_SPIN_800_W", "800"),
             Map.entry("@WM_TITAN2_OPTION_SPIN_900_W", "900"), Map.entry("@WM_TITAN2_OPTION_SPIN_1000_W", "1000"),
             Map.entry("@WM_TITAN2_OPTION_SPIN_1100_W", "1100"), Map.entry("@WM_TITAN2_OPTION_SPIN_1200_W", "1200"),
             Map.entry("@WM_TITAN2_OPTION_SPIN_1400_W", "1400"), Map.entry("@WM_TITAN2_OPTION_SPIN_1600_W", "1600"),
-            Map.entry("@WM_TITAN2_OPTION_SPIN_MAX_W", "Max Spin"));
+            Map.entry("@WM_TITAN2_OPTION_SPIN_MAX_W", "Max Spin"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_SPIN_NO_SPIN_W", "Drain Only"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_SPIN_LOW_W", "Low"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_SPIN_MEDIUM_W", "Medium"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_SPIN_HIGH_W", "High"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_SPIN_EXTRA_HIGH_W", "Extra High"));
 
     public static final Map<String, String> CAP_WM_RINSE = Map.ofEntries(
             Map.entry("@WM_TERM_NO_SELECT_W", "Not Selected"), Map.entry("@WM_TITAN2_OPTION_RINSE_NORMAL_W", "Normal"),
             Map.entry("@WM_TITAN2_OPTION_RINSE_RINSE+_W", "Plus"),
             Map.entry("@WM_TITAN2_OPTION_RINSE_RINSE++_W", "Plus +"),
             Map.entry("@WM_TITAN2_OPTION_RINSE_NORMALHOLD_W", "Normal Hold"),
-            Map.entry("@WM_TITAN2_OPTION_SPIN_800_W", "800"),
-            Map.entry("@WM_TITAN2_OPTION_RINSE_RINSE+HOLD_W", "Plus Hold"));
+            Map.entry("@WM_TITAN2_OPTION_RINSE_RINSE+HOLD_W", "Plus Hold"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_EXTRA_RINSE_0_W", "Normal"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_EXTRA_RINSE_1_W", "Plus"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_EXTRA_RINSE_2_W", "Plus +"),
+            Map.entry("@WM_TITAN27_BIG_OPTION_EXTRA_RINSE_3_W", "Plus ++"));
 
     // This is the dictionary os course functions translations for V2
     public static final Map<String, Map<String, String>> CAP_WM_DICT_V2 = Map.of("spin", CAP_WM_SPIN, "rinse",
@@ -259,29 +278,4 @@ public class LGThinQBindingConstants {
 
     public static final String WM_COMMAND_REMOTE_START_V2 = "WMStart";
     // ==============================================================================
-
-    // ======================== DRYER CONSTANTS ============================
-
-    public static final String DR_CHANNEL_STATE_ID = "state";
-    public static final String DR_CHANNEL_COURSE_ID = "course";
-    public static final String DR_CHANNEL_SMART_COURSE_ID = "smart-course";
-    public static final String DR_CHANNEL_DRY_LEVEL_ID = "dry-level";
-    public static final String DR_CHANNEL_PROCESS_STATE_ID = "process-state";
-    public static final String DR_CHANNEL_CHILD_LOCK_ID = "child-lock";
-    public static final String DR_CHANNEL_REMAIN_TIME_ID = "remain-time";
-    public static final String DR_CHANNEL_ERROR_ID = "error";
-
-    public static final Map<String, String> CAP_DR_PROCESS_STATE = Map.ofEntries(
-            Map.entry("@WM_STATE_DETECTING_W", "Detecting"), Map.entry("@WM_STATE_STEAM_W", "Steam"),
-            Map.entry("@WM_STATE_DRY_W", "Drying"), Map.entry("@WM_STATE_COOLING_W", "Cool"),
-            Map.entry("@WM_STATE_ANTI_CREASE_W", "Anti Crease"), Map.entry("@WM_STATE_END_W", "End"));
-
-    public static final Map<String, String> CAP_DR_STATE = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
-            Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),
-            Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RESERVE_W", "Reserved"),
-            Map.entry("@WM_STATE_ERROR_W", "Error"), Map.entry("@WM_STATE_SMART_DIAGNOSIS_W", "Smart Diagnosis"));
-
-    public static final Map<String, String> CAP_DR_DRY_LEVEL = Map.ofEntries(Map.entry("-", "-"),
-            Map.entry("@WM_DRY24_DRY_LEVEL_IRON_W", "Iron"), Map.entry("@WM_DRY24_DRY_LEVEL_CUPBOARD_W", "Cup Board"),
-            Map.entry("@WM_DRY24_DRY_LEVEL_EXTRA_W", "Extra"));
 }

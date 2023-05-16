@@ -202,7 +202,7 @@ public class WasherDryerSnapshot extends AbstractSnapshotDefinition {
     }
 
     @JsonProperty("doorLock")
-    @JsonAlias({ "ChildLock" })
+    @JsonAlias({ "ChildLock", "doorClose" })
     public String getDoorLock() {
         return doorLock;
     }

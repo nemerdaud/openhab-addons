@@ -19,6 +19,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.api.RestResult;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
+import org.openhab.binding.lgthinq.lgservices.model.CapabilityDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
 import org.openhab.binding.lgthinq.lgservices.model.devices.ac.ACCanonicalSnapshot;
 import org.openhab.binding.lgthinq.lgservices.model.devices.ac.ACCapability;
@@ -58,15 +59,16 @@ public class LGThinQACApiV1ClientServiceImpl extends
     /**
      * Get snapshot data from the device.
      * <b>It works only for API V2 device versions!</b>
-     * 
+     *
      * @param deviceId device ID for de desired V2 LG Thinq.
+     * @param capDef
      * @return return map containing metamodel of settings and snapshot
      * @throws LGThinqApiException if some communication error occur.
      */
     @Override
     @Nullable
-    public ACCanonicalSnapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId)
-            throws LGThinqApiException {
+    public ACCanonicalSnapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId,
+            @NonNull CapabilityDefinition capDef) throws LGThinqApiException {
         throw new UnsupportedOperationException("Method not supported in V1 API device.");
     }
 

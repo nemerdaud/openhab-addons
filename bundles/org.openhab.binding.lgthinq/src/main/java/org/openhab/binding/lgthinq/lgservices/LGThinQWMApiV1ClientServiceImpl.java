@@ -20,6 +20,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.api.RestResult;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
+import org.openhab.binding.lgthinq.lgservices.model.CapabilityDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
 import org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer.WasherDryerCapability;
 import org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer.WasherDryerSnapshot;
@@ -67,8 +68,8 @@ public class LGThinQWMApiV1ClientServiceImpl
 
     @Override
     @Nullable
-    public WasherDryerSnapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId)
-            throws LGThinqApiException {
+    public WasherDryerSnapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId,
+            @NonNull CapabilityDefinition capDef) throws LGThinqApiException {
         throw new UnsupportedOperationException("Method not supported in V1 API device.");
     }
 

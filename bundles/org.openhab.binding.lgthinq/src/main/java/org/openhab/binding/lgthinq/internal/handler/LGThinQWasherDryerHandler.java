@@ -117,16 +117,6 @@ public class LGThinQWasherDryerHandler
         remoteStartEnabledChannels.addAll(this.getThing().getChannelsOfGroup(channelGroupRemoteStartUID.getId()));
     }
 
-    static class AsyncCommandParams {
-        final String channelUID;
-        final Command command;
-
-        public AsyncCommandParams(String channelUUID, Command command) {
-            this.channelUID = channelUUID;
-            this.command = command;
-        }
-    }
-
     @Override
     public void initialize() {
         logger.debug("Initializing Thinq thing. Washer/Dryer Thing v3.4.3");

@@ -39,13 +39,15 @@ public interface LGThinQApiClientService<C extends CapabilityDefinition, S exten
 
     /**
      * Retrieve actual data from device (its sensors and points states).
-     * 
+     *
      * @param deviceId device number
+     * @param capDef
      * @return return snapshot state of the device
      * @throws LGThinqApiException if some error interacting with LG API Server occur.
      */
     @Nullable
-    S getDeviceData(@NonNull String bridgeName, @NonNull String deviceId) throws LGThinqApiException;
+    S getDeviceData(@NonNull String bridgeName, @NonNull String deviceId, @NonNull CapabilityDefinition capDef)
+            throws LGThinqApiException;
 
     double getInstantPowerConsumption(@NonNull String bridgeName, @NonNull String deviceId)
             throws LGThinqApiException, IOException;

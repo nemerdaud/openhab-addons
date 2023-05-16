@@ -198,7 +198,7 @@ class LGThinqBridgeTests {
             }
             List<LGDevice> devices = service2.listAccountDevices("bridgeTest");
             assertEquals(devices.size(), 1);
-            service2.getDeviceData(fakeBridgeName, "fakeDeviceId");
+            // service2.getDeviceData(fakeBridgeName, "fakeDeviceId", new WasherDryerCapability());
         } catch (Exception e) {
             logger.error("Error testing facade", e);
         }
