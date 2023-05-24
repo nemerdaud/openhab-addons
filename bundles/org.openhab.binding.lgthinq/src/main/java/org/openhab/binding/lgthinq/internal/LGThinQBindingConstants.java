@@ -201,13 +201,14 @@ public class LGThinQBindingConstants {
     public static final String WM_POWER_OFF_VALUE = "POWEROFF";
     public static final String WM_SNAPSHOT_WASHER_DRYER_NODE_V2 = "washerDryer";
     public static final String WM_CHANNEL_STATE_ID = "state";
+    public static final String WM_CHANNEL_PROCESS_STATE_ID = "process-state";
     public static final String WM_CHANNEL_COURSE_ID = "course";
+    public static final String DR_CHANNEL_DRY_LEVEL_ID = "dry-level";
     public static final String WM_CHANNEL_SMART_COURSE_ID = "smart-course";
-    public static final String WM_CHANNEL_DOWNLOADED_COURSE_ID = "downloaded-course";
     public static final String WM_CHANNEL_TEMP_LEVEL_ID = "temperature-level";
     public static final String WM_CHANNEL_DOOR_LOCK_ID = "door-lock";
-
-    public static final String CHANNEL_DOOR_ID = "some-door-open";
+    public static final String DR_CHANNEL_CHILD_LOCK_ID = "child-lock";
+    public static final String FR_CHANNEL_DOOR_ID = "some-door-open";
     public static final String WM_CHANNEL_RINSE_ID = "rinse";
 
     public static final String WM_CHANNEL_SPIN_ID = "spin";
@@ -221,7 +222,7 @@ public class LGThinQBindingConstants {
     public static final String WM_CHANNEL_REMAIN_TIME_ID = "remain-time";
     public static final String WM_CHANNEL_DELAY_TIME_ID = "delay-time";
 
-    public static final Map<String, String> CAP_WM_STATE = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
+    public static final Map<String, String> CAP_WDM_STATE = Map.ofEntries(Map.entry("@WM_STATE_POWER_OFF_W", "Off"),
             Map.entry("@WM_STATE_INITIAL_W", "Initial"), Map.entry("@WM_STATE_PAUSE_W", "Pause"),
             Map.entry("@WM_STATE_RESERVE_W", "Reserved"), Map.entry("@WM_STATE_DETECTING_W", "Detecting"),
             Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RINSING_W", "Rinsing"),
@@ -235,6 +236,21 @@ public class LGThinQBindingConstants {
             Map.entry("@FROZEN_PREVENT_PAUSE", "Frozen Preventing Paused"),
             Map.entry("@FROZEN_PREVENT_RUNNING", "Frozen Preventing Running"),
             Map.entry("@AUDIBLE_DIAGNOSIS", "Diagnosing"), Map.entry("@WM_STATE_ERROR_W", "Error"));
+
+    public static final Map<String, String> CAP_WDM_PROCESS_STATE = Map.ofEntries(
+            Map.entry("@WM_STATE_DETECTING_W", "Detecting"), Map.entry("@WM_STATE_STEAM_W", "Steam"),
+            Map.entry("@WM_STATE_DRY_W", "Drying"), Map.entry("@WM_STATE_COOLING_W", "Cooling"),
+            Map.entry("@WM_STATE_ANTI_CREASE_W", "Anti Creasing"), Map.entry("@WM_STATE_END_W", "End"),
+            Map.entry("@WM_STATE_POWER_OFF_W", "Power Off"), Map.entry("@WM_STATE_INITIAL_W", "Initializing"),
+            Map.entry("@WM_STATE_PAUSE_W", "Paused"), Map.entry("@WM_STATE_RESERVE_W", "Reserved"),
+            Map.entry("@WM_STATE_RUNNING_W", "Running"), Map.entry("@WM_STATE_RINSING_W", "Rising"),
+            Map.entry("@WM_STATE_SPINNING_W", "@WM_STATE_DRYING_W"), Map.entry("WM_STATE_COOLDOWN_W", "Cool Down"),
+            Map.entry("@WM_STATE_RINSEHOLD_W", "Rinse Hold"), Map.entry("@WM_STATE_WASH_REFRESHING_W", "Refreshing"),
+            Map.entry("@WM_STATE_STEAMSOFTENING_W", "Steam Softening"), Map.entry("@WM_STATE_ERROR_W", "Error"));
+
+    public static final Map<String, String> CAP_DR_DRY_LEVEL = Map.ofEntries(
+            Map.entry("@WM_DRY24_DRY_LEVEL_IRON_W", "Iron"), Map.entry("@WM_DRY24_DRY_LEVEL_CUPBOARD_W", "Cupboard"),
+            Map.entry("@WM_DRY24_DRY_LEVEL_EXTRA_W", "Extra"));
 
     public static final Map<String, String> CAP_WM_TEMPERATURE = Map.ofEntries(
             Map.entry("@WM_TERM_NO_SELECT_W", "Not Selected"), Map.entry("@WM_TITAN2_OPTION_TEMP_20_W", "20"),
@@ -274,7 +290,7 @@ public class LGThinQBindingConstants {
 
     // This is the dictionary os course functions translations for V2
     public static final Map<String, Map<String, String>> CAP_WM_DICT_V2 = Map.of("spin", CAP_WM_SPIN, "rinse",
-            CAP_WM_RINSE, "temp", CAP_WM_TEMPERATURE, "state", CAP_WM_STATE);
+            CAP_WM_RINSE, "temp", CAP_WM_TEMPERATURE, "state", CAP_WDM_STATE);
 
     public static final String WM_COMMAND_REMOTE_START_V2 = "WMStart";
     // ==============================================================================

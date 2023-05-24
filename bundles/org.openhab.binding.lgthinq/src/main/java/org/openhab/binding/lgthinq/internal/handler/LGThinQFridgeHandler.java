@@ -31,7 +31,7 @@ import org.openhab.binding.lgthinq.lgservices.LGThinQFridgeApiV1ClientServiceImp
 import org.openhab.binding.lgthinq.lgservices.LGThinQFridgeApiV2ClientServiceImpl;
 import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
-import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.AbstractFridgeSnapshot;
+import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.FridgeCanonicalSnapshot;
 import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.FridgeCapability;
 import org.openhab.core.library.types.OpenClosedType;
 import org.openhab.core.library.types.QuantityType;
@@ -54,11 +54,10 @@ import org.slf4j.LoggerFactory;
  * @author Arne Seime - Complementary sensors
  */
 @NonNullByDefault
-public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCapability, AbstractFridgeSnapshot> {
+public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCapability, FridgeCanonicalSnapshot> {
 
     private final ChannelUID fridgeTempChannelUID;
     private final ChannelUID freezerTempChannelUID;
-    private final ChannelUID doorChannelUID;
     private String tempUnit = TEMP_UNIT_CELSIUS;
     private final Logger logger = LoggerFactory.getLogger(LGThinQFridgeHandler.class);
     @NonNullByDefault
@@ -72,7 +71,7 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
                 : LGThinQFridgeApiV2ClientServiceImpl.getInstance();
         fridgeTempChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_FRIDGE_TEMP_ID);
         freezerTempChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_FREEZER_TEMP_ID);
-        doorChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DOOR_ID);
+        ChannelUID doorChannelUID = new ChannelUID(getThing().getUID(), FR_CHANNEL_DOOR_ID);
     }
 
     @Override
@@ -83,10 +82,10 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
     }
 
     @Override
-    protected void updateDeviceChannels(AbstractFridgeSnapshot shot) {
+    protected void updateDeviceChannels(FridgeCanonicalSnapshot shot) {
         updateState(CHANNEL_FRIDGE_TEMP_ID, new QuantityType<Temperature>(shot.getFridgeStrTemp()));
         updateState(CHANNEL_FREEZER_TEMP_ID, new QuantityType<Temperature>(shot.getFreezerStrTemp()));
-        updateState(CHANNEL_DOOR_ID, parseDoorStatus(shot.getDoorStatus()));
+        updateState(FR_CHANNEL_DOOR_ID, parseDoorStatus(shot.getDoorStatus()));
 
         updateState(CHANNEL_REF_TEMP_UNIT, new StringType(shot.getTempUnit()));
         if (!tempUnit.equals(shot.getTempUnit())) {
@@ -135,7 +134,7 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
     }
 
     @Override
-    public LGThinQApiClientService<FridgeCapability, AbstractFridgeSnapshot> getLgThinQAPIClientService() {
+    public LGThinQApiClientService<FridgeCapability, FridgeCanonicalSnapshot> getLgThinQAPIClientService() {
         return lgThinqFridgeApiClientService;
     }
 

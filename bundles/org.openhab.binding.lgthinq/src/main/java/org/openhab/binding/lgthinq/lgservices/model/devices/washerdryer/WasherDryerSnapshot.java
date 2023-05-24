@@ -33,12 +33,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class WasherDryerSnapshot extends AbstractSnapshotDefinition {
     private DevicePowerState powerState = DevicePowerState.DV_POWER_UNK;
     private String state = "";
+    private String processState = "";
     private boolean online;
     private String course = "";
     private String smartCourse = "";
     private String downloadedCourse = "";
     private String temperatureLevel = "";
     private String doorLock = "";
+    private String option1 = "";
+    private String option2 = "";
+    private String childLock = "";
     private Double remainingHour = 0.00;
     private Double remainingMinute = 0.00;
     private Double reserveHour = 0.00;
@@ -51,7 +55,6 @@ public class WasherDryerSnapshot extends AbstractSnapshotDefinition {
     private String dryLevel = "";
     private boolean standBy = false;
     private String error = "";
-    private String processState = "";
     private String rinse = "";
     private String spin = "";
 
@@ -76,7 +79,7 @@ public class WasherDryerSnapshot extends AbstractSnapshotDefinition {
     }
 
     @JsonProperty("processState")
-    @JsonAlias({ "ProcessState" })
+    @JsonAlias({ "ProcessState", "preState", "PreState" })
     public String getProcessState() {
         return processState;
     }
@@ -202,13 +205,23 @@ public class WasherDryerSnapshot extends AbstractSnapshotDefinition {
     }
 
     @JsonProperty("doorLock")
-    @JsonAlias({ "ChildLock", "doorClose" })
+    @JsonAlias({ "DoorLock", "DoorClose" })
     public String getDoorLock() {
         return doorLock;
     }
 
     public void setDoorLock(String doorLock) {
         this.doorLock = doorLock;
+    }
+
+    @JsonProperty("ChildLock")
+    @JsonAlias({ "childLock" })
+    public String getChildLock() {
+        return childLock;
+    }
+
+    public void setChildLock(String childLock) {
+        this.childLock = childLock;
     }
 
     public void setState(String state) {
@@ -271,5 +284,23 @@ public class WasherDryerSnapshot extends AbstractSnapshotDefinition {
 
     public void setSpin(String spin) {
         this.spin = spin;
+    }
+
+    @JsonProperty("Option1")
+    public String getOption1() {
+        return option1;
+    }
+
+    public void setOption1(String option1) {
+        this.option1 = option1;
+    }
+
+    @JsonProperty("Option2")
+    public String getOption2() {
+        return option2;
+    }
+
+    public void setOption2(String option2) {
+        this.option2 = option2;
     }
 }

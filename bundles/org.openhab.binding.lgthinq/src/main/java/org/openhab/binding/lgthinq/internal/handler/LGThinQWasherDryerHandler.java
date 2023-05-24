@@ -27,12 +27,12 @@ import org.openhab.binding.lgthinq.internal.type.ThinqChannelGroupTypeProvider;
 import org.openhab.binding.lgthinq.internal.type.ThinqChannelTypeProvider;
 import org.openhab.binding.lgthinq.lgservices.*;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
+import org.openhab.binding.lgthinq.lgservices.model.CommandDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
 import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
 import org.openhab.binding.lgthinq.lgservices.model.LGDevice;
 import org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer.*;
 import org.openhab.core.items.Item;
-import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.*;
@@ -56,13 +56,15 @@ public class LGThinQWasherDryerHandler
 
     private final LGThinQDeviceDynStateDescriptionProvider stateDescriptionProvider;
     private final ChannelUID courseChannelUID;
-    private final ChannelUID smartCourseChannelUID;
     private final ChannelUID remoteStartStopChannelUID;
     private final ChannelUID remainTimeChannelUID;
     private final ChannelUID delayTimeChannelUID;
     private final ChannelUID spinChannelUID;
     private final ChannelUID rinseChannelUID;
     private final ChannelUID stateChannelUID;
+    private final ChannelUID processStateChannelUID;
+    private final ChannelUID childLockChannelUID;
+    private final ChannelUID dryLevelChannelUID;
     private final ChannelUID temperatureChannelUID;
     private final ChannelUID doorLockChannelUID;
     private final ChannelUID standByModeChannelUID;
@@ -96,25 +98,28 @@ public class LGThinQWasherDryerHandler
         channelGroupRemoteStartUID = new ChannelGroupUID(getThing().getUID(), WM_CHANNEL_REMOTE_START_GRP_ID);
         channelGroupDashboardUID = new ChannelGroupUID(getThing().getUID(), WM_CHANNEL_DASHBOARD_GRP_ID);
         courseChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_COURSE_ID);
-        smartCourseChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_SMART_COURSE_ID);
+        dryLevelChannelUID = new ChannelUID(channelGroupDashboardUID, DR_CHANNEL_DRY_LEVEL_ID);
         stateChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_STATE_ID);
+        processStateChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_PROCESS_STATE_ID);
         remainTimeChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_REMAIN_TIME_ID);
         delayTimeChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_DELAY_TIME_ID);
         temperatureChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_TEMP_LEVEL_ID);
         doorLockChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_DOOR_LOCK_ID);
+        childLockChannelUID = new ChannelUID(channelGroupDashboardUID, DR_CHANNEL_CHILD_LOCK_ID);
         rinseChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_RINSE_ID);
         spinChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_SPIN_ID);
         standByModeChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_STAND_BY_ID);
         remoteStartFlagChannelUID = new ChannelUID(channelGroupDashboardUID, WM_CHANNEL_REMOTE_START_ID);
-
         remoteStartStopChannelUID = new ChannelUID(channelGroupRemoteStartUID, WM_CHANNEL_REMOTE_START_START_STOP);
     }
 
     @Override
     protected void initializeThing(@Nullable ThingStatus bridgeStatus) {
         super.initializeThing(bridgeStatus);
+        ThingBuilder builder = editThing()
+                .withoutChannels(this.getThing().getChannelsOfGroup(channelGroupRemoteStartUID.getId()));
+        updateThing(builder.build());
         remoteStartEnabledChannels.clear();
-        remoteStartEnabledChannels.addAll(this.getThing().getChannelsOfGroup(channelGroupRemoteStartUID.getId()));
     }
 
     @Override
@@ -138,7 +143,7 @@ public class LGThinQWasherDryerHandler
         if (isLinked(stateChannelUID)) {
             List<StateOption> options = new ArrayList<>();
             wmCap.getStateFeat().getValuesMapping()
-                    .forEach((k, v) -> options.add(new StateOption(k, keyIfValueNotFound(CAP_WM_STATE, v))));
+                    .forEach((k, v) -> options.add(new StateOption(k, keyIfValueNotFound(CAP_WDM_STATE, v))));
             stateDescriptionProvider.setStateOptions(stateChannelUID, options);
         }
         if (isLinked(courseChannelUID)) {
@@ -170,6 +175,24 @@ public class LGThinQWasherDryerHandler
             wmCap.getRinseFeat().getValuesMapping()
                     .forEach((k, v) -> options.add(new StateOption(k, keyIfValueNotFound(CAP_WM_RINSE, v))));
             stateDescriptionProvider.setStateOptions(rinseChannelUID, options);
+        }
+        if (isLinked(processStateChannelUID)) {
+            List<StateOption> options = new ArrayList<>();
+            wmCap.getProcessState().getValuesMapping()
+                    .forEach((k, v) -> options.add(new StateOption(k, keyIfValueNotFound(CAP_WDM_PROCESS_STATE, v))));
+            stateDescriptionProvider.setStateOptions(processStateChannelUID, options);
+        }
+        if (isLinked(childLockChannelUID)) {
+            List<StateOption> options = new ArrayList<>();
+            options.add(new StateOption("CHILDLOCK_OFF", "Unlocked"));
+            options.add(new StateOption("CHILDLOCK_ON", "Locked"));
+            stateDescriptionProvider.setStateOptions(childLockChannelUID, options);
+        }
+        if (isLinked(dryLevelChannelUID)) {
+            List<StateOption> options = new ArrayList<>();
+            wmCap.getDryLevel().getValuesMapping()
+                    .forEach((k, v) -> options.add(new StateOption(k, keyIfValueNotFound(CAP_DR_DRY_LEVEL, v))));
+            stateDescriptionProvider.setStateOptions(dryLevelChannelUID, options);
         }
     }
 
@@ -212,12 +235,14 @@ public class LGThinQWasherDryerHandler
         updateState("dashboard#" + CHANNEL_POWER_ID,
                 (DevicePowerState.DV_POWER_ON.equals(shot.getPowerStatus()) ? OnOffType.ON : OnOffType.OFF));
         updateState(stateChannelUID, new StringType(shot.getState()));
+        updateState(processStateChannelUID, new StringType(shot.getProcessState()));
+        updateState(dryLevelChannelUID, new StringType(shot.getDryLevel()));
+        updateState(childLockChannelUID, new StringType(shot.getChildLock()));
         updateState(courseChannelUID, new StringType(shot.getCourse()));
-        updateState(smartCourseChannelUID, new StringType(shot.getSmartCourse()));
         updateState(temperatureChannelUID, new StringType(shot.getTemperatureLevel()));
         updateState(doorLockChannelUID, new StringType(shot.getDoorLock()));
-        updateState(remainTimeChannelUID, new DateTimeType(getZonedDateTime(shot.getRemainingTime())));
-        updateState(delayTimeChannelUID, new DateTimeType(getZonedDateTime(shot.getReserveTime())));
+        updateState(remainTimeChannelUID, new StringType(shot.getRemainingTime()));
+        updateState(delayTimeChannelUID, new StringType(shot.getReserveTime()));
         updateState(standByModeChannelUID, shot.isStandBy() ? OnOffType.ON : OnOffType.OFF);
         if (shot.getRemoteStart().isEmpty()) {
             // try to resolve RemoteStart by bitValue
@@ -455,6 +480,5 @@ public class LGThinQWasherDryerHandler
         updateState(WM_CHANNEL_TEMP_LEVEL_ID, new StringType("NOT_SELECTED"));
         updateState(WM_CHANNEL_DOOR_LOCK_ID, new StringType("DOOR_LOCK_OFF"));
         updateState(WM_CHANNEL_REMAIN_TIME_ID, new StringType("00:00"));
-        updateState(WM_CHANNEL_DOWNLOADED_COURSE_ID, new StringType("NOT_SELECTED"));
     }
 }

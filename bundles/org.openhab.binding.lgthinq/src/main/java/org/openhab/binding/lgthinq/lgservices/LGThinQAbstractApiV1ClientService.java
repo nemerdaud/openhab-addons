@@ -67,25 +67,41 @@ public abstract class LGThinQAbstractApiV1ClientService<C extends CapabilityDefi
                 token.getGatewayInfo().getCountry(), token.getAccessToken(), token.getUserInfo().getUserNumber());
 
         ObjectNode payloadNode = JsonNodeFactory.instance.objectNode();
-        ObjectNode rootNode = payloadNode.putObject("lgedmRoot");
-        rootNode.put("cmd", controlKey).put("cmdOpt", command);
+        payloadNode.put("cmd", controlKey).put("cmdOpt", command);
         if (keyName == null || keyName.isEmpty()) {
             // value is a simple text
-            rootNode.put("value", value);
+            payloadNode.put("value", value);
         } else {
-            rootNode.putObject("value").put(keyName, value);
+            payloadNode.putObject("value").put(keyName, value);
         }
-        rootNode.put("deviceId", deviceId);
-        rootNode.put("workId", UUID.randomUUID().toString());
         // String payload = String.format(
         // "{\n" + " \"lgedmRoot\":{\n" + " \"cmd\": \"%s\"," + " \"cmdOpt\": \"%s\","
         // + " \"value\": {\"%s\": \"%s\"}," + " \"deviceId\": \"%s\","
         // + " \"workId\": \"%s\"," + " \"data\": \"\"" + " }\n" + "}",
         // controlKey, command, keyName, value, deviceId, UUID.randomUUID());
         if (extraNode != null) {
-            rootNode.setAll(extraNode);
+            payloadNode.setAll(extraNode);
         }
-        RestResult resp = RestUtils.postCall(builder.build().toURL().toString(), headers, payloadNode.toPrettyString());
+        return sendControlCommands(bridgeName, deviceId, payloadNode);
+    }
+
+    protected RestResult sendControlCommands(String bridgeName, String deviceId, Object cmdPayload) throws Exception {
+        TokenResult token = tokenManager.getValidRegisteredToken(bridgeName);
+        UriBuilder builder = UriBuilder.fromUri(token.getGatewayInfo().getApiRootV1()).path(V1_CONTROL_OP);
+        Map<String, String> headers = getCommonHeaders(token.getGatewayInfo().getLanguage(),
+                token.getGatewayInfo().getCountry(), token.getAccessToken(), token.getUserInfo().getUserNumber());
+        ObjectNode payloadNode = null;
+        if (cmdPayload instanceof ObjectNode) {
+            payloadNode = ((ObjectNode) cmdPayload).deepCopy();
+        } else {
+            payloadNode = objectMapper.convertValue(cmdPayload, ObjectNode.class);
+        }
+        ObjectNode rootNode = JsonNodeFactory.instance.objectNode();
+        payloadNode.put("deviceId", deviceId);
+        payloadNode.put("workId", UUID.randomUUID().toString());
+        rootNode.set("lgedmRoot", payloadNode);
+
+        RestResult resp = RestUtils.postCall(builder.build().toURL().toString(), headers, rootNode.toPrettyString());
         if (resp == null) {
             logger.error("Null result returned sending command to LG API V1");
             throw new LGThinqApiException("Null result returned sending command to LG API V1");

@@ -20,6 +20,7 @@ import java.util.function.Function;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.AbstractCapability;
+import org.openhab.binding.lgthinq.lgservices.model.CommandDefinition;
 
 /**
  * The {@link WasherDryerCapability}
@@ -35,7 +36,6 @@ public class WasherDryerCapability extends AbstractCapability<WasherDryerCapabil
     private String commandWakeUp = "";
     private String commandStop = "";
     private FeatureDefinition state = FeatureDefinition.NULL_DEFINITION;
-    private FeatureDefinition preState = FeatureDefinition.NULL_DEFINITION;
     private FeatureDefinition soilWash = FeatureDefinition.NULL_DEFINITION;
     private FeatureDefinition spin = FeatureDefinition.NULL_DEFINITION;
     private FeatureDefinition temperature = FeatureDefinition.NULL_DEFINITION;
@@ -66,13 +66,6 @@ public class WasherDryerCapability extends AbstractCapability<WasherDryerCapabil
         @Override
         public FeatureDefinition apply(WasherDryerCapability c) {
             return c.getSpinFeat();
-        }
-    }
-
-    static class StateFeatureFunction implements Function<WasherDryerCapability, FeatureDefinition> {
-        @Override
-        public FeatureDefinition apply(WasherDryerCapability c) {
-            return c.getStateFeat();
         }
     }
 
@@ -186,14 +179,6 @@ public class WasherDryerCapability extends AbstractCapability<WasherDryerCapabil
 
     public void setError(FeatureDefinition error) {
         this.error = error;
-    }
-
-    public FeatureDefinition getPreState() {
-        return preState;
-    }
-
-    public void setPreState(FeatureDefinition preState) {
-        this.preState = preState;
     }
 
     public String getDefaultCourseFieldName() {

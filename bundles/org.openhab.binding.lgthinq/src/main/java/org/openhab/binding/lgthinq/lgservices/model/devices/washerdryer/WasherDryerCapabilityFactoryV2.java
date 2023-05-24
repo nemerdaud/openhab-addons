@@ -18,8 +18,10 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
+import org.openhab.binding.lgthinq.lgservices.model.CommandDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.FeatureDataType;
 import org.openhab.binding.lgthinq.lgservices.model.LGAPIVerion;
+import org.openhab.binding.lgthinq.lgservices.model.MonitoringResultFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,6 +183,12 @@ public class WasherDryerCapabilityFactoryV2 extends AbstractWasherDryerCapabilit
     }
 
     @Override
+    protected MonitoringResultFormat getMonitorDataFormat(JsonNode monitoringNode) {
+        // All v2 are Json format
+        return MonitoringResultFormat.JSON_FORMAT;
+    }
+
+    @Override
     protected Map<String, CommandDefinition> getCommandsDefinition(JsonNode rootNode) {
         JsonNode commandNode = rootNode.path("ControlWifi");
         List<String> escapeDataValues = Arrays.asList("course", "SmartCourse", "doorLock", "childLock");
@@ -220,6 +228,7 @@ public class WasherDryerCapabilityFactoryV2 extends AbstractWasherDryerCapabilit
                 data.put(getConfigSmartCourseType(rootNode), "");
                 data.put("courseType", "");
                 cd.setData(data);
+                cd.setRawCommand(thisCommandNode.toPrettyString());
             } else {
                 logger.warn("Data node not found in the WasherDryer definition. It's most likely a bug");
             }

@@ -20,7 +20,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.lgservices.model.CapabilityDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
-import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.AbstractFridgeSnapshot;
+import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.FridgeCanonicalSnapshot;
 import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.FridgeCapability;
 
 /**
@@ -30,16 +30,16 @@ import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.FridgeCapabil
  */
 @NonNullByDefault
 public class LGThinQFridgeApiV1ClientServiceImpl
-        extends LGThinQAbstractApiV1ClientService<FridgeCapability, AbstractFridgeSnapshot>
+        extends LGThinQAbstractApiV1ClientService<FridgeCapability, FridgeCanonicalSnapshot>
         implements LGThinQFridgeApiClientService {
 
     private static final LGThinQFridgeApiClientService instance;
     static {
-        instance = new LGThinQFridgeApiV1ClientServiceImpl(FridgeCapability.class, AbstractFridgeSnapshot.class);
+        instance = new LGThinQFridgeApiV1ClientServiceImpl(FridgeCapability.class, FridgeCanonicalSnapshot.class);
     }
 
     protected LGThinQFridgeApiV1ClientServiceImpl(Class<FridgeCapability> capabilityClass,
-            Class<AbstractFridgeSnapshot> snapshotClass) {
+            Class<FridgeCanonicalSnapshot> snapshotClass) {
         super(capabilityClass, snapshotClass);
     }
 
@@ -66,7 +66,7 @@ public class LGThinQFridgeApiV1ClientServiceImpl
 
     @Override
     @Nullable
-    public AbstractFridgeSnapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId,
+    public FridgeCanonicalSnapshot getDeviceData(@NonNull String bridgeName, @NonNull String deviceId,
             @NonNull CapabilityDefinition capDef) throws LGThinqApiException {
         throw new UnsupportedOperationException("Method not supported in V1 API device.");
     }

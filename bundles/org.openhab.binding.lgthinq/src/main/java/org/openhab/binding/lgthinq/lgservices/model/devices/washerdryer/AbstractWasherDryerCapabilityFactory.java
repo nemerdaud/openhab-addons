@@ -22,7 +22,9 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.model.AbstractCapabilityFactory;
+import org.openhab.binding.lgthinq.lgservices.model.CommandDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
+import org.openhab.binding.lgthinq.lgservices.model.MonitoringResultFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +57,8 @@ public abstract class AbstractWasherDryerCapabilityFactory extends AbstractCapab
 
     protected abstract String getDoorLockFeatureNodeName();
 
+    protected abstract MonitoringResultFormat getMonitorDataFormat(JsonNode monitoringNode);
+
     protected abstract Map<String, CommandDefinition> getCommandsDefinition(JsonNode rootNode)
             throws LGThinqApiException;
 
@@ -85,7 +89,6 @@ public abstract class AbstractWasherDryerCapabilityFactory extends AbstractCapab
         // mapping possible states
         wdCap.setState(newFeatureDefinition(getStateFeatureNodeName(), monitorValueNode));
         wdCap.setProcessState(newFeatureDefinition(getProcessStateNodeName(), monitorValueNode));
-        wdCap.setPreState(newFeatureDefinition(getPreStateFeatureNodeName(), monitorValueNode));
         // --- Selectable features -----
         wdCap.setRinseFeat(newFeatureDefinition(getRinseFeatureNodeName(), monitorValueNode,
                 WM_CHANNEL_REMOTE_START_RINSE, WM_CHANNEL_RINSE_ID));
@@ -110,6 +113,7 @@ public abstract class AbstractWasherDryerCapabilityFactory extends AbstractCapab
                 Map.of(getTemperatureFeatureNodeName(), new WasherDryerCapability.TemperatureFeatureFunction(),
                         getRinseFeatureNodeName(), new WasherDryerCapability.RinseFeatureFunction(),
                         getSpinFeatureNodeName(), new WasherDryerCapability.SpinFeatureFunction()));
+        wdCap.setMonitoringDataFormat(getMonitorDataFormat(monitorValueNode));
         return wdCap;
     }
 

@@ -20,8 +20,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqException;
 import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
+import org.openhab.binding.lgthinq.lgservices.model.CommandDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.FeatureDataType;
 import org.openhab.binding.lgthinq.lgservices.model.LGAPIVerion;
+import org.openhab.binding.lgthinq.lgservices.model.MonitoringResultFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,9 +87,55 @@ public class WasherDryerCapabilityFactoryV1 extends AbstractWasherDryerCapabilit
     }
 
     @Override
+    protected MonitoringResultFormat getMonitorDataFormat(JsonNode monitoringNode) {
+        String type = monitoringNode.path("type").textValue();
+        return MonitoringResultFormat.getFormatOf(type);
+    }
+
+    @Override
     protected Map<String, CommandDefinition> getCommandsDefinition(JsonNode rootNode) throws LGThinqApiException {
-        // V1 Commands are resolved direct in the ThinqService
-        return Collections.EMPTY_MAP;
+        boolean isBinaryCommands = MonitoringResultFormat.BINARY_FORMAT.getFormat()
+                .equals(rootNode.path("ControlWifi").path("type").textValue());
+        JsonNode commandNode = rootNode.path("ControlWifi").path("action");
+        if (commandNode.isMissingNode()) {
+            logger.warn("No commands found in the DryerWasher definition. This is most likely a bug.");
+            return Collections.EMPTY_MAP;
+        }
+        Map<String, CommandDefinition> commands = new HashMap<>();
+        for (Iterator<Map.Entry<String, JsonNode>> it = commandNode.fields(); it.hasNext();) {
+            Map.Entry<String, JsonNode> e = it.next();
+            String commandName = e.getKey();
+            CommandDefinition cd = new CommandDefinition();
+            JsonNode thisCommandNode = e.getValue();
+            JsonNode cmdField = thisCommandNode.path("cmd");
+            if (cmdField.isMissingNode()) {
+                // command not supported
+                continue;
+            }
+            cd.setCommand(cmdField.textValue());
+            cd.setCmdOpt(thisCommandNode.path("cmdOpt").textValue());
+            cd.setCmdOptValue(thisCommandNode.path("value").textValue());
+            cd.setBinary(isBinaryCommands);
+            String strData = thisCommandNode.path("data").textValue();
+            cd.setDataTemplate(strData);
+            cd.setRawCommand(commandNode.toPrettyString());
+            int reservedIndex = 0;
+            // keep the order
+            Map<String, Object> data = new LinkedHashMap<>();
+            Arrays.stream(strData.split(",")).iterator().forEachRemaining(f -> {
+                if (f.indexOf("{") > 0) {
+                    // its a featured field
+                    // create data entry with the key and blank value
+                    data.put(f.replaceAll("\\{", "").replaceAll("}", ""), "");
+                } else {
+                    // its a fixed reserved value
+                    data.put("Reserved" + reservedIndex, f);
+                }
+            });
+            cd.setData(data);
+            commands.put(commandName, cd);
+        }
+        return commands;
     }
 
     @Override

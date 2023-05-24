@@ -13,7 +13,7 @@
 package org.openhab.binding.lgthinq.lgservices;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.AbstractFridgeSnapshot;
+import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.FridgeCanonicalSnapshot;
 import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.FridgeCapability;
 
 /**
@@ -23,6 +23,6 @@ import org.openhab.binding.lgthinq.lgservices.model.devices.fridge.FridgeCapabil
  */
 @NonNullByDefault
 public interface LGThinQFridgeApiClientService
-        extends LGThinQApiClientService<FridgeCapability, AbstractFridgeSnapshot> {
+        extends LGThinQApiClientService<FridgeCapability, FridgeCanonicalSnapshot> {
 
 }

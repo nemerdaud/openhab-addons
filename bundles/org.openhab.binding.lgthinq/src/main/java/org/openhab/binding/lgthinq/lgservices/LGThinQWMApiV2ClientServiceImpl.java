@@ -21,8 +21,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.api.RestResult;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
+import org.openhab.binding.lgthinq.lgservices.model.CommandDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
-import org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer.CommandDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer.WasherDryerCapability;
 import org.openhab.binding.lgthinq.lgservices.model.devices.washerdryer.WasherDryerSnapshot;
 
