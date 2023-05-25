@@ -40,6 +40,7 @@ public abstract class AbstractCapabilityFactory<T extends CapabilityDefinition> 
 
     public T create(JsonNode rootNode) throws LGThinqException {
         T cap = getCapabilityInstance();
+        cap.setModelName(rootNode.path("Info").path("modelName").textValue());
         cap.setDeviceType(ModelUtils.getDeviceType(rootNode));
         cap.setDeviceVersion(ModelUtils.discoveryAPIVersion(rootNode));
         cap.setRawData(mapper.convertValue(rootNode, Map.class));

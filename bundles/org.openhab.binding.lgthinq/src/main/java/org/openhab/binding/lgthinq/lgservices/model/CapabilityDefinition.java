@@ -25,6 +25,10 @@ import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
  */
 @NonNullByDefault
 public interface CapabilityDefinition {
+    String getModelName();
+
+    void setModelName(String modelName);
+
     MonitoringResultFormat getMonitoringDataFormat();
 
     void setMonitoringDataFormat(MonitoringResultFormat monitoringDataFormat);

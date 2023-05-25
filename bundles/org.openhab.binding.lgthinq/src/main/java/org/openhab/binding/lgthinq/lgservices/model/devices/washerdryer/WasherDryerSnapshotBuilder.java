@@ -35,9 +35,14 @@ public class WasherDryerSnapshotBuilder extends DefaultSnapshotBuilder<WasherDry
     }
 
     @Override
-    public WasherDryerSnapshot createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot)
-            throws LGThinqUnmarshallException, LGThinqApiException {
-        return super.createFromBinary(binaryData, prot);
+    public WasherDryerSnapshot createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot,
+            CapabilityDefinition capDef) throws LGThinqUnmarshallException, LGThinqApiException {
+        WasherDryerSnapshot snap = super.createFromBinary(binaryData, prot, capDef);
+        snap.setRemoteStart(
+                bitValue(((WasherDryerCapability) capDef).getRemoteStartFeatName(), snap.getRawData(), capDef));
+        snap.setDoorLock(bitValue(((WasherDryerCapability) capDef).getDoorLockFeatName(), snap.getRawData(), capDef));
+        snap.setChildLock(bitValue(((WasherDryerCapability) capDef).getChildLockFeatName(), snap.getRawData(), capDef));
+        return snap;
     }
 
     @Override

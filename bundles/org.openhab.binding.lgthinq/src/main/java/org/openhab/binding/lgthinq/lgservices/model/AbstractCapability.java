@@ -33,7 +33,18 @@ public abstract class AbstractCapability<C extends CapabilityDefinition> impleme
     // default result format
     protected Map<String, Function<C, FeatureDefinition>> featureDefinitionMap = new HashMap<>();
 
+    protected String modelName = "";
     Class<C> realClass;
+
+    @Override
+    public String getModelName() {
+        return modelName;
+    }
+
+    @Override
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
 
     protected AbstractCapability() {
         this.realClass = (Class<C>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];

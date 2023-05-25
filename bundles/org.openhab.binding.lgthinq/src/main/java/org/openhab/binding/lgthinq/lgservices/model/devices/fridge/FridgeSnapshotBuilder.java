@@ -36,9 +36,9 @@ public class FridgeSnapshotBuilder extends DefaultSnapshotBuilder<FridgeCanonica
     }
 
     @Override
-    public FridgeCanonicalSnapshot createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot)
-            throws LGThinqUnmarshallException, LGThinqApiException {
-        return super.createFromBinary(binaryData, prot);
+    public FridgeCanonicalSnapshot createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot,
+            CapabilityDefinition capDef) throws LGThinqUnmarshallException, LGThinqApiException {
+        return super.createFromBinary(binaryData, prot, capDef);
     }
 
     @Override

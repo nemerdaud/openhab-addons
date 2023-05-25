@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 /**
@@ -47,6 +46,8 @@ public class WasherDryerCapabilityFactoryV2 extends AbstractWasherDryerCapabilit
     public WasherDryerCapability create(JsonNode rootNode) throws LGThinqException {
         WasherDryerCapability cap = super.create(rootNode);
         cap.setRemoteStartFeatName("remoteStart");
+        cap.setChildLockFeatName("standby");
+        cap.setDoorLockFeatName("loadItemWasher");
         return cap;
     }
 
@@ -183,7 +184,7 @@ public class WasherDryerCapabilityFactoryV2 extends AbstractWasherDryerCapabilit
     }
 
     @Override
-    protected MonitoringResultFormat getMonitorDataFormat(JsonNode monitoringNode) {
+    protected MonitoringResultFormat getMonitorDataFormat(JsonNode rootNode) {
         // All v2 are Json format
         return MonitoringResultFormat.JSON_FORMAT;
     }
@@ -260,62 +261,6 @@ public class WasherDryerCapabilityFactoryV2 extends AbstractWasherDryerCapabilit
     @Override
     protected String getMonitorValueNodeName() {
         return "MonitoringValue";
-    }
-
-    private Map<String, CourseDefinition> getGenericCourseDefinitions(JsonNode courseNode, CourseType type) {
-        Map<String, CourseDefinition> coursesDef = new HashMap<>();
-        courseNode.fields().forEachRemaining(e -> {
-            CourseDefinition cd = new CourseDefinition();
-            JsonNode thisCourseNode = e.getValue();
-            cd.setCourseName(thisCourseNode.path("_comment").textValue());
-            if (CourseType.SMART_COURSE.equals(type)) {
-                cd.setBaseCourseName(thisCourseNode.path("Course").textValue());
-            }
-            cd.setCourseType(type);
-            if (thisCourseNode.path("function").isArray()) {
-                // just to be safe here
-                ArrayNode functions = (ArrayNode) thisCourseNode.path("function");
-                List<CourseFunction> functionList = cd.getFunctions();
-                for (JsonNode fNode : functions) {
-                    // map all course functions here
-                    CourseFunction f = new CourseFunction();
-                    f.setValue(fNode.path("value").textValue());
-                    f.setDefaultValue(fNode.path("default").textValue());
-                    JsonNode selectableNode = fNode.path("selectable");
-                    // only Courses (not SmartCourses or DownloadedCourses) can have selectable functions
-                    f.setSelectable(
-                            !selectableNode.isMissingNode() && selectableNode.isArray() && (type == CourseType.COURSE));
-                    if (f.isSelectable()) {
-                        List<String> selectableValues = f.getSelectableValues();
-                        // map values acceptable for this function
-                        for (JsonNode v : (ArrayNode) selectableNode) {
-                            if (v.isValueNode()) {
-                                selectableValues.add(v.textValue());
-                            }
-                        }
-                        f.setSelectableValues(selectableValues);
-                    }
-                    functionList.add(f);
-                }
-                cd.setFunctions(functionList);
-            }
-            coursesDef.put(e.getKey(), cd);
-        });
-        CourseDefinition cdNotSelected = new CourseDefinition();
-        cdNotSelected.setCourseType(type);
-        cdNotSelected.setCourseName("Not Selected");
-        coursesDef.put(getNotSelectedCourseKey(), cdNotSelected);
-        return coursesDef;
-    }
-
-    @Override
-    protected Map<String, CourseDefinition> getCourseDefinitions(JsonNode courseNode) {
-        return getGenericCourseDefinitions(courseNode, CourseType.COURSE);
-    }
-
-    @Override
-    protected Map<String, CourseDefinition> getSmartCourseDefinitions(JsonNode smartCourseNode) {
-        return getGenericCourseDefinitions(smartCourseNode, CourseType.SMART_COURSE);
     }
 
     @Override

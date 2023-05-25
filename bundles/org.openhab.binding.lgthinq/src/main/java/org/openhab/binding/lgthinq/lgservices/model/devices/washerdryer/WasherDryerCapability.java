@@ -30,6 +30,8 @@ import org.openhab.binding.lgthinq.lgservices.model.CommandDefinition;
 @NonNullByDefault
 public class WasherDryerCapability extends AbstractCapability<WasherDryerCapability> {
     private String defaultCourseFieldName = "";
+    private String doorLockFeatName = "";
+    private String childLockFeatName = "";
     private String defaultSmartCourseFieldName = "";
     private String commandRemoteStart = "";
     private String remoteStartFeatName = "";
@@ -203,5 +205,21 @@ public class WasherDryerCapability extends AbstractCapability<WasherDryerCapabil
 
     public void setRemoteStartFeatName(String remoteStartFeatName) {
         this.remoteStartFeatName = remoteStartFeatName;
+    }
+
+    public String getChildLockFeatName() {
+        return childLockFeatName;
+    }
+
+    public void setChildLockFeatName(String childLockFeatName) {
+        this.childLockFeatName = childLockFeatName;
+    }
+
+    public String getDoorLockFeatName() {
+        return doorLockFeatName;
+    }
+
+    public void setDoorLockFeatName(String doorLockFeatName) {
+        this.doorLockFeatName = doorLockFeatName;
     }
 }

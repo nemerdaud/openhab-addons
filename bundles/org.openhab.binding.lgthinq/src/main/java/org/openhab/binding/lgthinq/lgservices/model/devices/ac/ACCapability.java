@@ -34,7 +34,6 @@ public class ACCapability extends AbstractCapability<ACCapability> {
     private boolean isAirCleanAvailable;
     private String coolJetModeCommandOn = "";
     private String coolJetModeCommandOff = "";
-
     private String autoDryModeCommandOn = "";
     private String autoDryModeCommandOff = "";
 

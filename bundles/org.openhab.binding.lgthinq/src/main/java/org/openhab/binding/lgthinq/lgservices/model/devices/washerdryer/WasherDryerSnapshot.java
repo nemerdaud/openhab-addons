@@ -58,6 +58,18 @@ public class WasherDryerSnapshot extends AbstractSnapshotDefinition {
     private String rinse = "";
     private String spin = "";
 
+    private String loadItem = "";
+
+    public String getLoadItem() {
+        return loadItem;
+    }
+
+    @JsonAlias({ "LoadItem" })
+    @JsonProperty("loadItemWasher")
+    public void setLoadItem(String loadItem) {
+        this.loadItem = loadItem;
+    }
+
     @JsonAlias({ "Course", "courseFL24inchBaseTitan" })
     @JsonProperty("courseFL24inchBaseTitan")
     public String getCourse() {

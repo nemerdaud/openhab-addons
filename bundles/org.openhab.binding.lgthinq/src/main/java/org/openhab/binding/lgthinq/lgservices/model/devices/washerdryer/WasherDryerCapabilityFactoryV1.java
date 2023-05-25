@@ -42,6 +42,8 @@ public class WasherDryerCapabilityFactoryV1 extends AbstractWasherDryerCapabilit
     public WasherDryerCapability create(JsonNode rootNode) throws LGThinqException {
         WasherDryerCapability cap = super.create(rootNode);
         cap.setRemoteStartFeatName("RemoteStart");
+        cap.setChildLockFeatName("ChildLock");
+        cap.setDoorLockFeatName("DoorLock");
         return cap;
     }
 
@@ -87,9 +89,9 @@ public class WasherDryerCapabilityFactoryV1 extends AbstractWasherDryerCapabilit
     }
 
     @Override
-    protected MonitoringResultFormat getMonitorDataFormat(JsonNode monitoringNode) {
-        String type = monitoringNode.path("type").textValue();
-        return MonitoringResultFormat.getFormatOf(type);
+    protected MonitoringResultFormat getMonitorDataFormat(JsonNode rootNode) {
+        String type = rootNode.path("Monitoring").path("type").textValue();
+        return MonitoringResultFormat.getFormatOf(Objects.requireNonNullElse(type, ""));
     }
 
     @Override
@@ -116,23 +118,26 @@ public class WasherDryerCapabilityFactoryV1 extends AbstractWasherDryerCapabilit
             cd.setCmdOpt(thisCommandNode.path("cmdOpt").textValue());
             cd.setCmdOptValue(thisCommandNode.path("value").textValue());
             cd.setBinary(isBinaryCommands);
-            String strData = thisCommandNode.path("data").textValue();
+            String strData = Objects.requireNonNullElse(thisCommandNode.path("data").textValue(), "");
             cd.setDataTemplate(strData);
-            cd.setRawCommand(commandNode.toPrettyString());
+            cd.setRawCommand(thisCommandNode.toPrettyString());
             int reservedIndex = 0;
             // keep the order
-            Map<String, Object> data = new LinkedHashMap<>();
-            Arrays.stream(strData.split(",")).iterator().forEachRemaining(f -> {
-                if (f.indexOf("{") > 0) {
-                    // its a featured field
-                    // create data entry with the key and blank value
-                    data.put(f.replaceAll("\\{", "").replaceAll("}", ""), "");
-                } else {
-                    // its a fixed reserved value
-                    data.put("Reserved" + reservedIndex, f);
+            if (!strData.isEmpty()) {
+                Map<String, Object> data = new LinkedHashMap<>();
+                for (String f : strData.split(",")) {
+                    if (f.contains("{")) {
+                        // its a featured field
+                        // create data entry with the key and blank value
+                        data.put(f.replaceAll("[{\\[}\\]]", ""), "");
+                    } else {
+                        // its a fixed reserved value
+                        data.put("Reserved" + reservedIndex, f.replaceAll("[{\\[}\\]]", ""));
+                        reservedIndex++;
+                    }
                 }
-            });
-            cd.setData(data);
+                cd.setData(data);
+            }
             commands.put(commandName, cd);
         }
         return commands;
@@ -265,17 +270,5 @@ public class WasherDryerCapabilityFactoryV1 extends AbstractWasherDryerCapabilit
     @Override
     protected String getMonitorValueNodeName() {
         return "Value";
-    }
-
-    @Override
-    protected Map<String, CourseDefinition> getCourseDefinitions(JsonNode courseNode) {
-        // TODO
-        return Collections.EMPTY_MAP;
-    }
-
-    @Override
-    protected Map<String, CourseDefinition> getSmartCourseDefinitions(JsonNode smartCourseNode) {
-        // TODO
-        return Collections.EMPTY_MAP;
     }
 }

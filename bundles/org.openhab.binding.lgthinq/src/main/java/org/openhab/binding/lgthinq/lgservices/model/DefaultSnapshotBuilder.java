@@ -19,10 +19,13 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Function;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.internal.errors.LGThinqUnmarshallException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -39,20 +42,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public abstract class DefaultSnapshotBuilder<S extends AbstractSnapshotDefinition> implements SnapshotBuilder<S> {
     protected final Class<S> snapClass;
     protected static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final Logger logger = LoggerFactory.getLogger(DefaultSnapshotBuilder.class);
 
     public DefaultSnapshotBuilder(Class<S> clazz) {
         snapClass = clazz;
     }
 
+    private static final Map<String, Map<String, Map<String, Object>>> modelsCachedBitKeyDefinitions = new HashMap<>();
+
     /**
      * Create a Snapshot result based on snapshotData collected from LG API (V1/C2)
      *
      * @param binaryData V1: decoded returnedData
+     * @param capDef
      * @return returns Snapshot implementation based on device type provided
      * @throws LGThinqApiException any error.
      */
     @Override
-    public S createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot)
+    public S createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot, CapabilityDefinition capDef)
             throws LGThinqUnmarshallException, LGThinqApiException {
         try {
             Map<String, Object> snapValues = new HashMap<>();
@@ -154,17 +161,124 @@ public abstract class DefaultSnapshotBuilder<S extends AbstractSnapshotDefinitio
     }
 
     protected abstract LGAPIVerion discoveryAPIVersion(Map<String, Object> snapMap, DeviceTypes type);
-    // {
-    // switch (type) {
-    // case REFRIGERATOR:
-    // if (snapMap.containsKey(REFRIGERATOR_SNAPSHOT_NODE_V2)) {
-    // return LGAPIVerion.V2_0;
-    // } else {
-    // throw new IllegalStateException(
-    // "Unexpected error. Can't find key node attributes to determine ACCapability API version.");
-    // }
-    // default:
-    // throw new IllegalStateException("Unexpected capability. The type " + type + " was not implemented yet");
-    // }
-    // }
+
+    /**
+     * Used
+     * 
+     * @param key
+     * @param capFeatureValues
+     * @param cachedBitKey
+     * @return
+     */
+    private Map<String, Object> getBitKey(String key, final Map<String, Map<String, Object>> capFeatureValues,
+            final Map<String, Map<String, Object>> cachedBitKey) {
+        // Define a local function to search for the bit key
+        Function<Map<String, Map<String, Object>>, Map<String, Object>> searchBitKey = data -> {
+            if (data.isEmpty()) {
+                return Collections.emptyMap();
+            }
+
+            for (int i = 1; i <= 3; i++) {
+                String optKey = "Option" + i;
+                Map<String, Object> option = data.get(optKey);
+
+                if (option == null) {
+                    continue;
+                }
+
+                List<Map<String, Object>> optionList = (List<Map<String, Object>>) option.get("option");
+
+                if (optionList == null) {
+                    continue;
+                }
+
+                for (Map<String, Object> opt : optionList) {
+                    String value = (String) opt.get("value");
+
+                    if (key.equals(value)) {
+                        Integer startBit = (Integer) opt.get("startbit");
+                        Integer length = (Integer) opt.getOrDefault("length", 1);
+
+                        if (startBit == null) {
+                            return Collections.emptyMap();
+                        }
+
+                        Map<String, Object> bitKey = new HashMap<>();
+                        bitKey.put("option", optKey);
+                        bitKey.put("startbit", startBit);
+                        bitKey.put("length", length);
+
+                        return bitKey;
+                    }
+                }
+            }
+
+            return Collections.emptyMap();
+        };
+
+        Map<String, Object> bitKey = cachedBitKey.get(key);
+
+        if (bitKey == null) {
+            // cache the bitKey if it doesn't was fetched yet.
+            bitKey = searchBitKey.apply(capFeatureValues);
+            cachedBitKey.put(key, bitKey);
+        }
+
+        return bitKey;
+    }
+
+    /**
+     * Return the value related to the bit-value definition. It's used in Waser/Dryer V1 snapshot parser.
+     * It was here, in the parent, because maybe other devices need the same functionality. If not,
+     * We can transfer these methods to the WasherDryer Snapshot Builder.
+     * 
+     * @param key Key trying to get the value
+     * @param snapRawValues snap raw value
+     * @param capDef capability
+     * @return return value associated or blank string
+     */
+    protected String bitValue(String key, Map<String, Object> snapRawValues, final CapabilityDefinition capDef) {
+        // get the capability Values/MonitoringValues Map
+        // Look up the bit value for a specific key
+        if (snapRawValues.isEmpty()) {
+            logger.warn("No snapshot raw values provided. Corrupted data returned or bug");
+            return "";
+        }
+        Map<String, Map<String, Object>> cachedBitKey = getSpecificCacheBitKey(capDef);
+        Map<String, Object> bitKey = this.getBitKey(key, capDef.getFeatureValuesRawData(), cachedBitKey);
+        if (bitKey.isEmpty()) {
+            logger.warn("BitKey {} not found in the Options feature values description capability. It's mostly a bug",
+                    key);
+            return "";
+        }
+        // Get the name of the option (Option1, Option2, etc) that contains the key (ex. LoadItem, RemoteStart) desired
+        String option = (String) bitKey.get("option");
+        Object bitValueDef = snapRawValues.get(option);
+        if (bitValueDef == null) {
+            logger.warn("Value definition not found for the bitValue definition: {}. It's mostly a bug", option);
+            return "";
+        }
+        String value = bitValueDef.toString();
+        if (value.isEmpty()) {
+            return "0";
+        }
+
+        int bitValue = Integer.parseInt(value);
+        int startBit = (int) bitKey.get("startbit");
+        int length = (int) bitKey.get("length");
+        int val = 0;
+
+        for (int i = 0; i < length; i++) {
+            int bitIndex = (int) Math.pow(2, (startBit + i));
+            int bit = (bitValue & bitIndex) != 0 ? 1 : 0;
+            val += bit * (int) Math.pow(2, i);
+        }
+
+        return Integer.toString(val);
+    }
+
+    protected synchronized Map<String, Map<String, Object>> getSpecificCacheBitKey(CapabilityDefinition capDef) {
+        return Objects.requireNonNull(
+                modelsCachedBitKeyDefinitions.computeIfAbsent(capDef.getModelName(), k -> new HashMap<>()));
+    }
 }

@@ -68,7 +68,4 @@ public interface LGThinQApiClientService<C extends CapabilityDefinition, S exten
     S getMonitorData(@NonNull String bridgeName, @NonNull String deviceId, @NonNull String workerId,
             DeviceTypes deviceType, @NonNull C deviceCapability)
             throws LGThinqApiException, LGThinqDeviceV1MonitorExpiredException, IOException, LGThinqUnmarshallException;
-
-    String bitValue(String key, Map<String, Object> snapValues, C capDef,
-            Map<String, Map<String, Object>> cachedBitKey);
 }

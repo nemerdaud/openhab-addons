@@ -26,7 +26,7 @@ import org.openhab.binding.lgthinq.internal.errors.LGThinqUnmarshallException;
  */
 @NonNullByDefault
 public interface SnapshotBuilder<S extends SnapshotDefinition> {
-    S createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot)
+    S createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot, CapabilityDefinition capDef)
             throws LGThinqUnmarshallException, LGThinqApiException;
 
     S createFromJson(String snapshotDataJson, DeviceTypes deviceType, CapabilityDefinition capDef)

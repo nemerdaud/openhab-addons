@@ -32,9 +32,9 @@ public class ACSnapshotBuilder extends DefaultSnapshotBuilder<ACCanonicalSnapsho
     }
 
     @Override
-    public ACCanonicalSnapshot createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot)
-            throws LGThinqUnmarshallException, LGThinqApiException {
-        return super.createFromBinary(binaryData, prot);
+    public ACCanonicalSnapshot createFromBinary(String binaryData, List<MonitoringBinaryProtocol> prot,
+            CapabilityDefinition capDef) throws LGThinqUnmarshallException, LGThinqApiException {
+        return super.createFromBinary(binaryData, prot, capDef);
     }
 
     @Override
