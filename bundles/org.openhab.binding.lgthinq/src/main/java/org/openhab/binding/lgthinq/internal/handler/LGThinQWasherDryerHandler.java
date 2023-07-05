@@ -26,7 +26,7 @@ import org.openhab.binding.lgthinq.internal.errors.LGThinqApiException;
 import org.openhab.binding.lgthinq.internal.type.ThinqChannelGroupTypeProvider;
 import org.openhab.binding.lgthinq.internal.type.ThinqChannelTypeProvider;
 import org.openhab.binding.lgthinq.lgservices.*;
-import org.openhab.binding.lgthinq.lgservices.FeatureDefinition;
+import org.openhab.binding.lgthinq.lgservices.model.FeatureDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.CommandDefinition;
 import org.openhab.binding.lgthinq.lgservices.model.DevicePowerState;
 import org.openhab.binding.lgthinq.lgservices.model.DeviceTypes;
@@ -117,13 +117,6 @@ public class LGThinQWasherDryerHandler
                 .withoutChannels(this.getThing().getChannelsOfGroup(channelGroupRemoteStartUID.getId()));
         updateThing(builder.build());
         remoteStartEnabledChannels.clear();
-    }
-
-    @Override
-    public void initialize() {
-        logger.debug("Initializing Thinq thing. Washer/Dryer Thing v3.4.3");
-        Bridge bridge = getBridge();
-        initializeThing((bridge == null) ? null : bridge.getStatus());
     }
 
     private void loadOptionsCourse(WasherDryerCapability cap, ChannelUID courseChannel) {
