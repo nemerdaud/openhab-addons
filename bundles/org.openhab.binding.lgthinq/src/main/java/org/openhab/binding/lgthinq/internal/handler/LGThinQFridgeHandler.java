@@ -27,8 +27,6 @@ import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANN
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_FR_SMART_SAVING_SWITCH_V1;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_FR_VACATION_MODE;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_FR_WATER_FILTER;
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_DEVICE_ALIAS;
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_MODEL_URL_INFO;
 import static org.openhab.binding.lgthinq.lgservices.LGServicesConstants.CAP_RE_FRESH_AIR_FILTER_MAP;
 import static org.openhab.binding.lgthinq.lgservices.LGServicesConstants.CAP_RE_WATER_FILTER;
 import static org.openhab.binding.lgthinq.lgservices.LGServicesConstants.LG_API_PLATFORM_TYPE_V2;
@@ -265,18 +263,9 @@ public class LGThinQFridgeHandler extends LGThinQAbstractDeviceHandler<FridgeCap
         return logger;
     }
 
+    @Override
     protected DeviceTypes getDeviceType() {
         return DeviceTypes.AIR_CONDITIONER;
-    }
-
-    @Override
-    public String getDeviceAlias() {
-        return emptyIfNull(getThing().getProperties().get(PROP_INFO_DEVICE_ALIAS));
-    }
-
-    @Override
-    public String getDeviceUriJsonConfig() {
-        return emptyIfNull(getThing().getProperties().get(PROP_INFO_MODEL_URL_INFO));
     }
 
     @Override

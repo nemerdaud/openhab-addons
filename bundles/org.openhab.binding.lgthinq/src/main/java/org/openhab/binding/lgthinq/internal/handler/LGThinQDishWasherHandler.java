@@ -20,8 +20,6 @@ import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANN
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_WMD_REMAIN_TIME_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_WMD_SMART_COURSE_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_WMD_STATE_ID;
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_DEVICE_ALIAS;
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_MODEL_URL_INFO;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.THING_TYPE_WASHING_MACHINE;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.THING_TYPE_WASHING_TOWER;
 import static org.openhab.binding.lgthinq.lgservices.LGServicesConstants.CAP_DW_DOOR_STATE;
@@ -129,7 +127,7 @@ public class LGThinQDishWasherHandler extends LGThinQAbstractDeviceHandler<DishW
     @Override
     protected void updateDeviceChannels(DishWasherSnapshot shot) {
         updateState("dashboard#" + CHANNEL_AC_POWER_ID,
-                (DevicePowerState.DV_POWER_ON.equals(shot.getPowerStatus()) ? OnOffType.ON : OnOffType.OFF));
+                DevicePowerState.DV_POWER_ON.equals(shot.getPowerStatus()) ? OnOffType.ON : OnOffType.OFF);
         updateState(stateChannelUID, new StringType(shot.getState()));
         updateState(processStateChannelUID, new StringType(shot.getProcessState()));
         updateState(courseChannelUID, new StringType(shot.getCourse()));
@@ -152,16 +150,6 @@ public class LGThinQDishWasherHandler extends LGThinQAbstractDeviceHandler<DishW
     @Override
     protected void processCommand(AsyncCommandParams params) {
         logger.warn("Command {} to the channel {} not supported. Ignored.", params.command, params.channelUID);
-    }
-
-    @Override
-    public String getDeviceAlias() {
-        return emptyIfNull(getThing().getProperties().get(PROP_INFO_DEVICE_ALIAS));
-    }
-
-    @Override
-    public String getDeviceUriJsonConfig() {
-        return emptyIfNull(getThing().getProperties().get(PROP_INFO_MODEL_URL_INFO));
     }
 
     @Override

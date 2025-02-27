@@ -34,8 +34,6 @@ import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANN
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_WMD_STAND_BY_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_WMD_STATE_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_WMD_TEMP_LEVEL_ID;
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_DEVICE_ALIAS;
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_MODEL_URL_INFO;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.THING_TYPE_DRYER;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.THING_TYPE_WASHING_MACHINE;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.THING_TYPE_WASHING_TOWER;
@@ -223,7 +221,7 @@ public class LGThinQWasherDryerHandler
     @Override
     protected void updateDeviceChannels(WasherDryerSnapshot shot) throws LGThinqApiException {
         updateState("dashboard#" + CHANNEL_AC_POWER_ID,
-                (DevicePowerState.DV_POWER_ON.equals(shot.getPowerStatus()) ? OnOffType.ON : OnOffType.OFF));
+                DevicePowerState.DV_POWER_ON.equals(shot.getPowerStatus()) ? OnOffType.ON : OnOffType.OFF);
         updateState(stateChannelUID, new StringType(shot.getState()));
         updateState(processStateChannelUID, new StringType(shot.getProcessState()));
         updateState(dryLevelChannelUID, new StringType(shot.getDryLevel()));
@@ -417,16 +415,6 @@ public class LGThinQWasherDryerHandler
                 logger.warn("Command {} to the channel {} not supported. Ignored.", command, params.channelUID);
             }
         }
-    }
-
-    @Override
-    public String getDeviceAlias() {
-        return emptyIfNull(getThing().getProperties().get(PROP_INFO_DEVICE_ALIAS));
-    }
-
-    @Override
-    public String getDeviceUriJsonConfig() {
-        return emptyIfNull(getThing().getProperties().get(PROP_INFO_MODEL_URL_INFO));
     }
 
     @Override

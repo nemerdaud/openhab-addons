@@ -16,6 +16,7 @@ import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.BINDI
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_AC_POWER_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_EXTENDED_INFO_COLLECTOR_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.MAX_GET_MONITOR_RETRIES;
+import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_DEVICE_ALIAS;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_DEVICE_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_MODEL_URL_INFO;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_PLATFORM_TYPE;
@@ -280,13 +281,17 @@ public abstract class LGThinQAbstractDeviceHandler<@NonNull C extends Capability
         return executorService;
     }
 
-    public String getDeviceId() {
-        return Objects.requireNonNullElse(getThing().getProperties().get(PROP_INFO_DEVICE_ID), "undef");
+    public final String getDeviceId() {
+        return Objects.requireNonNull(getThing().getProperties().get(PROP_INFO_DEVICE_ID));
     }
 
-    public abstract String getDeviceAlias();
+    public final String getDeviceAlias() {
+        return emptyIfNull(getThing().getProperties().get(PROP_INFO_DEVICE_ALIAS));
+    }
 
-    public abstract String getDeviceUriJsonConfig();
+    public final String getDeviceUriJsonConfig() {
+        return Objects.requireNonNull(getThing().getProperties().get(PROP_INFO_MODEL_URL_INFO));
+    }
 
     public abstract void onDeviceRemoved();
 
@@ -326,6 +331,8 @@ public abstract class LGThinQAbstractDeviceHandler<@NonNull C extends Capability
     @Override
     public void initialize() {
         getLogger().debug("Initializing Thinq thing.");
+
+        normalizeConfigurationsAndProperties();
 
         Bridge bridge = getBridge();
         if (bridge != null) {
@@ -504,8 +511,9 @@ public abstract class LGThinQAbstractDeviceHandler<@NonNull C extends Capability
             } else {
                 // do not update channels if the device is offline
                 updateDeviceChannelsWrapper(shot);
-                if (getThing().getStatus() != ThingStatus.ONLINE)
+                if (getThing().getStatus() != ThingStatus.ONLINE) {
                     updateStatus(ThingStatus.ONLINE);
+                }
             }
 
         } catch (LGThinqAccessException e) {
@@ -810,7 +818,7 @@ public abstract class LGThinQAbstractDeviceHandler<@NonNull C extends Capability
         Channel chan = getThing().getChannel(channelUid);
         if (chan == null && isFeatureAvailable) {
             createDynChannel(channelName, channelUid, itemType);
-        } else if (chan != null && (!isFeatureAvailable)) {
+        } else if (chan != null && !isFeatureAvailable) {
             updateThing(editThing().withoutChannel(chan.getUID()).build());
         }
     }
