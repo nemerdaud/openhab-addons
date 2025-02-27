@@ -76,7 +76,6 @@
 		<label>More Info</label>
 		<description>Show more information about the device.</description>
 		<channels>
-			<channel id="extra-info-collector" typeId="extra-info-collector"/>
 			<channel id="current-energy" typeId="current-energy"/>
 		</channels>
 	</channel-group-type>

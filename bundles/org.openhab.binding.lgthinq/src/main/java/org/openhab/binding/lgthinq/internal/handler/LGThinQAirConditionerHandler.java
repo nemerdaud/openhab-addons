@@ -32,7 +32,6 @@ import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANN
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_AC_STEP_UP_DOWN_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_AC_TARGET_TEMP_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_DASHBOARD_GRP_ID;
-import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_EXTENDED_INFO_COLLECTOR_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.CHANNEL_EXTENDED_INFO_GRP_ID;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_DEVICE_ALIAS;
 import static org.openhab.binding.lgthinq.internal.LGThinQBindingConstants.PROP_INFO_MODEL_URL_INFO;
@@ -109,7 +108,6 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
     private final ChannelUID stepUpDownChannelUID;
     private final ChannelUID stepLeftRightChannelUID;
     private final ChannelUID energySavingChannelUID;
-    private final ChannelUID extendedInfoCollectorChannelUID;
     private final ChannelUID currentEnergyConsumptionChannelUID;
     private final ChannelUID remainingFilterChannelUID;
 
@@ -140,8 +138,6 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
         stepUpDownChannelUID = new ChannelUID(channelGroupDashboardUID, CHANNEL_AC_STEP_UP_DOWN_ID);
         stepLeftRightChannelUID = new ChannelUID(channelGroupDashboardUID, CHANNEL_AC_STEP_LEFT_RIGHT_ID);
         powerChannelUID = new ChannelUID(channelGroupDashboardUID, CHANNEL_AC_POWER_ID);
-        extendedInfoCollectorChannelUID = new ChannelUID(channelGroupExtendedInfoUID,
-                CHANNEL_EXTENDED_INFO_COLLECTOR_ID);
         currentEnergyConsumptionChannelUID = new ChannelUID(channelGroupExtendedInfoUID, CHANNEL_AC_CURRENT_ENERGY_ID);
         remainingFilterChannelUID = new ChannelUID(channelGroupExtendedInfoUID, CHANNEL_AC_REMAINING_FILTER_ID);
     }
@@ -321,10 +317,7 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
     }
 
     protected void resetExtraInfoChannels() {
-        updateState(currentEnergyConsumptionChannelUID, UnDefType.UNDEF);
-        if (!isExtraInfoCollectorEnabled()) { // if collector is enabled we can keep the current value
-            updateState(remainingFilterChannelUID, UnDefType.UNDEF);
-        }
+        updateState(currentEnergyConsumptionChannelUID, UnDefType.NULL);
     }
 
     protected void processCommand(AsyncCommandParams params) throws LGThinqApiException {
@@ -436,9 +429,6 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
                         ACTargetTmp.statusOf(targetTemp));
                 break;
             }
-            case CHANNEL_EXTENDED_INFO_COLLECTOR_ID: {
-                break;
-            }
             default: {
                 logger.warn("Command {} to the channel {} not supported. Ignored.", command, params.channelUID);
             }
@@ -454,11 +444,6 @@ public class LGThinQAirConditionerHandler extends LGThinQAbstractDeviceHandler<A
             logger.warn("Can't get capabilities of the device: {}", getDeviceId());
         }
         return false;
-    }
-
-    @Override
-    protected boolean isExtraInfoCollectorEnabled() {
-        return OnOffType.ON.toString().equals(getItemLinkedValue(extendedInfoCollectorChannelUID));
     }
 
     @Override

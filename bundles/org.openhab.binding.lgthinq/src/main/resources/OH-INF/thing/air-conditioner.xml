@@ -39,21 +39,19 @@
 				</description>
 				<default>10</default>
 			</parameter>
-			<parameter name="pollingExtraInfoPeriodSeconds" type="integer" min="10" required="true"
-				groupName="Settings">
-				<label>Polling Info Period</label>
+			<parameter name="pollingExtraInfoPeriodPowerOnSeconds" type="integer" required="true" groupName="Settings">
+				<label>Polling Extra Info Period when On (0 disabled)</label>
 				<description>Seconds to wait to the next polling for Device's Extra Info (energy consumption,
-					remaining filter, etc)
+					remaining filter, etc) when device is on
 				</description>
 				<default>60</default>
 			</parameter>
-			<parameter name="pollExtraInfoOnPowerOff" type="boolean" required="true" groupName="Settings">
-				<label>Extra Info</label>
-				<description>If enables, extra info will be fetched even when the device is powered off.
-					It's not so common, since
-					extra info are normally changed only when the device is running.
+			<parameter name="pollingExtraInfoPeriodPowerOffSeconds" type="integer" required="true" groupName="Settings">
+				<label>Polling Extra Info Period when Off (0 disabled)</label>
+				<description>Seconds to wait to the next polling for Device's Extra Info (energy consumption,
+					remaining filter, etc) when device is off
 				</description>
-				<default>false</default>
+				<default>0</default>
 			</parameter>
 		</config-description>
 	</thing-type>
